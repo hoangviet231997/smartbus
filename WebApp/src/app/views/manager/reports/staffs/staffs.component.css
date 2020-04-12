@@ -1,0 +1,7 @@
+.form-layout-1 {
+    border: none;
+}
+.tbl-print.table, .tbl-print.table tr th, .tbl-print.table tr td {
+    border: 1px solid black !important;
+    border-collapse: collapse !important;
+}

@@ -1,0 +1,59 @@
+.form-layout-1 {
+    border: none;
+}
+
+.open > .dropdown-menu {
+    display: block;
+}
+
+.btn-default {
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.btn-default:hover, .btn-defaultt:focus {
+    color: #333;
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}
+
+.btn-default:not([disabled]):not(.disabled):active, .btn-default:not([disabled]):not(.disabled).active, .show > .btn-default.dropdown-toggle {
+    color: #333;
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}
+.cus-width {
+    min-width: 500px;
+}
+.purple {
+    background-color: purple;
+  }
+.tx-color{
+    color: #e07b48;
+}
+
+.btn-width{
+    width: 40px;
+    margin-right: 5px;
+}
+
+.item-custom{
+    border-radius: 5px !important;
+    border: 0px solid rgba(0,0,0,0.25);
+    height: 130px;
+    box-shadow: 0px 11px 15px 0px rgba(0,0,0,0.25);
+    background-color: rgba(195, 195, 195, 0.15);
+    padding: 5px;
+}
+
+.text-custom{
+  margin-top: 14px;
+  color: #777070;
+}
+
+.btn-custom{
+  color: #fff;
+  background-color: #d8626d;
+  border-color: #d8626d;
+}

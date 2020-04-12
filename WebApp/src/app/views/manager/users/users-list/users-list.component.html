@@ -1,0 +1,292 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- manager list user -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-6 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="icon ion-person-stalker" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'LBL_LIST_USR' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-6 tx-right">
+                <button (click)="showAddUserModal()" *ngIf="(permissions['user'].key_tools != null && permissions['user'].key_tools.includes('edit'))" class="btn btn-teal mg-b-20 pd-r-20" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_ADD_USR' | translate }}">
+                <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_USR' | translate }}
+                </button>
+            </div>
+
+        </div>
+        <div class="row">
+            <!-- <div class="offset-md-4 col-md-4">
+                <div class="input-group mg-b-20">
+                    <input class="form-control py-2 border-right-0 border" (ngModelChange)="getDataUserByInputName()" type="search" value="search" id="example-search-input"  [(ngModel)]="inputUserName" placeholder="{{'SEARCH_FULLNAME_USER' | translate}}">
+                    <span class="input-group-append">
+                        <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                    </span>
+                </div>
+            </div> -->
+            <table class="table mg-b-0">
+                <tr>
+                    <td style="width:30%">
+                        <select class="form-control py-2 border-right-0 border" [(ngModel)]="style_search">
+                            <option value="">---- {{ 'LBL_SEARCH_BY_USR' | translate }} ----</option>
+                            <option value="pincode">{{ 'LBL_USR_VALUE_PIN_CODE' | translate }}</option>
+                            <option value="name">{{ 'LBL_USR_VALUE_NAME' | translate }}</option>
+                            <option value="phone">{{ 'LBL_USR_VALUE_PHONE' | translate }}</option>
+                            <option value="role">{{ 'LBL_ROLE_USR' | translate }}</option>
+                        </select>
+                    </td>
+                    <td *ngIf="style_search !== 'role'" style="width:70%">
+                        <div class="input-group">
+                            <input class="form-control py-2 border-right-0 border"  [(ngModel)]="key_input" (ngModelChange)="getDataUserByInputName()" type="search" id="example-search-input" placeholder="Tìm kiếm...">
+                            <span class="input-group-append">
+                                <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                            </span>
+                        </div>
+                    </td>
+                    <td *ngIf="style_search === 'role'" style="width:70%">
+                        <div class="input-group">
+                            <select class="form-control py-2 border-right-0 border" name="" id="role_id" [(ngModel)]="key_input" (ngModelChange)="getDataUserByInputName()">
+                                <option value="">---- {{ 'LBL_SEARCH_BY_ROLE' | translate }} ----</option>
+                                <option *ngFor="let role of roleItems" value="{{role.id}}">{{ 'LBL_RCT_' + role.name | translate }}</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div  class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th>{{ 'TABLE_STT' | translate }}</th>
+                        <th>{{ 'LBL_NAME_USR' | translate }}</th>
+                        <th>{{ 'LBL_USN_USR' | translate }}</th>
+                        <th>{{ 'LBL_ROLE_USR' | translate }}</th>
+                        <th>{{ 'TABLE_BIRTHDAY' | translate }}</th>
+                        <th>{{ 'TABLE_ADDRESS' | translate }}</th>
+                        <th>{{ 'TABLE_PHONE' | translate }}</th>
+                        <th>{{ 'TABLE_EMAIL' | translate }}</th>
+                        <th>{{ 'TABLE_PIN' | translate }}</th>
+                        <th class="tx-center" *ngIf="(permissions['user'].key_tools != null && permissions['user'].key_tools.includes('edit'))">{{ 'TABLE_ACT' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let user of users ; let i = index">
+                        <th class="tx-center" scope="row">{{((this.currentPage - 1) * this.limitPage) + (i + 1)}}</th>
+                        <td>{{ user.fullname }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ 'LBL_RCT_' + user.role_name | translate }}</td>
+                        <td>{{ user.birthday | date: 'dd/MM/yyyy'}}</td>
+                        <td>{{ user.address}}</td>
+                        <td>{{ user.phone}}</td>
+                        <td>{{ user.email}}</td>
+                        <td class="tx-right">{{ user.pin_code }}</td>
+                        <td class="tx-18 tx-center" *ngIf="(permissions['user'].key_tools != null && permissions['user'].key_tools.includes('edit'))">
+                            <a href="javascript:void(0)" class="btn btn-primary btn-width" (click)="showEditUserModal(user.id, user.role.id, user.role.display_name)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_EDIT_USR' | translate }}">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </a>
+                            <a *ngIf="user_down !== null" href="javascript:void(0)" class="btn btn-danger btn-width" (click)="deleteUser(user.id, user.role.name)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_DEL_USR' | translate }}">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                            <a *ngIf="user.disable === 0" href="javascript:void(0)" class="btn btn-warning btn-width" (click)="disableUser(user.id, user.role.name, user.disable)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_DESABLE_USR' | translate }}">
+                                <i class="fa fa-ban" aria-hidden="true"></i>
+                            </a>
+                            <a *ngIf="user.disable === 1"href="javascript:void(0)" class="btn btn-success btn-width" (click)="disableUser(user.id, user.role.name, user.disable)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_ENABLE_USR' | translate }}">
+                                <i class="fa fa-undo" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- page -->
+        <div *ngIf="this.key_input === ''">
+            <div class="row" *ngIf="paginationTotal > 0">
+                <div class="d-flex align-items-center justify-content-center col-md-12">
+                    <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
+                        [totalItems]="paginationTotal" [itemsPerPage]="limitPage" [maxSize]="7" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+                </div>
+            </div>
+        </div>
+        <!-- end page -->
+    </div>
+    <footer class="br-footer"></footer>
+</div>
+<!-- end manager list user -->
+
+<!-- manager add user -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_ADD_USR' | translate }}</h6>
+                <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_ROLE_USR' | translate }}:  <span class="tx-danger">*</span></label>
+                            <select [(ngModel)]="userCreate.role_id" id="routeId" class="form-control">
+                                <option *ngFor="let role of roleItems" value="{{role.id}}">{{ 'LBL_RCT_' + role.name | translate }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_USN_USR' | translate }}:  <span class="tx-danger">*</span></label>
+                            <input type="text" class="form-control" [(ngModel)]="userCreate.username" maxlength="150" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_PWD_USR' | translate }}:  <span class="tx-danger">*</span></label>
+                            <input type="password" class="form-control" [(ngModel)]="userCreate.password" maxlength="255" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'SHARE_CONFIRM_PASS' | translate }}:  <span class="tx-danger">*</span></label>
+                            <input type="password" class="form-control" [(ngModel)]="userCreate.confirm_password" maxlength="255" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_NAME_USR' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="userCreate.fullname" maxlength="100">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_BIRTHDAY' | translate }}</label>
+                            <input type="date" class="form-control" [(ngModel)]="userCreate.birthday" maxlength="100">
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_ADDRESS' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="userCreate.address" maxlength="100">
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_EMAIL' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="userCreate.email" maxlength="255">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_NUM_PHONE_USR' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="userCreate.phone" maxlength="11" minlength="10">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6" >
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_RFID_USR' | translate }}</label>
+                            <input type="text"  class="form-control" [(ngModel)]="userCreate.rfid" maxlength="30">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button (click)="addUser()" [ladda]="isCreated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_ADD' | translate }}</button>
+                <button (click)="addModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end manager add user -->
+
+<!-- manager edit user -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_EDIT_USR' | translate }}</h6>
+                <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_ROLE_USR' | translate }}: <span class="tx-danger">*</span></label>
+                            <select [(ngModel)]="userUpdate.role_id" id="routeId" class="form-control">
+                                <option *ngFor="let role of roleItems" value="{{role.id}}">{{ 'LBL_RCT_' + role.name | translate }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_NAME_USR' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="userUpdate.fullname" maxlength="100">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_BIRTHDAY' | translate }}</label>
+                            <input type="date" class="form-control" [(ngModel)]="userUpdate.birthday" maxlength="100">
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_ADDRESS' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="userUpdate.address" maxlength="100">
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_EMAIL' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="userUpdate.email" maxlength="255">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_NUM_PHONE_USR' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="userUpdate.phone" maxlength="11" minlength="10">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_RFID_USR' | translate }}</label>
+                            <input type="text" *ngIf="user_down !== null" class="form-control" [(ngModel)]="userUpdate.rfid" maxlength="30">
+                            <input type="text" *ngIf="user_down === null" class="form-control" [(ngModel)]="userUpdate.rfid" maxlength="30" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button (click)="editUser()" [ladda]="isUpdated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+                <button (click)="editModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end manager edit user -->

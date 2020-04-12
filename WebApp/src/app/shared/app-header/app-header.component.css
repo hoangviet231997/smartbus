@@ -1,0 +1,73 @@
+.form-layout-1 {
+    border: none;
+}
+
+.sharelist_link {
+    cursor: pointer;
+}
+
+.notification {
+  /* background-color: rgb(250, 250, 250); */
+  color: white;
+  text-decoration: none;
+  /* padding: 15px 26px; */
+  position: relative;
+  display: inline-block;
+  border-radius: 2px;
+}
+
+.notification .badge {
+  position: absolute;
+  top: -2px;
+  right: 2px;
+  padding: 5px 10px;
+  border-radius: 50%;
+  background: red;
+  color: white;
+}
+
+.scroll{
+  height: 361px;
+  overflow: auto;
+}
+
+.scrollbar-indigo::-webkit-scrollbar-track {
+-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+background-color: #F5F5F5;
+border-radius: 10px; }
+
+.scrollbar-indigo::-webkit-scrollbar {
+width: 12px;
+background-color: #F5F5F5; }
+
+.scrollbar-indigo::-webkit-scrollbar-thumb {
+border-radius: 10px;
+-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+background-color: #cad2d8; }
+
+.scrollbar-indigo {
+scrollbar-color: #cad2d8 #F5F5F5;
+}
+
+.thin::-webkit-scrollbar {
+width: 6px; }
+
+.count-notifies{
+  background-color: red;
+  border-radius: 24%;
+  border: 1px solid;
+  color: white;
+  position: absolute;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 0px 3px;
+  right: 2px;
+}
+
+.media-list-link:hover {
+  background: #e9ecef !important;
+}
+
+.navicon-right a {
+  color: black;
+}

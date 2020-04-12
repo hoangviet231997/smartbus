@@ -1,0 +1,326 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-12 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-print" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'MENU_CARDS' | translate }}</span>
+                </h2>
+            </div>
+        </div>
+
+        <div class="form-layout form-layout-1 pd-x-0">
+            <div class="row mg-b-10">
+                <div class="col-lg-4 col-md-3"></div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="chooseDate"
+                                [bsValue]="currentTime"
+                                [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                                [(ngModel)]="dateDefault"
+                                (ngModelChange)="searchCard()"
+                                [maxDate]="maxDate"
+                                #dp="bsDaterangepicker"
+                                bsDaterangepicker>
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="dp.toggle()" type="button">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-layout-footer tx-center" *ngIf="(permissions['report_card_prepaid'].key_tools != null && permissions['report_card_prepaid'].key_tools.includes('view_advanced'))">
+            <button class="btn btn-dark mg-b-20 pd-r-20" (click)="showPrintPreview()">
+                <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+            </button>
+            &nbsp;
+            <button (click)="exportFile()" class="btn btn-teal mg-b-20 pd-r-20" [ladda]="isExport">
+                <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+            </button>
+        </div>
+
+
+        <div class="mg-t-30 mg-b-20" *ngIf="membershipCards.length > 0">
+            <table  class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th>{{ 'LBL_REPOSRT_CARD_RFID' | translate }}</th>
+                        <th>{{ 'LBL_REPOSRT_CARD_BARCODE' | translate }}</th>
+                        <th>{{ 'LBL_REPOSRT_CARD_MBS_TYPE' | translate }}</th>
+                        <th>{{ 'LBL_REPOSRT_CARD_FULLNAME' | translate }}</th>
+                        <th>{{ 'LBL_REPOSRT_CARD_PHONE' | translate }}</th>
+                        <th>{{ 'LBL_REPOSRT_CARD_BALANCE_BEFORE'| translate }} </th>
+                        <th>{{ 'LBL_REPOSRT_CARD_DEPOSIT_AMOUNT_IN' | translate }}</th>
+                        <th>{{ 'LBL_REPOSRT_CARD_CHARGE_AMOUNT_IN' | translate }} </th>
+                        <th>{{ 'LBL_REPOSRT_CARD_BALANCE_END' | translate }}</th>
+                        <th>{{ 'LBL_REPOSRT_CARD_BALANCE' | translate}}</th>
+                        <!-- <th></th> -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let card of membershipCards; let i = index">
+                        <td>{{ card.rfid }}</td>
+                        <td>{{ card.barcode }}</td>
+                        <td>{{ card.membership_type }}</td>
+                        <td>{{ card.fullname }}</td>
+                        <td>{{ card.phone }}</td>
+                        <td class="tx-right">{{ card.total_balance_before | currency:'VND':'' }}</td>
+                        <td class="tx-right">{{ card.total_deposit_in | currency:'VND':'' }}</td>
+                        <td class="tx-right">{{ card.total_charge_in | currency:'VND':'' }}</td>
+                        <td class="tx-right">{{ card.total_balance_end | currency:'VND':'' }}</td>
+                        <td class="tx-right">{{ card.balance | currency:'VND':'' }}</td>
+                        <!-- <td class="tx-center">
+                            <button (click)="showDetailMembershipModal(card.rfid)" class="btn-sm btn btn-info">
+                                <i class="fa fa-eye pd-r-5"></i> {{ 'LBL_RCT_VIEW_DETAIL' | translate }}
+                            </button>
+                        </td> -->
+                    </tr>
+                    <tr>
+                        <td colspan="5" class="tx-center tx-bold">{{'TABLE_CARDRFID_DEPOSIT_TOTAL' | translate}}</td>
+                        <td class="tx-right tx-bold">{{totalMemberships['total_balance_before'] | currency:'VND':''}}</td>
+                        <td class="tx-right tx-bold">{{totalMemberships['total_deposit_in'] | currency:'VND':''}}</td>
+                        <td class="tx-right tx-bold">{{totalMemberships['total_charge_in'] | currency:'VND':''}}</td>
+                        <td class="tx-right tx-bold">{{totalMemberships['total_balance_end'] | currency:'VND':''}}</td>
+                        <td class="tx-right tx-bold">{{totalMemberships['total_balance'] | currency:'VND':''}}</td>
+                        <!-- <td></td> -->
+                    </tr>
+                    <!-- <tr>
+                        <td colspan="7" class="tx-right tx-bold tx-16">{{ 'LBL_RCT_TTL' | translate }}</td>
+                        <td colspan="2" class="tx-left">
+                            <div class="tx-15"> <strong> {{ checkedTotalPrice | currency:'VND':'' }} </strong></div>
+                        </td>
+                    </tr> -->
+                </tbody>
+
+            </table>
+        </div>
+
+        <div class="mg-t-30 mg-b-20" *ngIf="isLoading">
+            <div *ngIf="membershipCards.length == 0"class="alert alert-warning mg-b-0" role="alert">
+                <div class="d-flex align-items-center justify-content-start">
+                    <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- show detail card -->
+<!-- <div bsModal #detailMembershipModel="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RFID_DETAIL' | translate }}</h6>
+                <button (click)="detailMembershipModel.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="bd rounded table-responsive">
+                    <ngb-tabset>
+                        <ngb-tab title="{{ 'LBL_MEM_CARD_DETAIL_CHARGE' | translate }}">
+                            <ng-template ngbTabContent>
+                                <table class="table table-bordered table-hover table-striped mg-b-0">
+                                    <thead class="thead-colored thead-primary">
+                                        <tr>
+                                            <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_STATION' | translate }}</th>
+                                            <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_SELER' | translate }}</th>
+                                            <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_DATE_SELE' | translate }}</th>
+                                            <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_AMOUNT' | translate }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let membershipsCharge of membershipsCharges; let i = index">
+                                            <td>{{membershipsCharge.bus_stations_name}}</td>
+                                            <td>{{membershipsCharge.user_fullname}}</td>
+                                            <td>{{membershipsCharge.created_at | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+                                            <td class="tx-right" >{{ membershipsCharge.amount | currency:'VND':'' }}</td>
+                                        </tr>
+                                        <tr>
+                                                <td class="tx-center" colspan="3">
+                                                    <strong>{{ 'TABLE_MEMBER_DETAIL_TOTAL' | translate }}</strong>
+                                                </td>
+                                                <td class="tx-right" >
+                                                    <strong>
+                                                        {{membershipsChargetotal | currency:'VND':''}}
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                    </tbody>
+                                </table>
+                            </ng-template>
+                        </ngb-tab>
+                        <ngb-tab  title="{{ 'LBL_MEM_CARD_DETAIL_DEPOSIT' | translate }}">
+                            <ng-template ngbTabContent>
+                                <table class="table table-bordered table-hover table-striped mg-b-0">
+                                    <thead class="thead-colored thead-primary">
+                                        <tr>
+                                            <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_STATION' | translate }}</th>
+                                            <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_PERSON' | translate }}</th>
+                                            <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_DATE_SELE' | translate }}</th>
+                                            <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_AMOUNT_RECHARGE' | translate }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let membershipsDeposit of membershipsDeposits; let i = index">
+                                            <td>{{membershipsDeposit.bus_stations_name}}</td>
+                                            <td>{{membershipsDeposit.user_fullname}}</td>
+                                            <td>{{membershipsDeposit.created_at | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+                                            <td class="tx-right" >{{membershipsDeposit.amount | currency:'VND':''}}</td>
+                                        </tr>
+                                        <tr>
+                                                <td class="tx-center" colspan="3">
+                                                    <strong>{{ 'TABLE_MEMBER_DETAIL_TOTAL' | translate }}</strong>
+                                                </td>
+                                                <td class="tx-right" >
+                                                    <strong>
+                                                        {{membershipsDepositTotal | currency:'VND':''}}
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                    </tbody>
+                                </table>
+                            </ng-template>
+                        </ngb-tab>
+                    </ngb-tabset>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="detailMembershipModel.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'LBL_RCT_CLOSE' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div> -->
+<!-- end show detail card -->
+
+
+
+<!-- print rp card revenue -->
+<div id="print-section" class="d-none" *ngIf="company">
+    <table style="width:100%">
+        <tr>
+            <td class="tx-center w-10 pt-0">
+                <div class="tx-11"> <strong > {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+            </td>
+            <td class="tx-center w-10">
+                <div class="tx-11">
+                    <strong > {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                    ({{ 'LBL_PRINT_BH' | translate }} <br />
+                    {{ 'LBL_PRINT_BTC' | translate }})
+                </div>
+            </td>
+        </tr>
+        <tr><td colspan="2">&nbsp;</td></tr>
+        <tr>
+            <td colspan="2" style="width:21cm;">
+                <div class="tx-center">
+                    <strong class="tx-12" style="text-transform: uppercase"> {{ 'MENU_CARDS' | translate }}</strong><br>
+                    <i class="tx-10">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }} {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i><br>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="tx-center w-10 pt-0"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table *ngIf="membershipCards.length > 0" class="tbl-print" border="1" style="border-collapse: collapse; width:100%">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th>{{ 'LBL_REPOSRT_CARD_RFID' | translate }}</th>
+                            <th>{{ 'LBL_REPOSRT_CARD_BARCODE' | translate }}</th>
+                            <th>{{ 'LBL_REPOSRT_CARD_MBS_TYPE' | translate }}</th>
+                            <th>{{ 'LBL_REPOSRT_CARD_FULLNAME' | translate }}</th>
+                            <th>{{ 'LBL_REPOSRT_CARD_PHONE' | translate }}</th>
+                            <th>{{ 'LBL_REPOSRT_CARD_BALANCE_BEFORE'| translate }} </th>
+                            <th>{{ 'LBL_REPOSRT_CARD_DEPOSIT_AMOUNT_IN' | translate }}</th>
+                            <th>{{ 'LBL_REPOSRT_CARD_CHARGE_AMOUNT_IN' | translate }} </th>
+                            <th>{{ 'LBL_REPOSRT_CARD_BALANCE_END' | translate }}</th>
+                            <th>{{ 'LBL_REPOSRT_CARD_BALANCE' | translate}}</th>
+                            <!-- <th></th> -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let card of membershipCards; let i = index">
+                            <td>{{ card.rfid }}</td>
+                            <td>{{ card.barcode }}</td>
+                            <td>{{ card.membership_type }}</td>
+                            <td>{{ card.fullname }}</td>
+                            <td>{{ card.phone }}</td>
+                            <td class="tx-right">{{ card.total_balance_before | currency:'VND':'' }}</td>
+                            <td class="tx-right">{{ card.total_deposit_in | currency:'VND':'' }}</td>
+                            <td class="tx-right">{{ card.total_charge_in | currency:'VND':'' }}</td>
+                            <td class="tx-right">{{ card.total_balance_end | currency:'VND':'' }}</td>
+                            <td class="tx-right">{{ card.balance | currency:'VND':'' }}</td>
+                            <!-- <td class="tx-center">
+                                <button (click)="showDetailMembershipModal(card.rfid)" class="btn-sm btn btn-info">
+                                    <i class="fa fa-eye pd-r-5"></i> {{ 'LBL_RCT_VIEW_DETAIL' | translate }}
+                                </button>
+                            </td> -->
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="tx-center tx-bold">{{'TABLE_CARDRFID_DEPOSIT_TOTAL' | translate}}</td>
+                            <td class="tx-right tx-bold">{{totalMemberships['total_balance_before'] | currency:'VND':''}}</td>
+                            <td class="tx-right tx-bold">{{totalMemberships['total_deposit_in'] | currency:'VND':''}}</td>
+                            <td class="tx-right tx-bold">{{totalMemberships['total_charge_in'] | currency:'VND':''}}</td>
+                            <td class="tx-right tx-bold">{{totalMemberships['total_balance_end'] | currency:'VND':''}}</td>
+                            <td class="tx-right tx-bold">{{totalMemberships['total_balance'] | currency:'VND':''}}</td>
+                            <!-- <td></td> -->
+                        </tr>
+                        <!-- <tr>
+                            <td colspan="7" class="tx-right tx-bold tx-16">{{ 'LBL_RCT_TTL' | translate }}</td>
+                            <td colspan="2" class="tx-left">
+                                <div class="tx-15"> <strong> {{ checkedTotalPrice | currency:'VND':'' }} </strong></div>
+                            </td>
+                        </tr> -->
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} .... {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table  class="table-striped"  style="width:100%">
+                    <tbody>
+                        <tr>
+                            <td colspan="3" class="tx-center fl" >
+                                <strong style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_NLB' | translate }}
+                                </strong>
+                                <br>
+                                <i class="tx-11">({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                            </td>
+                            <td colspan="3" class="tx-center fr" >
+                                <strong style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_TBDH' | translate }}
+                                </strong>
+                                <br>
+                                <i class="tx-11">({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- end print rp card revenue -->

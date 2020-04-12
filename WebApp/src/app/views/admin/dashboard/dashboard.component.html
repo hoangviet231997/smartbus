@@ -1,0 +1,88 @@
+<div class="br-pagebody mg-t-5 pd-30">
+  <div class="row row-sm">
+    <div class="col-sm-6 col-xl-3">
+      <div class="bg-teal rounded overflow-hidden">
+        <div class="pd-25 d-flex align-items-center">
+          <i class="ion ion-briefcase tx-60 lh-0 tx-white op-7"></i>
+          <div class="mg-l-20">
+            <p class="tx-10 tx-spacing-1 tx-mont tx-medium tx-uppercase tx-white-8 mg-b-10">{{ 'LBL_DB_COM' | translate }}</p>
+            <p class="tx-24 tx-white tx-lato tx-bold mg-b-2 lh-1">{{countCompany}}</p>
+          </div>
+        </div>
+      </div>
+    </div><!-- col-3 -->
+    <div class="col-sm-6 col-xl-3 mg-t-20 mg-sm-t-0">
+      <div class="bg-danger rounded overflow-hidden">
+        <div class="pd-25 d-flex align-items-center">
+          <i class="ion ion-person-stalker tx-60 lh-0 tx-white op-7"></i>
+          <div class="mg-l-20">
+            <p class="tx-10 tx-spacing-1 tx-mont tx-medium tx-uppercase tx-white-8 mg-b-10">{{ 'LBL_DB_USR' | translate }}</p>
+            <p class="tx-24 tx-white tx-lato tx-bold mg-b-2 lh-1">{{countUser}}</p>
+          </div>
+        </div>
+      </div>
+    </div><!-- col-3 -->
+    <div class="col-sm-6 col-xl-3 mg-t-20 mg-xl-t-0">
+      <div class="bg-primary rounded overflow-hidden">
+        <div class="pd-25 d-flex align-items-center">
+          <i class="ion-iphone tx-60 lh-0 tx-white op-7"></i>
+          <div class="mg-l-20">
+            <p class="tx-10 tx-spacing-1 tx-mont tx-medium tx-uppercase tx-white-8 mg-b-10">{{ 'LBL_DB_DEV' | translate }}</p>
+            <p class="tx-24 tx-white tx-lato tx-bold mg-b-2 lh-1">{{ countDevice }}</p>
+          </div>
+        </div>
+      </div>
+    </div><!-- col-3 -->
+    <div class="col-sm-6 col-xl-3 mg-t-20 mg-xl-t-0">
+      <div class="bg-br-primary rounded overflow-hidden">
+        <div class="pd-25 d-flex align-items-center">
+          <i class="ion ion-android-bus tx-60 lh-0 tx-white op-7"></i>
+          <div class="mg-l-20">
+            <p class="tx-10 tx-spacing-1 tx-mont tx-medium tx-uppercase tx-white-8 mg-b-10">{{ 'LBL_DB_VHC' | translate }}</p>
+            <p class="tx-24 tx-white tx-lato tx-bold mg-b-2 lh-1">{{countVehicle}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="br-section mg-t-30">
+    <agm-map class="ht-700 wd-100p"
+    [latitude]="lat"
+    [longitude]="lng"
+    [zoom]="zoom"
+    [fitBounds]="true"
+    [disableDefaultUI]="false"
+    [zoomControl]="false">
+      <agm-marker
+          *ngFor="let device of devices; let i = index"
+          [latitude]="device.position ? device.position['coordinates'][1] : lat"
+          [longitude]="device.position ? device.position['coordinates'][0] : lng"
+          [label]=""
+          [markerDraggable]=""
+          [agmFitBounds]="true"
+          (markerClick)="clickedMarker(infoWindow)"
+          iconUrl="assets/img/bus.png">
+        <agm-info-window   [disableAutoPan]="true" #infoWindow>
+          <table>
+            <tr>
+              <td>{{ 'LBL_APP_COMPANY_NAME' | translate }}: </td>
+              <td *ngIf="device.company"><strong>{{device.company.fullname}}</strong></td>
+              <td *ngIf="!device.company"><strong>DFM-Engineering Software Company</strong></td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_APP_COMPANY_ADDRESS' | translate }}: </td>
+              <td *ngIf="device.company"><strong>{{device.company.address}}</strong></td>
+              <td *ngIf="!device.company"><strong>Helios Building, Quang Trung Software City, To Ky Street, Quận 12, Hồ Chí Minh</strong></td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_NUM_PHONE_USR' | translate }}: </td>
+              <td *ngIf="device.company"><strong>{{device.company.phone}}</strong></td>
+              <td *ngIf="!device.company"><strong>0304728538</strong></td>
+            </tr>
+          </table>
+        </agm-info-window>
+      </agm-marker>
+    </agm-map>
+  </div>
+</div>

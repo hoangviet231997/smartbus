@@ -1,0 +1,174 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+    <div class="row">
+        <div class="col-md-8 tx-left">
+            <h2 class="tx-gray-800 tx-bold mg-b-10">
+              <i class="fa fa-credit-card" aria-hidden="true"></i>
+              <span class="menu-item-label">{{'MENU_RFID_CARD' | translate}}</span>
+            </h2>
+        </div>
+        <!-- <div class="col-md-4 tx-right">
+          <button  class="btn btn-teal mg-b-20 pd-r-20" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_ADD_PER' | translate }}">
+              <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_CARD' | translate }}
+          </button>
+        </div> -->
+        <div class="col-md-12">
+            <div class="input-group mg-b-20">
+                <input class="form-control py-2 border-right-0 border" (ngModelChange)="getDataRfidCardByInputRfid()" type="search" value="search" id="example-search-input"  [(ngModel)]="input_rfid" placeholder="Tìm kiếm...">
+                <span class="input-group-append">
+                    <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive"> 
+      <table class="table table-bordered table-hover table-striped">
+          <thead class="thead-colored thead-primary">
+              <tr>
+                  <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                  <th class="tx-center">{{ 'TABLE_CARDRFID' | translate }}</th>
+                  <th class="tx-center">{{ 'TABLE_CARD_BARCODE' | translate }}</th>
+                  <th class="tx-center">{{ 'TABLE_CARD_TYPE' | translate }}</th>
+                  <th class="tx-center">{{ 'TABLE_CARD_COMPANY' | translate }}</th>
+                  <th class="tx-center">{{ 'TABLE_CARD_NAME' | translate }}</th>
+                  <th class="tx-center">{{ 'TABLE_CARD_PHONE' | translate }}</th>
+                  <th class="tx-center">{{ 'TABLE_CARD_BALANCE' | translate }}</th>
+                  <th class="tx-center">{{ 'TABLE_CARD_CREATE' | translate }}</th>
+                  <th> </th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr *ngFor="let rfidcard of rfid_cards; let i = index">
+                <th class="tx-right" scope="row">{{((this.currentPage - 1) * this.limitPage) + (i + 1)}}</th>
+                  <td>{{ rfidcard.rfidcard}}</td>
+                  <td>{{ rfidcard.barcode}}</td>
+                  <td>{{ rfidcard.usage_type}}</td>
+                  <td>{{ rfidcard.company_name}}</td>
+                  <td>{{ rfidcard.name}}</td>
+                  <td>{{ rfidcard.phone}}</td>
+                  <td>{{ rfidcard.balance | currency:'VND':'' }}</td>
+                  <td>{{rfidcard.created_at}}</td>
+                  <td class="tx-center">
+                    <a href="javascript:void(0)" class="btn btn-dark btn-width" (click)="showPrintAllCard(rfidcard)"  data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_CARD_PRINT' | translate }}">
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </a>
+                    <a href="javascript:void(0)" class="btn btn-primary btn-width" (click)="showPrintPictureQrcodeCard(rfidcard)"  data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_CARD_PRINT_PICTURE' | translate }}">
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </a>
+                    <a href="javascript:void(0)" class="btn btn-teal btn-width" (click)="showPrintBarcodeCard(rfidcard)"  data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_CARD_PRINT_QRCODE' | translate }}">
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </a>
+                  </td>
+                  <!-- <td class="tx-center">
+                    <a href="javascript:void(0)" class="btn btn-success" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_SIGN_COM_DEV' | translate }}">
+                        <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                    &nbsp;
+                    <a href="javascript:void(0)" class="btn btn-primary"  data-toggle="tooltip" data-placement="top" title="{{ 'FORM_EDIT' | translate }}">
+                      <i class="fa fa-pencil" aria-hidden="true"></i>
+                    </a>
+                    &nbsp;
+                    <a href="javascript:void(0)" class="btn btn-danger"  data-toggle="tooltip" data-placement="top" title="{{ 'FORM_DEL' | translate }}">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </a>
+                  </td> -->
+              </tr>
+          </tbody>
+      </table>
+    </div>
+    <div *ngIf="this.input_rfid === ''">
+        <div class="row" *ngIf="paginationTotal > 0">
+            <div class="d-flex align-items-center justify-content-center col-md-12">
+                <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;" 
+                    [totalItems]="paginationTotal" [maxSize]="7" [itemsPerPage]="limitPage" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+            </div>
+        </div>   
+    </div>
+  </div>
+</div>
+
+ <!-- print all -->
+ <div id="print-section" class="d-none">
+    <div style="width:100%; height: auto;">
+        <table>
+            <tbody> 
+                <tr><div style="height:24.5px">&nbsp;</div></tr>
+                <tr>
+                    <td><div style="width: 17.5px">&nbsp;</div></td>
+                    <td>
+                        <qrcode [qrdata]="qrcode" [size]="82" [level]="'L'"></qrcode>
+                    </td>
+                </tr> 
+            </tbody>
+        </table> 
+        <table>
+            <tbody> 
+                <tr><div style="height:4px">&nbsp;</div></tr>
+            </tbody>
+        </table>  
+        <table>
+            <tbody> 
+                <tr> 
+                    <td><div style="width: 12px"></div></td>
+                    <td>
+                        <div class="seri-card">
+                            <span>{{ qrcode }} </span>
+                        </div>
+                    </td>
+                </tr> 
+            </tbody>
+        </table>  
+    </div>
+</div>        
+
+<!-- print picture qrcode -->
+<div id="print-section-picture" class="d-none">
+    <div style="width:100%; height: auto;">
+        <table>
+            <tbody> 
+                <tr><div style="height:24.5px">&nbsp;</div></tr>
+                <tr>
+                    <td><div style="width: 17.5px">&nbsp;</div></td>
+                    <td>
+                        <qrcode [qrdata]="qrcode" [size]="82" [level]="'L'"></qrcode>
+                    </td>
+                </tr> 
+            </tbody>
+        </table> 
+    </div>
+</div>
+
+ <!-- print barcode -->
+ <div id="print-section-barcode" class="d-none">
+    <div style="width:100%; height: auto;">
+        <table>
+            <tbody> 
+                <tr><div style="height:24.5px">&nbsp;</div></tr>
+                <tr >
+                    <div style="height:85px">&nbsp;</div>
+                </tr> 
+            </tbody>
+        </table> 
+        <table>
+            <tbody> 
+                <tr><div style="height:4px">&nbsp;</div></tr>
+            </tbody>
+        </table>  
+        <table>
+            <tbody> 
+                <tr> 
+                    <td><div style="width: 12px"></div></td>
+                    <td>
+                        <div class="seri-card">
+                            <span>{{ qrcode }} </span>
+                        </div>
+                    </td>
+                </tr> 
+            </tbody>
+        </table>  
+    </div>
+</div>

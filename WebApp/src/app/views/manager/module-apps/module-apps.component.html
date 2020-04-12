@@ -1,0 +1,108 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table  module app -->
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+      <div class="row">
+          <div class="col-md-8 tx-left">
+            <h2 class="tx-gray-800 tx-bold mg-b-10">
+                <i class="ion-social-android" aria-hidden="true"></i>
+                <span class="menu-item-label">{{ 'LBL_MODULE_APP' | translate }}</span>
+            </h2>
+          </div>
+          <div class="col-md-4 tx-right"  *ngIf="user_down !== null">
+            <button class="btn btn-teal mg-b-20 pd-r-20" (click)="ShowModuleAppAddModal()" *ngIf="user_down !== null && permissions['module_app'].key_tools != null && permissions['module_app'].key_tools.includes('edit')">
+                <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_MODULE_APP' | translate }}
+            </button>
+          </div>
+      </div>
+      <div class="table-responsive">
+          <table class="table table-bordered table-hover table-striped">
+              <thead class="thead-colored thead-primary">
+                  <tr>
+                      <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_NAME' | translate }}</th>
+                      <th class="tx-center">{{ 'LBL_DESC_TYPE_TICK' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_CRE' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_UPD' | translate }}</th>
+                      <th *ngIf="user_down !== null && permissions['module_app'].key_tools != null && permissions['module_app'].key_tools.includes('edit')" class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr *ngFor="let module_companie of module_companies; let i = index">
+                      <th scope="row" class="tx-center">{{i + 1}}</th>
+                      <td>{{ module_companie.display_name }}</td>
+                      <td>{{ module_companie.description }}</td>
+                      <td class="tx-center">{{module_companie.created_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                      <td class="tx-center">{{module_companie.updated_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                      <td *ngIf="user_down !== null && permissions['module_app'].key_tools != null && permissions['module_app'].key_tools.includes('edit')" >
+                          <div class="tx-18 tx-center">
+                            <a href="javascript:void(0)" (click)="deleteModuleAppCompany(module_companie.id)" class="btn btn-danger"  data-toggle="tooltip" data-placement="top" title="{{ 'BTN_DEL_USR' | translate }}">
+                              <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                          </div>
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
+      </div>
+  </div>
+</div>
+<!-- end table  module app -->
+
+<!-- Modal add  module app -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+  <div class="modal-dialog " role="document">
+    <div class="modal-content bd-0 tx-14" style="width: 46em">
+      <div class="modal-header custom-modal-header pd-y-20 pd-x-25">
+          <h6 class="tx-14 mg-b-0 tx-uppercase tx-bold">{{ 'BTN_ADD_MODULE_APP' | translate }}</h6>
+          <button (click)="addModal.hide()" type="button" class="close btn-close-white" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body custom-modal-body pd-25">
+        <div class="form-layout">
+            <div class="row">
+                <div class="tx-center">
+                          <!-- <table class="list-group list-group-flush">
+                              <tbody>
+                                  <tr *ngFor="let module_app of module_apps">
+                                      <th class="tx-center">
+                                          <label class="ckbox">
+                                              <input [checked]="isCheckModule" type="checkbox" (change)="onModuleChange($event, module_app.id)">
+                                              <span></span>
+                                          </label>
+                                      </th>
+                                      <td class="tx-left">{{module_app.display_name}}</td>
+                                  </tr>
+                              </tbody>
+                          </table> -->
+                    <div class="col-lg-12">
+                      <div class="form-group">
+                          <div class="col-12 row mg-t-5 mg-l-0 mg-r-0 pd-l-0 pd-r-0" style="text-align: left">
+                              <div class="col-lg-6 col-md-4 mg-t-5" *ngFor="let module_app of module_apps">
+                                <th class="tx-center">
+                                    <label class="ckbox">
+                                        <input class="model-features" [checked]="isCheckModule" type="checkbox" (change)="onModuleChange($event, module_app.id)">
+                                        <span>&nbsp;</span>
+                                      </label>
+                                </th>
+                                <td class="tx-left">{{module_app.display_name}}</td>
+                              </div>
+                          </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer custom-modal-footer">
+              <button (click)="createModuleAppCompany()" type="button"  [ladda]="isCreated" class="btn btn-success tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_ADD' | translate }}</button>
+              <button (click)="addModal.hide()" type="button"  class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end Modal add module app -->

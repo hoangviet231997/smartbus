@@ -1,0 +1,62 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+  </div>
+  
+  <div class="br-pagebody">
+    <div class="row">
+      <div class="col-md-3"></div>
+      <div class="col-md-6">
+        <div class="card bd-0">
+          <div class="card-header tx-medium bd-0 tx-white bg-info">
+            <i class="fa fa-credit-card" aria-hidden="true"></i>
+            <span class="menu-item-label">{{ 'LBL_CRE_BLK_PRINT_CARD' | translate }}</span>
+          </div>
+          <div class="card-body bd bd-t-0 rounded-bottom-0">
+            <div class="col-lg-12 pd-t-10">
+              <div class="form-group">
+                <label class="form-control-label tx-bold">{{ 'LBL_RFID_USR' | translate }}: <span class="tx-danger">*</span></label>
+                <input type="text" class="form-control" [(ngModel)]="rfid" required>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer bd bd-t-0 tx-right">
+            <button (click)="addAndPrintRfidCard()" [ladda]="isCreated" class="btn btn-info mg-r-15 pd-r-20" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_ADD_CARD' | translate }}">
+              <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_CARD' | translate }}
+            </button>
+          </div>
+          <div id="print-section" class="d-none">
+              <div style="width:100%; height: auto;">
+                  <table>
+                      <tbody> 
+                          <tr><div style="height:24.5px">&nbsp;</div></tr>
+                          <tr>
+                              <td><div style="width: 17.5px">&nbsp;</div></td>
+                              <td>
+                                  <qrcode [qrdata]="qrcode" [size]="82" [level]="'L'"></qrcode>
+                              </td>
+                          </tr> 
+                      </tbody>
+                  </table> 
+                  <!-- <table>
+                      <tbody> 
+                          <tr><div style="height:4px">&nbsp;</div></tr>
+                      </tbody>
+                  </table>  
+                  <table>
+                      <tbody> 
+                          <tr> 
+                              <td><div style="width: 21px"></div></td>
+                              <td>
+                                  <div class="seri-card">
+                                      <span>{{ seriCard }} </span>
+                                  </div>
+                              </td>
+                          </tr> 
+                      </tbody>
+                  </table>   -->
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

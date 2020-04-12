@@ -1,0 +1,1274 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- manager staffs report -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper" style="padding: 60px 12px">
+        <div class="row">
+            <div class="col-md-12 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-print" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'MENU_STAFFS' | translate }}</span>
+                </h2>
+            </div>
+        </div>
+        <div class="form-layout form-layout-1 pd-x-0">
+            <div class="row mg-b-25">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                        <div class="input-group">
+                            <input class="form-control" #drp="bsDaterangepicker" bsDaterangepicker
+                                [(ngModel)]="bsRangeValue" [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                                [maxDate]="maxDate" (ngModelChange)="getDataStaff()">
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="drp.toggle()"
+                                    [attr.aria-expanded]="drp.isOpen">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <!-- col-4 -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RP_STAFF_POSITION' | translate }}</label>
+                        <select [(ngModel)]="selectedPosition" (change)="getDataStaff()" id="position" name="position" [disabled]="is_user_login"
+                            class="form-control">
+                            <option value="all">{{ 'BTN_VIEW_RECEIPT' | translate }}</option>
+                            <option value="driver">{{ 'LBL_RP_STAFF_DRIVER' | translate }}</option>
+                            <option value="subdriver">{{ 'LBL_RP_STAFF_SUBDRIVER' | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- col-4 -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RP_STAFF_ROUTE' | translate }}</label>
+                        <select [(ngModel)]="selectedRouteId" (change)="getDataStaff()" id="routeId" name="routeId"
+                            class="form-control">
+                            <option value="0">{{ 'BTN_VIEW_RECEIPT' | translate }}</option>
+                            <option *ngFor="let route of routes" value="{{route.id}}">{{route.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- col-4 -->
+            </div>
+
+            <!-- Show is alert -->
+            <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+                <div *ngIf="staffs.length == 0" class="alert alert-warning mg-b-0" role="alert">
+                    <div class="d-flex align-items-center justify-content-start">
+                        <i
+                            class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+                    </div>
+                </div>
+            </div>
+            <!-- End is alert -->
+            <div class="form-layout-footer tx-center" *ngIf="(permissions['report_staff'].key_tools != null && permissions['report_staff'].key_tools.includes('view_advanced'))">
+                <button (click)="showPrintPreview()" [ladda]="isCollected" class="btn btn-dark pd-r-20">
+                    <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+                </button> &nbsp;
+                <button (click)="exportFile()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+                    <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+                </button>
+            </div>
+            <!-- show list staff -->
+            <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+                <div *ngIf="isCheckModuleApp">
+                    <table *ngIf="staffs.length > 0" class="table table-bordered table-hover table-striped">
+                        <thead class="thead-colored thead-primary">
+                            <tr>
+                                <th class="tx-center " rowspan="3">{{ 'TABLE_STT_NO' | translate }}</th>
+                                <th class="tx-center" colspan="3" style="text-transform: uppercase">
+                                    {{ 'LBL_PRINT_TTT' | translate }}</th>
+                                <th class="tx-center" colspan="9" style="text-transform: uppercase">
+                                    {{ 'LBL_PRINT_DTVX' | translate }}</th>
+                                <th class="tx-center" colspan="3" style="text-transform: uppercase">
+                                    {{ 'LBL_ROUTE_TOTAL_ALL' | translate }}</th>
+                                <th class="tx-center" rowspan="3" style="text-transform: uppercase">
+                                    {{ 'LBL_STAFF_TOTAL_DEPOSIT' | translate }}</th>
+                            </tr>
+                            <tr>
+                                <th class="tx-center" rowspan="2">{{ 'LBL_STAFF_FULLNAME' | translate }}</th>
+                                <th class="tx-center" rowspan="2">{{ 'LBL_STAFF_ROUTE' | translate }}</th>
+                                <th class="tx-center" rowspan="2">{{ 'LBL_STAFF_ROLE' | translate }}</th>
+                                <th class="tx-center" colspan="2">{{ 'LBL_STAFF_POS' | translate }}</th>
+                                <th class="tx-center" colspan="4">{{ 'LBL_STAFF_CARD' | translate }}</th>
+                                <th class="tx-center" colspan="2">{{'LBL_STAFF_MOMO' | translate}}</th>
+                                <th class="tx-center">{{'LBL_STAFF_POS_MONTH' | translate}}</th>
+                                <th class="tx-center" rowspan="2">{{ 'LBL_STAFF_TOTAL_REVENUE_ALL' | translate }}</th>
+                                <th class="tx-center" rowspan="2">{{ 'LBL_STAFF_TOTAL_DISCOUNT_ALL' | translate }}</th>
+                                <th class="tx-center" rowspan="2">{{ 'LBL_STAFF_TOTAL_COLLECTED_ALL' | translate }}</th>
+                            </tr>
+                            <tr>
+                                <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_TOTAL_REVENUE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_TOTAL_REVENUE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_TOTAL_DISCOUNT' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_TOTAL_COLLECTED' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_TOTAL_REVENUE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_TOTAL_REVENUE' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let staff of staffs; let i = index">
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-center">{{i + 1}}</td>
+                                <!-- <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name" class="tx-center tx-bold">{{i + 1}}</td> -->
+                                <td *ngIf="staff.fullname">{{ staff.fullname }}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name">
+                                    {{ staff.route_number }}</td>
+                                <td colspan="4" *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-center tx-bold">{{'LBL_STAFF_TOTAL_ALL' | translate}}
+                                    {{ staff.route_number }}</td>
+                                <td *ngIf="staff.position_name" class="tx-center">{{ staff.position_name }}</td>
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-center">{{ staff.count_ticket_pos | number}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-center tx-bold">{{ staff.count_ticket_pos | number}}</td>
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_pos | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_pos | currency:'VND':''}}</td>
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-center">{{ staff.count_ticket_charge | number}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-center tx-bold">{{ staff.count_ticket_charge | number}}</td>
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_charge | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_charge | currency:'VND':''}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_discount | currency:'VND':''}}</td>
+
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_discount | currency:'VND':''}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_collected | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_collected | currency:'VND':''}}</td>
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-center">{{ staff.count_ticket_qrcode | number}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-center tx-bold">{{ staff.count_ticket_qrcode | number}}</td>
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_qrcode | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_qrcode | currency:'VND':''}}</td>
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_month | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_month | currency:'VND':''}}</td>
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.count_revenue_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.count_revenue_ticket | currency:'VND':''}}</td>
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.count_discount_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.count_discount_ticket | currency:'VND':''}}</td>
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.count_collected_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.count_collected_ticket | currency:'VND':''}}</td>
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_deposit | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_deposit | currency:'VND':''}}</td>
+                            </tr>
+                            <!-- only  -->
+                            <tr *ngIf="(selectedPosition == 'driver' || selectedPosition == 'subdriver') && selectedRouteId == 0">
+                                <td colspan="4" class="tx-center tx-bold tx-16">{{ 'LBL_STAFF_TOTAL_ALL' | translate }}
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_only.count_ticket_pos_only | number}} </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15"><strong>
+                                            {{ data_total_only.total_ticket_pos_only | currency:'VND':''}} </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_only.count_ticket_charge_only  | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15"><strong>
+                                            {{ data_total_only.total_ticket_charge_only | currency:'VND':'' }} </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_only.total_discount_charge_only | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_only.total_collected_charge_only | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_only.count_ticket_qrcode_only | number}} </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15"><strong>
+                                            {{ data_total_only.total_ticket_qrcode_only | currency:'VND':''}} </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_only.total_price_month_only | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_only.total_revenue_ticket_all_only | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{data_total_only.total_discount_ticket_all_only | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_only.total_collected_ticket_all_only | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15"><strong>
+                                            {{ data_total_only.total_deposit_only | currency:'VND':'' }} </strong></div>
+                                </td>
+                            </tr>
+
+                            <!-- all -->
+                            <!-- driver -->
+                            <tr *ngIf="selectedPosition == 'all'">
+                                <td colspan="4" class="tx-center tx-bold tx-16">
+                                    {{ 'LBL_STAFF_TOTAL_DRIVER' | translate }}</td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_pos_driver | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_pos_driver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_charge_driver   | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_charge_driver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_discount_charge_driver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_collected_charge_driver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_qrcode_driver | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_qrcode_driver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_price_month_driver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_revenue_ticket_all_driver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_discount_ticket_all_driver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_collected_ticket_all_driver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15"><strong>
+                                            {{ data_total_driver.total_deposit_driver  | currency:'VND':'' }} </strong>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- subdriver -->
+                            <tr *ngIf="selectedPosition == 'all'">
+                                <td colspan="4" class="tx-center tx-bold tx-16">
+                                    {{ 'LBL_STAFF_TOTAL_SUBDRIVER' | translate }}</td>
+
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_subdriver.count_ticket_pos_subdriver | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_ticket_pos_subdriver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_subdriver.count_ticket_charge_subdriver | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_ticket_charge_subdriver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_discount_charge_subdriver  | currency:'VND':'' }}
+                                        </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_collected_charge_subdriver  | currency:'VND':'' }}
+                                        </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_subdriver.count_ticket_qrcode_subdriver | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_ticket_qrcode_subdriver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_price_month_subdriver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_revenue_ticket_all_subdriver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_discount_ticket_all_subdriver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_collected_ticket_all_subdriver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_subdriver.total_deposit_subdriver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                            </tr>
+                            <!--  driver  = subdriver =  total reveune -->
+                            <tr *ngIf="selectedPosition == 'all'">
+                                <td colspan="4" class="tx-center tx-bold tx-16">Tổng doanh thu</td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_pos_driver | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_pos_driver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_charge_driver   | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_charge_driver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_discount_charge_driver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_collected_charge_driver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_qrcode_driver | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_qrcode_driver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_price_month_driver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_revenue_ticket_all_driver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_discount_ticket_all_driver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_collected_ticket_all_driver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15"><strong>
+                                            {{ data_total_driver.total_deposit_driver  | currency:'VND':'' }} </strong>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div *ngIf="!isCheckModuleApp">
+                    <table *ngIf="staffs.length > 0" class="table table-bordered table-hover table-striped">
+                        <thead class="thead-colored thead-primary">
+                            <tr>
+                                <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_FULLNAME' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_ROUTE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_ROLE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_TOTAL_REVENUE' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let staff of staffs; let i = index">
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name" class="tx-center">
+                                    {{i + 1}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name">{{ staff.fullname }}
+                                </td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name">
+                                    {{ staff.route_number }}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name" class="tx-center">
+                                    {{ staff.position_name }}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name" class="tx-center">
+                                    {{ staff.count_ticket_pos | number}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name" class="tx-right">
+                                    {{ staff.total_price_pos | currency:'VND':''}}</td>
+                                <td colspan="4" *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-bold tx-center">Tổng cộng</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-center tx-bold">{{ staff.count_ticket_pos | number}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_pos | currency:'VND':''}}</td>
+                            </tr>
+                            <!-- only  -->
+                            <tr *ngIf="(selectedPosition == 'driver' || selectedPosition == 'subdriver') && selectedRouteId == 0">
+                                <td colspan="4" class="tx-center tx-bold tx-16">{{ 'LBL_STAFF_TOTAL_ALL' | translate }}
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_only.count_ticket_pos_only | number}} </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15"><strong>
+                                            {{ data_total_only.total_ticket_pos_only | currency:'VND':''}} </strong>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- all -->
+                            <!-- driver -->
+                            <tr *ngIf="selectedPosition == 'all'">
+                                <td colspan="4" class="tx-center tx-bold tx-16">
+                                    {{ 'LBL_STAFF_TOTAL_DRIVER' | translate }}</td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_pos_driver  | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_pos_driver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                            </tr>
+
+                            <!-- subdriver -->
+                            <tr *ngIf="selectedPosition == 'all'">
+                                <td colspan="4" class="tx-center tx-bold tx-16">
+                                    {{ 'LBL_STAFF_TOTAL_SUBDRIVER' | translate }}</td>
+
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_subdriver.count_ticket_pos_subdriver  | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_ticket_pos_subdriver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                            </tr>
+
+                            <!--  driver  = subdriver =  total reveune -->
+                            <tr *ngIf="selectedPosition == 'all'">
+                                <td colspan="4" class="tx-center tx-bold tx-16">Tổng doanh thu</td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_pos_driver | number }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_pos_driver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- end show list staff -->
+        </div>
+    </div>
+</div>
+
+<div id="print-section" class="d-none" *ngIf="company">
+    <div *ngIf="isCheckModuleApp">
+        <table>
+            <tr>
+                <td class="tx-center w-10 pt-0">
+                    <div class="tx-11"><strong> {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+                </td>
+                <td class="tx-center w-10">
+                    <div class="tx-11">
+                        <strong> {{ 'LBL_PRINT_MS' | translate }}</strong><br /> ({{ 'LBL_PRINT_BH' | translate }}
+                        <br /> {{ 'LBL_PRINT_BTC' | translate }})
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width:21cm;">
+                    <div class="tx-center">
+                        <strong class="tx-12" style="text-transform: uppercase">
+                            {{ 'MENU_STAFFS' | translate }}</strong><br>
+                        <i class="tx-10">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}}
+                            {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}}
+                            {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }}
+                            {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}}
+                            {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i><br>
+                        <i class="tx-10" *ngIf="routeName">{{ 'LBL_STAFF_ROUTE' | translate }} {{routeName[0].name}}</i>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="tx-center w-10 pt-0"></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%"
+                        *ngIf="staffs.length > 0">
+                        <thead class="thead-colored thead-primary">
+                            <tr>
+                                <th class="tx-center " rowspan="3">{{ 'TABLE_STT_NO' | translate }}</th>
+                                <th class="tx-center" colspan="3" style="text-transform: uppercase">
+                                    {{ 'LBL_PRINT_TTT' | translate }}</th>
+                                <th class="tx-center" colspan="9" style="text-transform: uppercase">
+                                    {{ 'LBL_PRINT_DTVX' | translate }}</th>
+                                <th class="tx-center" colspan="3" style="text-transform: uppercase">
+                                    {{ 'LBL_ROUTE_TOTAL_ALL' | translate }}</th>
+                                <th class="tx-center" rowspan="3" style="text-transform: uppercase">
+                                    {{ 'LBL_STAFF_TOTAL_DEPOSIT' | translate }}</th>
+                            </tr>
+                            <tr>
+                                <th class="tx-center" rowspan="2">{{ 'LBL_STAFF_FULLNAME' | translate }}</th>
+                                <th class="tx-center" rowspan="2">{{ 'LBL_STAFF_ROUTE' | translate }}</th>
+                                <th class="tx-center" rowspan="2">{{ 'LBL_STAFF_ROLE' | translate }}</th>
+                                <th class="tx-center" colspan="2">{{ 'LBL_STAFF_POS' | translate }}</th>
+                                <th class="tx-center" colspan="4">{{ 'LBL_STAFF_CARD' | translate }}</th>
+                                <th class="tx-center tx-bold" colspan="2">{{'LBL_STAFF_MOMO' | translate}}</th>
+                                <th class="tx-center tx-bold">{{ 'LBL_STAFF_POS_MONTH' | translate }}</th>
+                                <th class="tx-center" rowspan="2">{{ 'LBL_STAFF_TOTAL_REVENUE_ALL' | translate }}</th>
+                                <th class="tx-center" rowspan="2">{{ 'LBL_STAFF_TOTAL_DISCOUNT_ALL' | translate }}</th>
+                                <th class="tx-center" rowspan="2">{{ 'LBL_STAFF_TOTAL_COLLECTED_ALL' | translate }}</th>
+                            </tr>
+                            <tr>
+                                <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_TOTAL_REVENUE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_TOTAL_REVENUE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_TOTAL_DISCOUNT' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_TOTAL_COLLECTED' | translate }}</th>
+                                <td class="tx-center tx-bold">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</td>
+                                <td class="tx-center tx-bold">{{ 'LBL_STAFF_TOTAL_REVENUE' | translate }}</td>
+                                <td class="tx-center tx-bold">{{ 'LBL_STAFF_TOTAL_REVENUE' | translate }}</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let staff of staffs; let i = index">
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-center">{{i + 1}}</td>
+                                <!-- <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name" class="tx-center tx-bold">{{i + 1}}</td> -->
+                                <td *ngIf="staff.fullname">{{ staff.fullname }}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name">
+                                    {{ staff.route_number }}</td>
+                                <td colspan="4" *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-center tx-bold">{{'LBL_STAFF_TOTAL_ALL' | translate}}
+                                    {{ staff.route_number }}</td>
+                                <td *ngIf="staff.position_name" class="tx-center">{{ staff.position_name }}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-center">{{ staff.count_ticket_pos | number}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-center tx-bold">{{ staff.count_ticket_pos | number}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_pos | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_pos | currency:'VND':''}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-center">{{ staff.count_ticket_charge | number}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-center tx-bold">{{ staff.count_ticket_charge | number}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_charge | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_charge | currency:'VND':''}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_discount | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_discount | currency:'VND':''}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_collected | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_collected | currency:'VND':''}}</td>
+
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-center">{{ staff.count_ticket_qrcode | number}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-center tx-bold">{{ staff.count_ticket_qrcode | number}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_qrcode | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_qrcode | currency:'VND':''}}</td>
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_month | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_month | currency:'VND':''}}</td>
+
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.count_revenue_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.count_revenue_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.count_discount_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.count_discount_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.count_collected_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.count_collected_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name"
+                                    class="tx-right">{{ staff.total_price_deposit | currency:'VND':''}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_deposit | currency:'VND':''}}</td>
+                            </tr>
+                            <!-- only  -->
+                            <tr
+                                *ngIf="(selectedPosition == 'driver' || selectedPosition == 'subdriver') && selectedRouteId == 0">
+                                <td colspan="4" class="tx-center tx-bold tx-16">{{ 'LBL_STAFF_TOTAL_ALL' | translate }}
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_only.count_ticket_pos_only | number}} </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15"><strong>
+                                            {{ data_total_only.total_ticket_pos_only | currency:'VND':''}} </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_only.count_ticket_charge_only | number }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15"><strong>
+                                            {{ data_total_only.total_price_charge_only | currency:'VND':'' }} </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_only.total_discount_charge_only | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_only.total_collected_charge_only | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_only.count_ticket_qrcode_only | number}} </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_only.total_ticket_qrcode_only | currency:'VND':''}}
+                                        </strong>
+                                    </div>
+                                </td>
+
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_only.total_price_month_only | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_only.total_revenue_ticket_all_only | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{data_total_only.total_discount_ticket_all_only | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_only.total_collected_ticket_all_only | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15"><strong>
+                                            {{ data_total_only.total_deposit_only | currency:'VND':'' }} </strong></div>
+                                </td>
+                            </tr>
+
+                            <!-- all -->
+                            <!-- driver -->
+                            <tr *ngIf="selectedPosition == 'all'">
+                                <td colspan="4" class="tx-center tx-bold tx-16">
+                                    {{ 'LBL_STAFF_TOTAL_DRIVER' | translate }}</td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_pos_driver | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_pos_driver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_charge_driver  | number }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_charge_driver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_discount_charge_driver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_collected_charge_driver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_qrcode_driver | number}}
+                                        </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_qrcode_driver  | currency:'VND':''}}
+                                        </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_price_month_driver| currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_revenue_ticket_all_driver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_discount_ticket_all_driver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_collected_ticket_all_driver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15"><strong>
+                                            {{ data_total_driver.total_deposit_driver  | currency:'VND':'' }} </strong>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- subdriver -->
+                            <tr *ngIf="selectedPosition == 'all'">
+                                <td colspan="4" class="tx-center tx-bold tx-16">
+                                    {{ 'LBL_STAFF_TOTAL_SUBDRIVER' | translate }}</td>
+
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_subdriver.count_ticket_pos_subdriver | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_ticket_pos_subdriver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_subdriver.count_ticket_charge_subdriver | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_ticket_charge_subdriver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_discount_charge_subdriver  | currency:'VND':'' }}
+                                        </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_collected_charge_subdriver  | currency:'VND':'' }}
+                                        </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_subdriver.count_ticket_qrcode_subdriver | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_ticket_qrcode_subdriver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_price_month_subdriver | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_revenue_ticket_all_subdriver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_discount_ticket_all_subdriver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_collected_ticket_all_subdriver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_subdriver.total_deposit_subdriver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                            </tr>
+                            <!--  driver  = subdriver =  total reveune -->
+                            <tr *ngIf="selectedPosition == 'all'">
+                                <td colspan="4" class="tx-center tx-bold tx-16">Tổng doanh thu</td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_pos_driver | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_pos_driver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_charge_driver  | number }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_charge_driver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_discount_charge_driver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_collected_charge_driver  | currency:'VND':'' }}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_qrcode_driver | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_qrcode_driver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_price_month_driver | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_revenue_ticket_all_driver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_discount_ticket_all_driver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_driver.total_collected_ticket_all_driver  | currency:'VND':'' }}</strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15"><strong>
+                                            {{ data_total_driver.total_deposit_driver  | currency:'VND':'' }} </strong>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} ....
+                        {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="table-striped" style="width:100%">
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="tx-center fl">
+                                    <strong
+                                        style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_NLB' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i class="tx-11">({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                                </td>
+                                <td colspan="3" class="tx-center fr">
+                                    <strong
+                                        style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_TBDH' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i class="tx-11">({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div *ngIf="!isCheckModuleApp">
+        <table>
+            <tr>
+                <td class="tx-center w-10 pt-0">
+                    <div class="tx-11"><strong> {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+                </td>
+                <td class="tx-center w-10">
+                    <div class="tx-11">
+                        <strong> {{ 'LBL_PRINT_MS' | translate }}</strong><br /> ({{ 'LBL_PRINT_BH' | translate }}
+                        <br /> {{ 'LBL_PRINT_BTC' | translate }})
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width:21cm;">
+                    <div class="tx-center">
+                        <strong class="tx-12" style="text-transform: uppercase">
+                            {{ 'MENU_STAFFS' | translate }}</strong><br>
+                        <i class="tx-10">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}}
+                            {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}}
+                            {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }}
+                            {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}}
+                            {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i><br>
+                        <i class="tx-10" *ngIf="routeName">{{ 'LBL_STAFF_ROUTE' | translate }} {{routeName[0].name}}</i>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="tx-center w-10 pt-0"></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%"
+                        *ngIf="staffs.length > 0">
+                        <thead class="thead-colored thead-primary">
+                            <tr>
+                                <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_FULLNAME' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_ROUTE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_ROLE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_STAFF_TOTAL_REVENUE' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let staff of staffs; let i = index">
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name" class="tx-center">
+                                    {{i + 1}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name">{{ staff.fullname }}
+                                </td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name">
+                                    {{ staff.route_number }}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name" class="tx-center">
+                                    {{ staff.position_name }}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name" class="tx-center">
+                                    {{ staff.count_ticket_pos | number}}</td>
+                                <td *ngIf="staff.fullname && staff.route_number && staff.position_name" class="tx-right">
+                                    {{ staff.total_price_pos | currency:'VND':''}}</td>
+                                <td colspan="4" *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-bold tx-center">Tổng cộng</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-center tx-bold">{{ staff.count_ticket_pos | number}}</td>
+                                <td *ngIf="!staff.fullname && !staff.route_number && !staff.position_name"
+                                    class="tx-right tx-bold">{{ staff.total_price_pos | currency:'VND':''}}</td>
+                            </tr>
+
+                            <!-- only  -->
+                            <tr *ngIf="(selectedPosition == 'driver' || selectedPosition == 'subdriver') && selectedRouteId == 0">
+                                <td colspan="4" class="tx-center tx-bold tx-16">{{ 'LBL_STAFF_TOTAL_ALL' | translate }}
+                                </td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_only.count_ticket_pos_only | number}} </strong>
+                                    </div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15"><strong>
+                                            {{ data_total_only.total_ticket_pos_only | currency:'VND':''}} </strong>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- all -->
+                            <!-- driver -->
+                            <tr *ngIf="selectedPosition == 'all'">
+                                <td colspan="4" class="tx-center tx-bold tx-16">
+                                    {{ 'LBL_STAFF_TOTAL_DRIVER' | translate }}</td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_pos_driver  | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_pos_driver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                            </tr>
+
+                            <!-- subdriver -->
+                            <tr *ngIf="selectedPosition == 'all'">
+                                <td colspan="4" class="tx-center tx-bold tx-16">
+                                    {{ 'LBL_STAFF_TOTAL_SUBDRIVER' | translate }}</td>
+
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_subdriver.count_ticket_pos_subdriver  | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong>
+                                            {{ data_total_subdriver.total_ticket_pos_subdriver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                            </tr>
+
+                            <!--  driver  = subdriver =  total reveune -->
+                            <tr *ngIf="selectedPosition == 'all'">
+                                <td colspan="4" class="tx-center tx-bold tx-16">Tổng doanh thu</td>
+                                <td colspan="1" class="tx-center">
+                                    <div class="tx-15"><strong> {{ data_total_driver.count_ticket_pos_driver  | number}}
+                                        </strong></div>
+                                </td>
+                                <td colspan="1" class="tx-right">
+                                    <div class="tx-15">
+                                        <strong> {{ data_total_driver.total_ticket_pos_driver  | currency:'VND':''}}
+                                        </strong></div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                     </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="2">
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} ....
+                        {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="table-striped" style="width:100%">
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="tx-center w-4 fl">
+                                    <strong style="text-transform: uppercase">{{ 'LBL_PRINT_NLB' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i>({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                                </td>
+                                <td colspan="3" class="tx-center w-4">
+                                    <strong style="text-transform: uppercase">{{ 'LBL_PRINT_KT' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i>({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                                </td>
+                                <td colspan="3" class="tx-center w-5 fr">
+                                    <strong style="text-transform: uppercase">{{ 'LBL_PRINT_GD' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i>({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+<!-- end manager staffs report-->
+<!-- <ng-template #nodata>
+    <div class="alert alert-warning mg-b-0" role="alert">
+        <div class="d-flex align-items-center justify-content-start">
+            <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>
+            <span *ngIf="isNow && ended">{{ 'LBL_RCT_NOT_LOGIN' | translate }}</span>
+            <span *ngIf="!isNow && !ended">{{ 'LBL_RCT_NOT_SESSION' | translate }}</span>
+            <span *ngIf="!isNow && ended">{{ 'LBL_RCT_NOT_LOGOUT' | translate }}</span>
+        </div>
+    </div>
+</ng-template> -->

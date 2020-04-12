@@ -1,0 +1,189 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list device -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-6 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-upload" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'LBL_LIST_FIRMWARE_VERSION' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-6 tx-right">
+                <button (click)="showAddModal()" class="btn btn-teal mg-b-20 pd-r-20">
+                    <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_FIRMWARE_VERSION' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <table class="table mg-b-0">
+                <tr>
+                    <td style="width:30%">
+                        <select class="form-control py-2 border-right-0 border" [(ngModel)]="style_search">
+                            <option value="">---- {{ 'LBL_SEARCH_BY_FIRMWARE' | translate }} ----</option>
+                            <option value="name">{{ 'LBL_SEARCH_FIRMWARE_VALUE_NAME' | translate }}</option>
+                            <option value="model">{{ 'LBL_SEARCH_FIRMWARE_VALUE_MODEL' | translate }}</option>
+                            <option value="company">{{ 'LBL_SEARCH_FIRMWARE_VALUE_COMPANY' | translate }}</option>
+                        </select>
+                    </td>
+                    <td *ngIf="style_search === 'name' || style_search === ''" style="width:70%">
+                        <div class="input-group">
+                            <input class="form-control py-2 border-right-0 border" [(ngModel)]="key_input"
+                                (ngModelChange)="getDataFirmwareByInput()" type="search" placeholder="Tìm kiếm...">
+                            <span class="input-group-append">
+                                <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                            </span>
+                        </div>
+                    </td>
+                    <td *ngIf="style_search === 'model'" style="width:70%">
+                        <div class="input-group">
+                            <select class="form-control py-2 border-right-0 border" [(ngModel)]="key_input"
+                                (ngModelChange)="getDataFirmwareByInput()">
+                                <option *ngFor="let modelItem of modelItems" value="{{modelItem.id}}">{{modelItem.name}}
+                                </option>
+                            </select>
+                            <span class="input-group-append">
+                                <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                            </span>
+                        </div>
+                    </td>
+                    <td *ngIf="style_search === 'company'" style="width:70%">
+                        <div class="input-group">
+                            <select class="form-control py-2 border-right-0 border" [(ngModel)]="key_input"
+                                (ngModelChange)="getDataFirmwareByInput()">
+                                <option *ngFor="let company of companies" value="{{company.id}}">{{company.name}}</option>
+                            </select>
+                            <span class="input-group-append">
+                                <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_NAME' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_VER' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_MDL' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_FIRMWARE_COMPANIES' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_FIRMWARE_COL_UPDATE_TYPE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_CRE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_FIRMWARE_NOTE' | translate }}</th>
+                        <!-- <th>{{ 'TABLE_UPD' | translate }}</th> -->
+                        <th class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let firmwareVersion of firmwareVersions; let i = index">
+                        <th class="tx-center" scope="row">{{((this.currentPage - 1) * this.limitPage) + (i + 1)}} </th>
+                        <td >{{firmwareVersion.filename}}</td>
+                        <td class="tx-center">{{firmwareVersion.version}}</td>
+                        <td class="tx-center">{{firmwareVersion.device_model.name}}</td>
+                        <td class="tx-center">{{(firmwareVersion.company) ? firmwareVersion.company.name : ''}}</td>
+                        <td class="tx-center">
+                            {{
+                                (firmwareVersion.update_type === "up_code") ? ('TABLE_FIRMWARE_UPDATE_TYPE_CODE' | translate)
+                                : (firmwareVersion.update_type === "up_db") ? ('TABLE_FIRMWARE_UPDATE_TYPE_DB' | translate)      
+                                : ('' | translate)  
+                            }}
+                        </td>
+                        <td class="tx-center">{{firmwareVersion.created_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                        <td>{{firmwareVersion.note}}</td>
+                        <!-- <td>{{firmwareVersion.updated_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td> -->
+                        <!-- <td class="tx-18 tx-center">
+                            <a href="javascript:void(0)" class="btn btn-primary" (click)="downloadFirmwareVersion(firmwareVersion.filename)">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </a>
+                           
+                        </td> -->
+                        <td class="tx-18 tx-center">
+                            <a href="javascript:void(0)" class="btn btn-danger" (click)="deleteFirmwareDeviceVersion(firmwareVersion.id)">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                           
+                        </td>
+                    </tr>
+                </tbody>
+            </table> 
+        </div>
+        <div *ngIf="this.key_input === ''">
+            <div class="row" *ngIf="paginationTotal > 0">
+                <div class="d-flex align-items-center justify-content-center col-md-12">
+                    <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
+                        [totalItems]="paginationTotal" [itemsPerPage]="limitPage" [maxSize]="7" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="br-footer"></footer>
+</div>
+<!-- end table list device -->
+
+<!-- form add device firmware version  -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+  <div class="modal-dialog " role="document">
+    <div class="modal-content bd-0 tx-14">
+      <div class="modal-header custom-modal-header pd-y-20 pd-x-25">
+          <h6 class="tx-14 mg-b-0 tx-uppercase tx-bold">{{ 'BTN_ADD_FIRMWARE_VERSION' | translate }}</h6>
+          <button (click)="addModal.hide()" type="button" class="close btn-close-white" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body custom-modal-body pd-25">
+        <div class="form-layout">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label text-color">{{ 'TABLE_MDL' | translate }}: <span class="tx-danger">*</span></label>
+                        <select class="form-control" name="device_model_id" [(ngModel)]="firmwareCreate.device_model_id"  tabindex="-1" aria-hidden="true">
+                            <option *ngFor="let value of modelItems" value="{{value.id}}" >{{ value.name }}</option>
+                        </select>
+                    </div>
+                </div>  
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label text-color">{{ 'TABLE_VER' | translate }}: <span class="tx-danger">*</span></label>
+                        <input type="number" class="form-control" name="version" required [(ngModel)]="firmwareCreate.version">
+                    </div>
+                </div>
+                <div class="col-md-12" *ngIf="firmwareCreate.device_model_id != 3 && firmwareCreate.device_model_id !== null">
+                    <div class="form-group">
+                        <label class="form-control-label text-color">{{ 'TABLE_FIRMWARE_COMPANIES' | translate }}: <span class="tx-danger">*</span></label>
+                        <select class="form-control" name="company_id" [(ngModel)]="firmwareCreate.company_id"  tabindex="-1" aria-hidden="true">
+                            <option *ngFor="let value of companies" value="{{value.id}}" >{{ value.name }}</option>
+                        </select>
+                    </div>
+                </div>  
+                <div class="col-md-12" *ngIf="firmwareCreate.device_model_id != 3 && firmwareCreate.device_model_id !== null">
+                    <div class="form-group">
+                        <label class="form-control-label text-color">{{ 'TABLE_FIRMWARE_UPDATE_TYPE' | translate }}: <span class="tx-danger">*</span></label>
+                        <select class="form-control" name="update_type" [(ngModel)]="firmwareCreate.update_type"  tabindex="-1" aria-hidden="true">
+                            <option  value="up_code" >{{ 'TABLE_FIRMWARE_UPDATE_TYPE_CODE' | translate }}</option>
+                            <option  value="up_db" >{{ 'TABLE_FIRMWARE_UPDATE_TYPE_DB' | translate }}</option>
+                        </select>
+                    </div>
+                </div>  
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label text-color">{{ 'TABLE_FIRMWARE_NOTE' | translate }}: </label>
+                        <textarea class="form-control" rows="5" id="note" [(ngModel)]="firmwareCreate.note"></textarea>
+                    </div>
+                </div>                                                     
+            </div>
+            <div class="modal-footer custom-modal-footer">
+                <button type="button" (click)="createFirmwareDeviceVersion()" [ladda]="isCreated" class="btn btn-success tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_CREATE' | translate }}</button>
+                <button (click)="addModal.hide()" type="button"  class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end form add device firmware version  -->

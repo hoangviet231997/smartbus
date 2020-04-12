@@ -1,0 +1,37 @@
+.custom-modal-header, .custom-modal-footer{
+    background-color: #17A2B8;
+    color: white;
+}
+
+.custom-modal-body {
+    background-color: white;
+}
+
+.btn-close-white {
+    color: white;
+}
+
+.text-color {
+    color: #0a0a0a;
+}
+.form-custom{
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 3px;
+    transition: border-color ease-in-out 0.15s,box-shadow ease-in-out 0.15s;
+    width: 100%;
+    padding: .65rem .75rem;
+    font-size: .875rem;
+    line-height: 1.25;
+}
+
+.btn-width{
+    width: 40px;
+    margin-right: 5px;
+}
+
+.selector-control {
+    font-size: 14px;
+    line-height: 30px;
+    vertical-align: baseline;
+    margin: 5px 5px 5px 5px
+}

@@ -1,0 +1,324 @@
+<app-header #appHeaderComponent ></app-header>
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+  </div>
+
+<!-- manager membership type rfid card -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-8 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                  <i class="fa fa-credit-card" aria-hidden="true"></i>
+                  <span class="menu-item-label">{{'MENU_MEMBERSHIP_TMP' | translate}}</span>
+                </h2>
+            </div>
+        </div>
+        <div class="row">
+            <table class="table mg-b-0">
+                <tr>
+                    <td style="width:30%">
+                        <select class="form-control py-2 border-right-0 border" [(ngModel)]="style_search">
+                            <option value="">---- {{ 'LBL_SEARCH_BY_USR' | translate }} ----</option>
+                            <option value="name">{{ 'LBL_MEMBERSHIP_TMP_TYPE_SEARCH_NAME' | translate }}</option>
+                            <option value="phone">{{ 'LBL_MEMBERSHIP_TMP_TYPE_SEARCH_PHONE' | translate }}</option>
+                            <option value="cmnd">{{ 'LBL_MEMBERSHIP_TMP_TYPE_SEARCH_CMND' | translate }}</option>
+                        </select>
+                    </td>
+                    <td style="width:70%">
+                        <div class="input-group">
+                            <input class="form-control py-2 border-right-0 border"  [(ngModel)]="key_input" (ngModelChange)="getDataMembershipTmpByInput()" type="search" id="example-search-input" placeholder="Tìm kiếm...">
+                            <span class="input-group-append">
+                                <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                      <th class="tx-center">{{ 'TABLE_STT_NO' | translate}}</th>
+                      <th class="tx-center">{{ 'LBL_MEMBERSHIP_TMP_AVATAR' | translate}}</th>
+                      <th class="tx-center">{{ 'LBL_MEMBERSHIP_TMP_FULLNAME' | translate}}</th>
+                      <th class="tx-center">{{ 'LBL_MEMBERSHIP_TMP_GENDER' | translate}}</th>
+                      <th class="tx-center">{{ 'LBL_MEMBERSHIP_TMP_PHONE' | translate}}</th>
+                      <th class="tx-center">{{ 'LBL_MEMBERSHIP_TMP_CMND' | translate}}</th>
+                      <th class="tx-center">{{ 'LBL_MEMBERSHIP_TMP_EMAIL' | translate}}</th>
+                      <th class="tx-center">{{ 'LBL_MEMBERSHIP_TMP_CREATE' | translate}}</th>
+                      <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of membershipsTmp ; let i = index">
+                      <td class="tx-center">{{((this.currentPage - 1) * this.limitPage) + (i + 1)}}</td>
+                      <td class="tx-center">
+                        <img src="{{(item.avatar) ? '../img/avatar-membership/'+item.avatar : 'assets/img/mbs-tmp-avatar.jpg'}}" width="40" height= "40" alt="{{item.fullname}}">
+                      </td>
+                      <td>{{ item.fullname }}</td>
+                      <td>{{ item.gender == 0 ? "Nam" : "Nữ"}}</td>
+                      <td>{{ item.phone }}</td>
+                      <td>{{ item.cmnd }}</td>
+                      <td>{{ item.email }}</td>
+                      <td class="tx-center">{{ item.created_at }}</td>
+                      <td class="tx-center">
+                        <a href="javascript:void(0)"
+                        *ngIf="permissions['card_membership_tmp'].key_tools != null && permissions['card_membership_tmp'].key_tools.includes('edit')"
+                        class="btn btn-info btn-width"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        (click)="showAcceptMemebershipsTmp(item.id)"
+                        title="{{ 'LBL_MEMBERSHIP_TMP_ACCEPT' | translate }}">
+                            <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                        </a>
+                        <a href="javascript:void(0)"
+                        *ngIf="permissions['card_membership_tmp'].key_tools != null && permissions['card_membership_tmp'].key_tools.includes('edit')"
+                        class="btn btn-danger btn-width"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        (click)="deleteMembershipsTmp(item.id)"
+                        title="{{ 'LBL_MEMBERSHIP_TMP_REMOVE' | translate }}">
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                        </a>
+                      </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- page -->
+        <div *ngIf="this.key_input === ''">
+            <div *ngIf="membershipTmpId === 0">
+                <div class="row" *ngIf="paginationTotal > 0">
+                    <div class="d-flex align-items-center justify-content-center col-md-12">
+                        <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
+                            [totalItems]="paginationTotal" [itemsPerPage]="limitPage" [maxSize]="7" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end page -->
+    </div>
+</div>
+<!-- end manager membership type rfid card -->
+
+<!-- manager accept card -->
+<div bsModal #acceptMembershipsTmpModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document" style="width:100%">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_EDIT_MEM_EXTEND_CARD' | translate }}</h6>
+                <button (click)="acceptMembershipsTmpModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <!-- infor MBS -->
+                    <div class="col-lg-8">
+                        <span class="card-lable">{{ 'LBL_MEM_CARD_FULLNAME' | translate }}: <span class="tx-danger">*</span></span>
+                        <input type="text"  class="form-control" [(ngModel)]="membershipFormAccept.fullname">
+                        <span class="card-lable">{{ 'LBL_MEM_CARD_BIRTHDAY' | translate }}: </span>
+                        <input type="text" class="form-control" name="birthday"
+                                [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                [(ngModel)]="membershipFormAccept.birthday"
+                                [maxDate]="maxDate"
+                                placeholder="Chọn ngày"
+                                #dp="bsDatepicker"
+                                bsDatepicker required >
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <span class="card-lable">{{ 'LBL_MEM_CARD_VALUE_GENDER' | translate }}: </span>
+                                <select class="form-control" [(ngModel)]="membershipFormAccept.gender" tabindex="-1" aria-hidden="true">
+                                    <option value="0">{{ 'LBL_MEM_CARD_VALUE_GENDER_MALE' | translate }}</option>
+                                    <option value="1">{{ 'LBL_MEM_CARD_VALUE_GENDER_FEMALE' | translate }}</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-6">
+                                <span class="card-lable">{{ 'LBL_MEM_CARD_VALUE_CMND' | translate }}: <span class="tx-danger">*</span></span>
+                                <input type="text" maxlength="13" minlength="9" class="form-control" [(ngModel)]="membershipFormAccept.cmnd">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <span class="card-lable">&nbsp;</span>
+                        <span class="tx-33">&nbsp;</span>
+                        <div>
+                            <div class="row">
+                                <label class="profile" for="file-input">
+                                    <img *ngIf="membershipFormAccept.avatar === null"  [src]="strImageBase64 ? strImageBase64 : 'assets/img/mbs-tmp-avatar.jpg'" alt="picture" width="113.38582677" height="151.18110236">
+                                    <img *ngIf="membershipFormAccept.avatar !== null"  [src]="strImageBase64 ? strImageBase64 : urlAvatar" width="113.38582677" height="151.18110236" alt="picture" >
+                                </label>
+                            </div>
+                            <div class="row" style="display:none">
+                                <div>
+                                    <input id="file-input" type="file" (change)="onFileImageChange($event)" accept="image/jpeg,image/png,image/jpg">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <span class="card-lable tx-bold">{{ 'LBL_MEM_CARD_PHONE' | translate }}: <span class="tx-danger">*</span></span>
+                        <input type="text"   class="form-control" [(ngModel)]="membershipFormAccept.phone">
+                    </div>
+                    <div class="col-lg-6">
+                        <span class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EMAIL' | translate }}: </span>
+                        <input type="text"  class="form-control" [(ngModel)]="membershipFormAccept.email">
+                    </div>
+                    <div class="col-lg-12">
+                        <span class="card-lable tx-bold">{{ 'LBL_MEM_CARD_ADDRESS' | translate }}: </span>
+                        <input type="text"  class="form-control" [(ngModel)]="membershipFormAccept.address">
+                    </div>
+                    <!-- end infor MBS -->
+                    <!-- Infor NFC -->
+                        <!-- card prepaid -->
+                    <div class="col-lg-12" *ngIf="typeCardAccept == 0">
+                        <div>
+                            <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_RFID' | translate }}:  <span class="tx-danger">*</span></label>
+                            <input type="text" class="form-control input-custom"  [(ngModel)]="membershipFormAccept.rfid">
+                        </div>
+                    </div>
+                    <div class="col-lg-6" *ngIf="typeCardAccept == 0">
+                      <div>
+                          <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_TYPE' | translate }}:  <span class="tx-danger">*</span></label>
+                          <select class="form-control input-custom" required tabindex="-1" aria-hidden="true" disabled>
+                              <option *ngIf="typeCardAccept == 0" value="0">{{ 'LBL_MEM_TYPE_CODE_PREPAIDCARD' | translate }}</option>
+                          </select>
+                      </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <!-- the tra truoc -->
+                        <div *ngIf="typeCardAccept == 0">
+                            <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_TYPE_DEDUCTION' | translate }}:  <span class="tx-danger">*</span></label>
+                            <select class="form-control input-custom" [(ngModel)]="membershipFormAccept.membershiptype_id" required>
+                                <option *ngFor="let membershipType of membershipTypesPrepaid" value="{{membershipType.id}}">
+                                    {{ membershipType.name }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- choose charge limit card prepaid -->
+                    <div  class="col-lg-6" *ngIf="typeCardAccept == 0 && isModuleCardPrepaidChargeLimit">
+                          <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_CHARGE_LIMIT_PREPAID' | translate }}:</label>
+                          <input type="text" name="charge_limit_prepaid" class="form-control input-custom" [(ngModel)]="membershipFormAccept.charge_limit_prepaid">
+                    </div>
+                    <div class="col-lg-6" *ngIf="typeCardAccept == 0 && isModuleCardPrepaidChargeLimit && !isModuleCardPrepaidKm" ></div>
+                    <!-- end choose charge limit card prepaid -->
+
+                    <!-- choose group bus station card prepaid -->
+                    <div  class="col-lg-6" *ngIf="typeCardAccept == 0 && isModuleCardPrepaidKm">
+                          <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_MONTH_VALUE_CHOOSE_WAY' | translate }}:</label>
+                          <ng-select
+                          [items]="groupBusStationCardPrepaids"
+                          [allowClear]="true"
+                          (data)="refreshValueGroupBusStation($event)"
+                          (selected)="selectedGroupBusStation($event)"
+                          (removed)="removedGroupBusStation($event)"
+                          placeholder=""
+                          >
+                          </ng-select>
+                    </div>
+                    <div class="col-lg-6" *ngIf="typeCardAccept == 0 && !isModuleCardPrepaidChargeLimit && isModuleCardPrepaidKm" ></div>
+                    <!-- end group bus station card prepaid -->
+
+                    <!-- expiration date-->
+                        <!-- choose type expiration date -->
+                        <div class="col-lg-6">
+                            <div *ngIf="typeCardAccept == 0" >
+                                <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION' | translate }}: <span class="tx-danger">*</span></label>
+                                <select class="form-control input-custom" name="chooseTypeExpirationAccept" required [(ngModel)]="chooseTypeExpirationAccept" (ngChange)="changeSelectExpirationDate()" tabindex="-1" aria-hidden="true">
+                                    <option value="0">{{ 'LBL_MEM_CARD_EXPIRATION_NUMBER_DATE' | translate }}</option>
+                                    <option value="1">{{ 'LBL_MEM_CARD_EXPIRATION_DATE' | translate }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6" >
+                            <div *ngIf="typeCardAccept == 0 && chooseTypeExpirationAccept == 0">
+                                <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_NUMBER_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                <input type="number" name="duration" class="form-control input-custom" required min="0" value="0" [(ngModel)]="membershipFormAccept.duration " (change)="changeInputNumberExpirationDate()">
+                            </div>
+                        </div>
+
+                            <!-- end choose type expiration date -->
+                            <div class="col-lg-6" *ngIf="typeCardAccept == 0 && chooseTypeExpirationAccept == 0">
+                                <div >
+                                    <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_TO_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                    <input  type="text"
+                                            class="form-control input-custom"
+                                            [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                            [(ngModel)]="membershipFormAccept.start_expiration_date"
+                                            name="start_expiration_date"
+                                            placeholder="..."
+                                            [minDate]="maxDate"
+                                            type="text"
+                                            #dp="bsDatepicker"
+                                            bsDatepicker
+                                            required
+                                            disabled>
+                                </div>
+                            </div>
+                            <div class="col-lg-6" *ngIf="typeCardAccept == 0 && chooseTypeExpirationAccept == 0">
+                                <div >
+                                    <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_FROM_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                    <input  type="text"
+                                            class="form-control input-custom"
+                                            [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                            [(ngModel)]="membershipFormAccept.expiration_date"
+                                            name="expiration_date"
+                                            placeholder="..."
+                                            [minDate]="maxDate"
+                                            type="text"
+                                            #dp="bsDatepicker"
+                                            bsDatepicker
+                                            required
+                                            disabled>
+                                </div>
+                            </div>
+                            <div class="col-lg-6" *ngIf="typeCardAccept == 0 && chooseTypeExpirationAccept == 1">
+                                <div  >
+                                    <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_TO_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                    <input  type="text"
+                                            class="form-control input-custom"
+                                            [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                            [(ngModel)]="membershipFormAccept.start_expiration_date"
+                                            name="start_expiration_date"
+                                            placeholder="Chọn ngày bắt đầu ..."
+                                            [minDate]="maxDate"
+                                            type="text"
+                                            #dp="bsDatepicker"
+                                            bsDatepicker
+                                            required>
+                                </div>
+                            </div>
+                            <div class="col-lg-6" *ngIf="typeCardAccept == 0 && chooseTypeExpirationAccept == 1">
+                                <div >
+                                    <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_FROM_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                    <input  type="text"
+                                            class="form-control input-custom"
+                                            [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                            [(ngModel)]="membershipFormAccept.expiration_date"
+                                            name="expiration_date"
+                                            placeholder="Chọn ngày hết hạn ..."
+                                            [minDate]="maxDate"
+                                            type="text"
+                                            #dp="bsDatepicker"
+                                            bsDatepicker
+                                            required>
+                                </div>
+                            </div>
+                        <!-- end expiration date -->
+                    <!-- the -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="updateAccept()" [ladda]="isUpdate" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+                <button (click)="acceptMembershipsTmpModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end accept card -->

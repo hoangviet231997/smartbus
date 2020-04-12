@@ -1,0 +1,78 @@
+.profile{
+    border-radius: 0;
+}
+
+.profile{
+    width: 100px;
+    height: 100px;
+    box-shadow: 2px 2px 2px rgba(0,0,0,.6);
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.15);
+    margin-left: 23px;
+}
+
+.form-layout-1 {
+    border: none;
+}
+
+.btn-width{
+    width: 40px;
+    margin-right: 5px;
+}
+
+
+.open > .dropdown-menu {
+    display: block;
+}
+
+.btn-default {
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.btn-default:hover, .btn-defaultt:focus {
+    color: #333;
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}
+
+.btn-default:not([disabled]):not(.disabled):active, .btn-default:not([disabled]):not(.disabled).active, .show > .btn-default.dropdown-toggle {
+    color: #333;
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}
+
+.form-layout-1 {
+    border: none;
+}
+
+.link-underline {
+    text-decoration: underline;
+}
+
+.icon-color-gray {
+    color: #868e96;
+}
+
+.icon-color-green {
+    color: #23BF08;
+}
+
+.open>.dropdown-menu {
+    display: block;
+}
+
+.glyphicon {
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.glyphicon-remove:before {
+    content: "\F00D";
+    cursor: pointer;
+}

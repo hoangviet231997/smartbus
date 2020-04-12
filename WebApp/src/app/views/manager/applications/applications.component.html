@@ -1,0 +1,170 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-6 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="icon ion-android-apps" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'LBL_APP_LIST' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-6 tx-right">
+                <button (click)="showAddModal()" *ngIf="permissions['application'].key_tools != null && permissions['application'].key_tools.includes('edit')" class="btn btn-teal mg-b-20 pd-r-20" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_ADD_APP' | translate }}">
+                <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_APP' | translate }}
+                </button>
+            </div>            
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th>{{ 'TABLE_STT' | translate }}</th>
+                        <th>{{ 'LBL_APP_COMPANY_NAME' | translate }}</th>
+                        <th>{{ 'LBL_APP_COMPANY_ADDRESS' | translate }}</th>
+                        <th>{{ 'TABLE_EMAIL' | translate }}</th>
+                        <th>{{ 'LBL_APP_URL' | translate }}</th>
+                        <th>{{ 'LBL_APP_API_KEY' | translate }}</th>
+                        <th *ngIf="permissions['application'].key_tools != null && permissions['application'].key_tools.includes('edit')" class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let app of applications; let i = index">
+                        <th class="tx-right" scope="row">{{((this.currentPage - 1) * this.limitPage) + (i + 1)}}</th>
+                        <td>{{ app.company_name }}</td>
+                        <td>{{ app.company_address }}</td>
+                        <td>{{ app.email }}</td>
+                        <td>{{ app.url }}</td>
+                        <td>{{ app.api_key }}</td>
+                        <td class="tx-18 tx-center" *ngIf="permissions['application'].key_tools != null && permissions['application'].key_tools.includes('edit')">
+                            <a href="javascript:void(0)" class="btn btn-success" (click)="changeApiKey(app.id)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_CHANGE_API_KEY' | translate }}">
+                                <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                            &nbsp;                 
+                            <a href="javascript:void(0)" class="btn btn-primary" (click)="showEditModal(app.id)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_EDIT_USR' | translate }}">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </a>
+                            &nbsp;
+                            <a  *ngIf="user_down !== null" href="javascript:void(0)" class="btn btn-danger" (click)="deleteApp(app.id)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_DEL_USR' | translate }}">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row" *ngIf="paginationTotal > 0">
+            <div class="d-flex align-items-center justify-content-center col-md-12">
+                <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;" 
+                    [totalItems]="paginationTotal" [maxSize]="7" [itemsPerPage]="limitPage" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+            </div>
+        </div>        
+    </div>
+    <footer class="br-footer"></footer>
+</div>
+
+<!-- Form add -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_ADD_APP' | translate }}</h6>
+                <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_APP_COMPANY_NAME' | translate }}</label>
+                            <input type="text" class="form-control" name="company_name" [(ngModel)]="formCreateApp.company_name">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_APP_COMPANY_ADDRESS' | translate }}</label>
+                            <input type="text" class="form-control" name="company_address" [(ngModel)]="formCreateApp.company_address">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_EMAIL' | translate }}</label>
+                            <input type="text" class="form-control" name="email" [(ngModel)]="formCreateApp.email">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_APP_URL' | translate }}</label>
+                            <input type="text" class="form-control" name="url" [(ngModel)]="formCreateApp.url">
+                        </div>
+                    </div>                        
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="createApp()" [ladda]="isCreated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">
+                    {{ 'FORM_CREATE' | translate }}
+                </button>
+                <button (click)="addModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">
+                    {{ 'FORM_CANCEL' | translate }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end form add -->
+
+<!-- from edit user -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_EDIT_USR' | translate }}</h6>
+                <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_APP_COMPANY_NAME' | translate }}</label>
+                            <input type="text" class="form-control" name="company_name" [(ngModel)]="formUpdateApp.company_name">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_APP_COMPANY_ADDRESS' | translate }}</label>
+                            <input type="text" class="form-control" name="company_address" [(ngModel)]="formUpdateApp.company_address">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_EMAIL' | translate }}</label>
+                            <input type="text" class="form-control" name="email" [(ngModel)]="formUpdateApp.email">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_APP_URL' | translate }}</label>
+                            <input type="text" class="form-control" name="url" [(ngModel)]="formUpdateApp.url">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_APP_API_KEY' | translate }}</label>
+                            <input type="text" class="form-control" disabled name="url" [(ngModel)]="formUpdateApp.api_key">
+                        </div>
+                    </div>                                         
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="updateApp()" [ladda]="isUpdated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+                <button (click)="editModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- end from edit user -->

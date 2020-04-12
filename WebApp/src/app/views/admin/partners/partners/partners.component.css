@@ -1,0 +1,88 @@
+.form-layout-1 {
+    border: none;
+}
+
+.company_img {
+    width: 40px;
+    height: auto;
+}
+
+.custom-file-control:lang(en)::before {
+    content: "Browse";
+}
+
+.custom-file-control:lang(en):empty::after {
+    content: "Choose file...";
+}
+
+.custom-file-control {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 5;
+    height: 2.5rem;
+    padding: 0.5rem 1rem;
+    line-height: 1.5;
+    color: #495057;
+    pointer-events: none;
+    user-select: none;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+}
+
+.custom-file-control::before {
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    bottom: -1px;
+    z-index: 6;
+    display: block;
+    height: 2.5rem;
+    padding: 0.5rem 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #e9ecef;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0 3px 3px 0;
+}
+
+.regular-checkbox {
+	display: none;
+}
+
+.regular-checkbox + label {
+	background-color: #fafafa;
+	border: 1px solid #cacece;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px -15px 10px -12px rgba(0,0,0,0.05);
+	padding: 9px;
+	border-radius: 3px;
+	display: inline-block;
+	position: relative;
+}
+
+.regular-checkbox + label:active, .regular-checkbox:checked + label:active {
+	box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px 1px 3px rgba(0,0,0,0.1);
+}
+
+.regular-checkbox:checked + label {
+	background-color: #e9ecee;
+	border: 1px solid #adb8c0;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px -15px 10px -12px rgba(0,0,0,0.05), inset 15px 10px -12px rgba(255,255,255,0.1);
+	color: #99a1a7;
+}
+
+.regular-checkbox:checked + label:after {
+	content: '\2714';
+	font-size: 14px;
+	position: absolute;
+	top: 0px;
+	left: 3px;
+	color: #99a1a7;
+}
+
+.btn-width{
+    width: 40px;
+    margin-right: 5px;
+}

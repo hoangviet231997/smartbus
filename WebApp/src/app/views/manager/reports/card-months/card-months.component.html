@@ -1,0 +1,812 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-9 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-print" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'MENU_CARD_MONTHS' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-3 tx-right">
+                <select class="form-control tx-center tx-bold tx-italic tx-gray-800" (change)="changeSelectReportCardMonth()" [(ngModel)]="isSelectTypeReportCardMonth" tabindex="-1" aria-hidden="true">
+                    <option class="tx-center tx-italic tx-gray-800" value="0">--- {{ 'LBL_REPOST_CARD_MONTH_GENERAL' | translate }} ---</option>
+                    <option class="tx-center tx-italic tx-gray-800" value="1">--- {{ 'LBL_REPOST_CARD_MONTH_REVENUE' | translate }} ---</option>
+                    <option class="tx-center tx-italic tx-gray-800" value="2">--- {{ 'LBL_REPOST_CARD_MONTH_NUMBER' | translate }} ---</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-layout form-layout-1 pd-x-0">
+            <div class="row" *ngIf="isSelectTypeReportCardMonth == 0">
+                <div class="col-lg-3"> </div>
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="chooseDate"
+                            [(ngModel)]="bsRangeValueParam"
+                            #daterangepicker="bsDaterangepicker"
+                            bsDaterangepicker
+                            [maxDate]="maxDate"
+                            (ngModelChange)="getDataReportCardMonth()"
+                            [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }">
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="daterangepicker.toggle()" type="button">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_REPORT_MEM_CARD_MONTH_BARCODE' | translate }}:</label>
+                        <input type="text" [(ngModel)]="barcodeParam" (ngModelChange)="changeInputBarcodeParams()" class="form-control" >
+                    </div>
+                </div>
+                <div class="col-lg-3"> </div>
+            </div>
+            <div class="row" *ngIf="isSelectTypeReportCardMonth == 1">
+                <div class="col-lg-3"> </div>
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="chooseDate"
+                            [(ngModel)]="bsRangeValueParam"
+                            #daterangepicker="bsDaterangepicker"
+                            bsDaterangepicker
+                            [maxDate]="maxDate"
+                            (ngModelChange)="getDataReportCardMonth()"
+                            [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }">
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="daterangepicker.toggle()" type="button">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_REPORT_MEM_CARD_MONTH_ROUTE_NAME' | translate }}:</label>
+                        <select  id="routeId" name="routeId" [(ngModel)]="routeIdParam" (ngModelChange)="getDataReportCardMonth()" class="form-control">
+                            <option value="0">{{ 'BTN_VIEW_RECEIPT' | translate }}</option>
+                            <option *ngFor="let route of routes" value="{{route.id}}">{{route.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3"> </div>
+            </div>
+            <div class="row" *ngIf="isSelectTypeReportCardMonth == 2">
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="chooseDate"
+                            [(ngModel)]="bsRangeValueParam"
+                            #daterangepicker="bsDaterangepicker"
+                            bsDaterangepicker
+                            [maxDate]="maxDate"
+                            (ngModelChange)="getDataReportCardMonth()"
+                            [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }">
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="daterangepicker.toggle()" type="button">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF' | translate }}:</label>
+                        <div class="input-group">
+                            <input class="form-control" type="text" [(ngModel)]="searchUserName" disabled>
+                            <input type="hidden" [(ngModel)]="userIdParam">
+                            <span class="input-group-btn">
+                                <button (click)="showListUserModal()" class="btn btn-info pd-x-15" type="button">
+                                    <i class="fa fa-user"></i>
+                                </button>
+                            </span>
+                        </div>
+                        <!-- <input type="text" [(ngModel)]="userIdParam" class="form-control"> -->
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_REPORT_MEM_CARD_MONTH_ROUTE_NAME' | translate }}:</label>
+                        <select  id="routeId" name="routeId" [(ngModel)]="routeIdParam" (ngModelChange)="getDataReportCardMonth()" class="form-control">
+                            <option value="0">{{ 'BTN_VIEW_RECEIPT' | translate }}</option>
+                            <option *ngFor="let route of routes" value="{{route.id}}">{{route.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_REPORT_MEM_CARD_MONTH_BARCODE' | translate }}:</label>
+                        <input type="text" [(ngModel)]="barcodeParam" (ngModelChange)="changeInputBarcodeParams()" class="form-control" >
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-lg-3" ></div>
+                <div class="col-lg-6 tx-center">
+                    <button *ngIf="(isInputBacode && isSelectTypeReportCardMonth != 1) " class="btn btn-teal mg-b-20 pd-r-20" (click)="getDataReportCardMonth()">
+                        <i class="fa fa-search mg-r-5"></i> {{ 'LBL_SEARCH' | translate }}
+                    </button>
+                    &nbsp;
+                    <button *ngIf="(permissions['report_card_month'].key_tools != null && permissions['report_card_month'].key_tools.includes('view_advanced')) && (!isInputBacode && datas.length > 0 && (isSelectTypeReportCardMonth == 0 ||isSelectTypeReportCardMonth == 1 || isSelectTypeReportCardMonth == 2))" class="btn btn-dark mg-b-20 pd-r-20" (click)="showPrintPreview()" [ladda]="isCollected" >
+                        <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+                    </button>
+                    &nbsp;
+                    <button *ngIf="(permissions['report_card_month'].key_tools != null && permissions['report_card_month'].key_tools.includes('view_advanced')) && (!isInputBacode && datas.length > 0 && (isSelectTypeReportCardMonth == 0 ||isSelectTypeReportCardMonth == 1 || isSelectTypeReportCardMonth == 2))" class="btn btn-teal mg-b-20 pd-r-20" (click)="exportFile()" [ladda]="isExport">
+                        <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+                    </button>
+                    <!-- <div class="row form-layout-footer">
+                        <div class="col-lg-4" *ngIf="datas.length == 0"></div>
+                        <div class="col-lg-4 tx-center">
+
+                        </div>
+                        <div class="col-lg-4" *ngIf="datas.length == 0"></div>
+                        <div class="col-lg-4 tx-center" *ngIf="datas.length > 0 && isSelectTypeReportCardMonth == 1">
+                            <button class="btn btn-dark mg-b-20 pd-r-20" (click)="showPrintPreview()" [ladda]="isCollected" >
+                                <i class="fa fa-print"></i> {{ 'LBL_TICKET_IN_SUMMARY' | translate }}
+                            </button>
+                        </div>
+                        <div class="col-lg-4 tx-center" *ngIf="datas.length > 0 && isSelectTypeReportCardMonth == 1">
+
+                        </div>
+                    </div> -->
+                </div>
+                <div class="col-lg-3" ></div>
+            </div>
+        </div>
+
+        <!-- card month general -->
+        <div class="table-responsive" *ngIf="cardMonthGenerals.length > 0 && isSelectTypeReportCardMonth == 0">
+            <table  class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_FULLNAME' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_BARCODE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_TOTAL_AMOUNT' | translate }}</th>
+                        <th class="tx-center">{{'LBL_REPORT_EXPIRY_DATE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_DETAIL' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor='let item of cardMonthGenerals; let i = index'>
+                    <td *ngIf=" item.fullname && item.barcode && item.total_amount && item.expiration_date" class="tx-center">{{i + 1}}</td>
+                    <td *ngIf=" item.fullname && item.barcode && item.total_amount && item.expiration_date">{{item.fullname}}</td>
+                    <td *ngIf=" item.fullname && item.barcode && item.total_amount && item.expiration_date" class="tx-center">{{item.barcode}}</td>
+                    <td *ngIf=" item.fullname && item.barcode && item.total_amount && item.expiration_date" class="tx-right"> {{ item.total_amount | currency:'VND':''}} </td>
+                    <td *ngIf=" item.fullname && item.barcode && item.total_amount && item.expiration_date" class="tx-center"> {{ item.expiration_date }} </td>
+                    <td *ngIf=" item.fullname && item.barcode && item.total_amount && item.expiration_date" class="tx-center">
+                            <a href="javascript:void(0)"  class="btn btn-info btn-width" (click)="showDetailCardMonthGenerals(item.transactions_deposit,item.transactions_charge)"  data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_CARD_VIEW_DETAIL' | translate }}">
+                                <i class="fa fa-eye pd-r-5"  aria-hidden="true"></i>
+                            </a>
+                    </td>
+                    <td *ngIf=" item.total_last" colspan="2" class="tx-center tx-bold">Tổng:</td>
+                    <td *ngIf=" item.total_last" colspan="2" class="tx-right tx-bold">{{ item.total_last | currency:'VND':''}}</td>
+                    <td *ngIf=" item.total_last" colspan="2" class="tx-center tx-bold"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--end card month general -->
+
+        <!-- card month revenue -->
+        <div class="table-responsive" *ngIf="cardMonthRevenues.length > 0 && isSelectTypeReportCardMonth == 1">
+            <table  class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr *ngIf = "routeIdParam > 0">
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_ROUTE_NAME' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STATION_DATA' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_FULLNAME' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_BARCODE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_DETAIL_TKT_NUM' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_TOTAL_AMOUNT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_NUMBER_OF_TURNS_ONLY' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_NUMBER_OF_TURNS_ALL' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_REVENUE' | translate }}</th>
+                    </tr>
+                    <tr *ngIf = "routeIdParam == 0">
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_ROUTE_NAME' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_TOTAL_AMOUNT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_NUMBER_OF_TURNS_ONLY' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_NUMBER_OF_TURNS_ALL' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_REVENUE' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf = "routeIdParam > 0">
+                    <tr *ngFor='let item of cardMonthRevenues; let i = index'>
+                        <td class="tx-center" *ngIf="item.station_data && item.barcode && item.ticket_number && item.fullname">{{ i + 1 }} </td>
+                        <td class="tx-center" *ngIf="item.station_data && item.barcode && item.ticket_number && item.fullname">{{ item.route_number }}</td>
+                        <td colspan="6" class="tx-center tx-bold" *ngIf="!item.station_data && !item.barcode && !item.ticket_number && !item.fullname && item.route_number != 'all'">{{'LBL_REPORT_MBS_CARD_MONTH_TOTAL_ROUTES' | translate}} {{ item.route_number }}</td>
+                        <td colspan="6" class="tx-center tx-bold" *ngIf="item.route_number == 'all'">{{'LBL_REPORT_MBS_CARD_MONTH_TOTAL_ALL_ROUTES' | translate}}</td>
+
+                        <td class="tx-left" *ngIf="item.station_data">{{ item.station_data }}</td>
+                        <td  *ngIf="item.fullname">{{ item.fullname }}</td>
+                        <td class="tx-center" *ngIf="item.barcode">{{ item.barcode }}</td>
+                        <td class="tx-center" *ngIf="item.ticket_number">{{ item.ticket_number }}</td>
+
+                        <td class="tx-right" *ngIf="item.station_data && item.barcode && item.ticket_number && item.fullname" >{{ item.price | currency:'VND':'' }}</td>
+                        <td class="tx-right tx-bold" *ngIf="!item.station_data && !item.barcode && !item.ticket_number && !item.fullname && item.route_number != 'all'">{{ item.price | currency:'VND':'' }}</td>
+                        <td class="tx-right tx-bold"  *ngIf="item.route_number == 'all'">{{ item.price | currency:'VND':'' }}</td>
+
+                        <td class="tx-center" *ngIf="item.station_data && item.barcode && item.ticket_number && item.fullname">{{ item.count_number_only | number}}</td>
+                        <td class="tx-center tx-bold" *ngIf="!item.station_data && !item.barcode && !item.ticket_number && !item.fullname && item.route_number != 'all'">{{ item.count_number_only | number}}</td>
+                        <td class="tx-center tx-bold"  *ngIf="item.route_number == 'all'">{{ item.count_number_only | number}}</td>
+
+                        <td class="tx-center" *ngIf="item.station_data && item.barcode && item.ticket_number && item.fullname">{{ item.count_number_all | number}}</td>
+                        <td class="tx-center tx-bold" *ngIf="!item.station_data && !item.barcode && !item.ticket_number && !item.fullname && item.route_number != 'all'">{{ item.count_number_all | number}}</td>
+                        <td class="tx-center tx-bold"  *ngIf="item.route_number == 'all'">{{ item.count_number_all | number}}</td>
+
+                        <td class="tx-right" *ngIf="item.station_data && item.barcode && item.ticket_number && item.fullname">{{ item.revenue | currency:'VND':''}}</td>
+                        <td class="tx-right tx-bold" *ngIf="!item.station_data && !item.barcode && !item.ticket_number && !item.fullname && item.route_number != 'all'">{{ item.revenue | currency:'VND':''}}</td>
+                        <td class="tx-right tx-bold"  *ngIf="item.route_number == 'all'">{{ item.revenue | currency:'VND':''}}</td>
+                    </tr>
+                </tbody>
+
+                <tbody *ngIf = "routeIdParam == 0">
+                    <tr *ngFor='let item of cardMonthRevenues; let i = index'>
+                        <td class="tx-center" *ngIf="item.route_number != 'all'">{{ i + 1 }} </td>
+                        <td colspan="2" class="tx-center tx-bold" *ngIf="item.route_number == 'all'">{{'LBL_REPORT_MBS_CARD_MONTH_TOTAL_ALL_ROUTES' | translate}}</td>
+                        <td class="tx-center" *ngIf="item.route_number != 'all'">{{ item.route_number }}</td>
+                        <td *ngIf="item.route_number == 'all'" class="tx-center tx-bold">{{ item.price | currency:'VND':''}}</td>
+                        <td *ngIf="item.route_number != 'all'" class="tx-center">{{ item.price | currency:'VND':''}}</td>
+                        <td *ngIf="item.route_number == 'all'"class="tx-center tx-bold">{{ item.count_number_only | number}}</td>
+                        <td *ngIf="item.route_number != 'all'" class="tx-center">{{ item.count_number_only | number}}</td>
+                        <td *ngIf="item.route_number == 'all'"class="tx-center tx-bold">{{ item.count_number_all | number}}</td>
+                        <td *ngIf="item.route_number != 'all'" class="tx-center">{{ item.count_number_all | number}}</td>
+                        <td *ngIf="item.route_number == 'all'"class="tx-right  tx-bold">{{ item.revenue | currency:'VND':''}}</td>
+                        <td *ngIf="item.route_number != 'all'" class="tx-right">{{ item.revenue | currency:'VND':''}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--end card month revenue -->
+
+         <!-- card month by staff -->
+         <div class="table-responsive" *ngIf="cardMonthByStaffs.length > 0 && isSelectTypeReportCardMonth == 2">
+            <table  class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF_FULLNAME' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF_ROLE_NAME' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF_ROUTE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF_BARCODE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF_COUNT_TIMES' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF_REVENUE' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor='let item of cardMonthByStaffs; let i = index'>
+                    <td *ngIf="item.fullname && item.route_name && item.barcode"class="tx-center">{{ i + 1 }} </td>
+                    <td *ngIf="item.fullname && item.route_name && item.barcode">{{ item.fullname }}</td>
+                    <td *ngIf="item.fullname && item.route_name && item.barcode">{{ item.role_name }}</td>
+                    <td *ngIf="item.fullname && item.route_name && item.barcode">{{ item.route_number }}</td>
+                    <td *ngIf="item.fullname && item.route_name && item.barcode">{{ item.barcode }}</td>
+                    <td *ngIf="item.fullname && item.route_name && item.barcode" class="tx-center" >{{ item.count_times | number}}</td>
+                    <td *ngIf="item.fullname && item.route_name && item.barcode" class="tx-right" >{{ item.total_revenue | currency:'VND':'' }}</td>
+
+                    <td class="tx-center tx-bold" colspan="5" *ngIf="!item.fullname && !item.route_name && !item.barcode && item.role_name != 'all' && item.role_name != 'only'">{{ item.role_name }}</td>
+                    <td class="tx-center tx-bold" colspan="5" *ngIf="!item.fullname && !item.route_name && !item.barcode && item.role_name == 'all'">{{'LBL_REPORT_MBS_CARD_MONTH_TOTAL_ALL_ROUTES' | translate}}</td>
+                    <td class="tx-center tx-bold" colspan="5" *ngIf="!item.fullname && !item.route_name && !item.barcode && item.role_name == 'only'">{{'LBL_REPORT_MBS_CARD_MONTH_STAFF_ROLE' | translate}}</td>
+                    <td *ngIf="!item.fullname && !item.route_name && !item.barcode" class="tx-center tx-bold" >{{ item.count_times | number}}</td>
+                    <td *ngIf="!item.fullname && !item.route_name && !item.barcode" class="tx-right tx-bold" >{{ item.total_revenue | currency:'VND':'' }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--end card by staff -->
+
+        <!-- lert not data -->
+        <div class="row" *ngIf="isLoading">
+            <div class="col-md-12">
+                <div *ngIf="datas.length == 0" class="alert alert-warning mg-b-0" role="alert">
+                    <div class="d-flex align-items-center justify-content-start">
+                        <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end lert not data -->
+    </div>
+</div>
+
+<!-- modal show detail rp card month general -->
+<div bsModal #rpDetailCardMonthGerenalModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">
+                    {{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_DETAIL' | translate }}</h6>
+                <button (click)="rpDetailCardMonthGerenalModal.hide()" type="button" class="close" data-dismiss="modal"
+                    aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="bd rounded table-responsive">
+                    <ngb-tabset>
+                        <ngb-tab title="{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_DEPOSIT_CARD' | translate }}">
+                            <ng-template ngbTabContent>
+                                <table class="table table-bordered table-hover table-striped">
+                                    <thead class="thead-colored thead-primary">
+                                        <tr>
+                                            <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                                            <th class="tx-center">
+                                                {{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_BARCODE' | translate }}</th>
+                                            <th class="tx-center">
+                                                {{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_DETAIL_TKT_NUM' | translate }}
+                                            </th>
+                                            <th class="tx-center">
+                                                {{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_DETAIL_AMOUNT' | translate }}</th>
+                                            <th class="tx-center">
+                                                {{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_DETAIL_REVENUE_DATE' | translate }}
+                                            </th>
+                                            <th class="tx-center">
+                                                {{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_DETAIL_ACTIVATED' | translate }}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor='let item of extensionCardMonthGenerals; let i = index'>
+                                            <td class="tx-center">{{i + 1}}</td>
+                                            <td class="tx-center">{{item.barcode}}</td>
+                                            <td class="tx-center">{{item.ticket_number}}</td>
+                                            <td class="tx-right">{{item.amount | currency:'VND':''}}</td>
+                                            <td class="tx-center">{{item.revenue_date}}</td>
+                                            <td class="tx-center">{{item.activated}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </ng-template>
+
+                        </ngb-tab>
+
+                        <ngb-tab title="{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_CHARGE_CARD' | translate }}">
+                            <ng-template ngbTabContent>
+                                <table class="table table-bordered table-hover table-striped">
+                                    <thead class="thead-colored thead-primary">
+                                        <tr>
+                                            <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                                            <th class="tx-center">
+                                                {{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_BARCODE' | translate }}</th>
+                                            <th class="tx-center">
+                                                {{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_DETAIL_TKT_NUM' | translate }}
+                                            </th>
+                                            <th class="tx-center">
+                                                {{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_DETAIL_ACTIVATED' | translate }}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor='let item of swipeCardMonthGenerals; let i = index'>
+                                            <td class="tx-center">{{i + 1}}</td>
+                                            <td class="tx-center">{{item.barcode}}</td>
+                                            <td class="tx-center">{{item.ticket_number}}</td>
+                                            <td class="tx-center">{{item.activated}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </ng-template>
+                        </ngb-tab>
+                    </ngb-tabset>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="rpDetailCardMonthGerenalModal.hide()" type="button"
+                    class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25"
+                    data-dismiss="modal">{{ 'LBL_RCT_CLOSE' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end modal show detail rp card month general -->
+
+<!-- show list user -->
+<div bsModal #listUserModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_LIST_USR' | translate }}</h6>
+            <button (click)="listUserModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="input-group mg-b-20">
+                <input class="form-control py-2 border-right-0 border" type="search" value="search" id="example-search-input"name="search" [(ngModel)]="inputUserName" placeholder="Tìm kiếm...">
+                <span class="input-group-append">
+                    <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th>{{ 'TABLE_STT_NO' | translate }}</th>
+                            <th>{{ 'LBL_RFID_USR' | translate }}</th>
+                            <th>{{ 'LBL_NAME_USR' | translate }}</th>
+                            <th>{{ 'LBL_RCT_PST' | translate }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="inputUserName == ''">
+                            <td>#</td>
+                            <td>#</td>
+                            <td>#</td>
+                            <td>{{ 'BTN_VIEW_RECEIPT' | translate }}</td>
+                            <th class="tx-center" scope="row">
+                                <button (click)="chooseUser(0)" class="btn btn-info">
+                                    {{ 'LBL_USER_PICK_ALL' | translate }}
+                                </button>
+                            </th>
+                        </tr>
+                        <tr *ngFor="let user of (users | filter: inputUserName); let i = index">
+                            <td>{{ i + 1 }}</td>
+                            <td>
+                                <span *ngIf="user.rfidcard">
+                                    {{ user.rfidcard.rfid }}
+                                </span>
+                            </td>
+                            <td>{{ user.fullname }}</td>
+                            <td>{{ 'LBL_RCT_' + user.role.name | translate }}</td>
+                            <th class="tx-center" scope="row">
+                                <button (click)="chooseUser(user.id)" class="btn btn-info">
+                                    {{ 'LBL_USER_PICK' | translate }}
+                                </button>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button (click)="listUserModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+        </div>
+    </div>
+</div>
+    <!-- end show list user -->
+
+<!-- print rp card month -->
+<div id="print-section" class="d-none" *ngIf="company">
+    <table style="width:100%">
+        <tr>
+            <td class="tx-center w-10 pt-0">
+                <div class="tx-11"> <strong > {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+            </td>
+            <td class="tx-center w-10">
+                <div class="tx-11">
+                    <strong > {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                    ({{ 'LBL_PRINT_BH' | translate }} <br />
+                    {{ 'LBL_PRINT_BTC' | translate }})
+                </div>
+            </td>
+        </tr>
+        <tr><td colspan="2">&nbsp;</td></tr>
+        <tr>
+            <td colspan="2" style="width:21cm;">
+                <div class="tx-center">
+                    <strong class="tx-12" style="text-transform: uppercase"> {{ 'LBL_REPOST_CARD_MONTH_REVENUE' | translate }}</strong><br>
+                    <i class="tx-10">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }} {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i><br>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="tx-center w-10 pt-0"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table  class="tbl-print" border="1" style="border-collapse: collapse; width:100%">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_FULLNAME' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_BARCODE' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_TOTAL_AMOUNT' | translate }}</th>
+                            <th class="tx-center">{{'LBL_REPORT_EXPIRY_DATE' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor='let item of cardMonthGenerals; let i = index'>
+                            <td *ngIf=" item.fullname && item.barcode && item.total_amount && item.expiration_date" class="tx-center">{{i + 1}}</td>
+                            <td *ngIf=" item.fullname && item.barcode && item.total_amount && item.expiration_date">{{item.fullname}}</td>
+                            <td *ngIf=" item.fullname && item.barcode && item.total_amount && item.expiration_date" class="tx-center">{{item.barcode}}</td>
+                            <td *ngIf=" item.fullname && item.barcode && item.total_amount && item.expiration_date" class="tx-right"> {{ item.total_amount | currency:'VND':''}} </td>
+                            <td *ngIf=" item.fullname && item.barcode && item.total_amount && item.expiration_date" class="tx-center"> {{ item.expiration_date }} </td>
+                            <td *ngIf=" item.total_last" colspan="2" class="tx-center tx-bold">Tổng:</td>
+                            <td *ngIf=" item.total_last" colspan="2" class="tx-right tx-bold">{{ item.total_last | currency:'VND':''}}</td>
+                            <td *ngIf=" item.total_last" colspan="2" class="tx-center tx-bold"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} .... {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table  class="table-striped"  style="width:100%">
+                    <tbody>
+                        <tr>
+                            <td colspan="3" class="tx-center fl" >
+                                <strong style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_NLB' | translate }}
+                                </strong>
+                                <br>
+                                <i class="tx-11">({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                            </td>
+                            <td colspan="3" class="tx-center fr" >
+                                <strong style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_TBDH' | translate }}
+                                </strong>
+                                <br>
+                                <i class="tx-11">({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- end print rp card month -->
+
+<!-- print rp card month revenue -->
+<div id="print-section-revenue" class="d-none" *ngIf="company">
+        <table style="width:100%">
+            <tr>
+                <td class="tx-center w-10 pt-0">
+                    <div class="tx-11"> <strong > {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+                </td>
+                <td class="tx-center w-10">
+                    <div class="tx-11">
+                        <strong > {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                        ({{ 'LBL_PRINT_BH' | translate }} <br />
+                        {{ 'LBL_PRINT_BTC' | translate }})
+                    </div>
+                </td>
+            </tr>
+            <tr><td colspan="2">&nbsp;</td></tr>
+            <tr>
+                <td colspan="2" style="width:21cm;">
+                    <div class="tx-center">
+                        <strong class="tx-12" style="text-transform: uppercase"> {{ 'LBL_REPOST_CARD_MONTH_REVENUE' | translate }}</strong><br>
+                        <i class="tx-10">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }} {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i><br>
+                        <i class="tx-10" *ngIf="routeName.length > 0">{{ 'LBL_STAFF_ROUTE' | translate }}  {{routeName[0].name}}</i>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="tx-center w-10 pt-0"></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table  class="tbl-print" border="1" style="border-collapse: collapse; width:100%">
+                        <thead class="thead-colored thead-primary">
+                            <tr *ngIf = "routeIdParam > 0">
+                                <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_ROUTE_NAME' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STATION_DATA' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_FULLNAME' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_BARCODE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_DETAIL_TKT_NUM' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_TOTAL_AMOUNT' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_NUMBER_OF_TURNS_ONLY' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_NUMBER_OF_TURNS_ALL' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_REVENUE' | translate }}</th>
+                            </tr>
+                            <tr *ngIf = "routeIdParam == 0">
+                                <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_ROUTE_NAME' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_GENARAL_TOTAL_AMOUNT' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_NUMBER_OF_TURNS_ONLY' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_NUMBER_OF_TURNS_ALL' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_REPORT_MBS_CARD_MONTH_REVENUE' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf = "routeIdParam > 0">
+                            <tr *ngFor='let item of cardMonthRevenues; let i = index'>
+                                <td class="tx-center" *ngIf="item.station_data && item.barcode && item.ticket_number && item.fullname">{{ i + 1 }} </td>
+                                <td class="tx-center" *ngIf="item.station_data && item.barcode && item.ticket_number && item.fullname">{{ item.route_number }}</td>
+                                <td colspan="6" class="tx-center tx-bold" *ngIf="!item.station_data && !item.barcode && !item.ticket_number && !item.fullname && item.route_number != 'all'">{{'LBL_REPORT_MBS_CARD_MONTH_TOTAL_ROUTES' | translate}} {{ item.route_number }}</td>
+                                <td colspan="6" class="tx-center tx-bold" *ngIf="item.route_number == 'all'">{{'LBL_REPORT_MBS_CARD_MONTH_TOTAL_ALL_ROUTES' | translate}}</td>
+
+                                <td class="tx-left" *ngIf="item.station_data">{{ item.station_data }}</td>
+                                <td  *ngIf="item.fullname">{{ item.fullname }}</td>
+                                <td class="tx-center" *ngIf="item.barcode">{{ item.barcode }}</td>
+                                <td class="tx-center" *ngIf="item.ticket_number">{{ item.ticket_number }}</td>
+
+                                <td class="tx-right" *ngIf="item.station_data && item.barcode && item.ticket_number && item.fullname" >{{ item.price | currency:'VND':'' }}</td>
+                                <td class="tx-right tx-bold" *ngIf="!item.station_data && !item.barcode && !item.ticket_number && !item.fullname && item.route_number != 'all'">{{ item.price | currency:'VND':'' }}</td>
+                                <td class="tx-right tx-bold"  *ngIf="item.route_number == 'all'">{{ item.price | currency:'VND':'' }}</td>
+
+                                <td class="tx-center" *ngIf="item.station_data && item.barcode && item.ticket_number && item.fullname">{{ item.count_number_only | number}}</td>
+                                <td class="tx-center tx-bold" *ngIf="!item.station_data && !item.barcode && !item.ticket_number && !item.fullname && item.route_number != 'all'">{{ item.count_number_only | number}}</td>
+                                <td class="tx-center tx-bold"  *ngIf="item.route_number == 'all'">{{ item.count_number_only | number}}</td>
+
+                                <td class="tx-center" *ngIf="item.station_data && item.barcode && item.ticket_number && item.fullname">{{ item.count_number_all | number}}</td>
+                                <td class="tx-center tx-bold" *ngIf="!item.station_data && !item.barcode && !item.ticket_number && !item.fullname && item.route_number != 'all'">{{ item.count_number_all | number}}</td>
+                                <td class="tx-center tx-bold"  *ngIf="item.route_number == 'all'">{{ item.count_number_all | number}}</td>
+
+                                <td class="tx-right" *ngIf="item.station_data && item.barcode && item.ticket_number && item.fullname">{{ item.revenue | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold" *ngIf="!item.station_data && !item.barcode && !item.ticket_number && !item.fullname && item.route_number != 'all'">{{ item.revenue | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold"  *ngIf="item.route_number == 'all'">{{ item.revenue | currency:'VND':''}}</td>
+                            </tr>
+                        </tbody>
+
+                        <tbody *ngIf = "routeIdParam == 0">
+                            <tr *ngFor='let item of cardMonthRevenues; let i = index'>
+                                <td class="tx-center" *ngIf="item.route_number != 'all'">{{ i + 1 }} </td>
+                                <td colspan="2" class="tx-center tx-bold" *ngIf="item.route_number == 'all'">{{'LBL_REPORT_MBS_CARD_MONTH_TOTAL_ALL_ROUTES' | translate}}</td>
+                                <td class="tx-center" *ngIf="item.route_number != 'all'">{{ item.route_number }}</td>
+                                <td *ngIf="item.route_number == 'all'" class="tx-center tx-bold">{{ item.price | currency:'VND':''}}</td>
+                                <td *ngIf="item.route_number != 'all'" class="tx-center">{{ item.price | currency:'VND':''}}</td>
+                                <td *ngIf="item.route_number == 'all'"class="tx-center tx-bold">{{ item.count_number_only | number}}</td>
+                                <td *ngIf="item.route_number != 'all'" class="tx-center">{{ item.count_number_only | number}}</td>
+                                <td *ngIf="item.route_number == 'all'"class="tx-center tx-bold">{{ item.count_number_all | number}}</td>
+                                <td *ngIf="item.route_number != 'all'" class="tx-center">{{ item.count_number_all | number}}</td>
+                                <td *ngIf="item.route_number == 'all'"class="tx-right  tx-bold">{{ item.revenue | currency:'VND':''}}</td>
+                                <td *ngIf="item.route_number != 'all'" class="tx-right">{{ item.revenue | currency:'VND':''}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} .... {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table  class="table-striped"  style="width:100%">
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="tx-center fl" >
+                                    <strong style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_NLB' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i class="tx-11">({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                                </td>
+                                <td colspan="3" class="tx-center fr" >
+                                    <strong style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_TBDH' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i class="tx-11">({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
+</div>
+<!-- end print rp card month revenue -->
+
+<!-- print rp card month staff -->
+<div id="print-section-staff" class="d-none" *ngIf="company">
+    <table style="width:100%">
+        <tr>
+            <td class="tx-center w-10 pt-0">
+                <div class="tx-11"> <strong > {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+            </td>
+            <td class="tx-center w-10">
+                <div class="tx-11">
+                    <strong > {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                    ({{ 'LBL_PRINT_BH' | translate }} <br />
+                    {{ 'LBL_PRINT_BTC' | translate }})
+                </div>
+            </td>
+        </tr>
+        <tr><td colspan="2">&nbsp;</td></tr>
+        <tr>
+            <td colspan="2" style="width:21cm;">
+                <div class="tx-center">
+                    <strong class="tx-12" style="text-transform: uppercase"> {{ 'LBL_REPOST_CARD_MONTH_NUMBER_BY_STAFF' | translate }}</strong><br>
+                    <i class="tx-10">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }} {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i><br>
+                    <i class="tx-10" *ngIf="routeName.length > 0">{{ 'LBL_STAFF_ROUTE' | translate }}  {{routeName[0].name}}</i>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="tx-center w-10 pt-0"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table  class="tbl-print" border="1" style="border-collapse: collapse; width:100%">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF_FULLNAME' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF_ROLE_NAME' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF_ROUTE' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF_BARCODE' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF_COUNT_TIMES' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF_REVENUE' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor='let item of cardMonthByStaffs; let i = index'>
+                            <td *ngIf="item.fullname && item.route_name && item.barcode"class="tx-center">{{ i + 1 }} </td>
+                            <td *ngIf="item.fullname && item.route_name && item.barcode">{{ item.fullname }}</td>
+                            <td *ngIf="item.fullname && item.route_name && item.barcode">{{ item.role_name }}</td>
+                            <td *ngIf="item.fullname && item.route_name && item.barcode">{{ item.route_number }}</td>
+                            <td *ngIf="item.fullname && item.route_name && item.barcode">{{ item.barcode }}</td>
+                            <td *ngIf="item.fullname && item.route_name && item.barcode" class="tx-center" >{{ item.count_times | number}}</td>
+                            <td *ngIf="item.fullname && item.route_name && item.barcode" class="tx-right" >{{ item.total_revenue | currency:'VND':'' }}</td>
+
+                            <td class="tx-center tx-bold" colspan="5" *ngIf="!item.fullname && !item.route_name && !item.barcode && item.role_name != 'all' && item.role_name != 'only'">{{ item.role_name }}</td>
+                            <td class="tx-center tx-bold" colspan="5" *ngIf="!item.fullname && !item.route_name && !item.barcode && item.role_name == 'all'">{{'LBL_REPORT_MBS_CARD_MONTH_TOTAL_ALL_ROUTES' | translate}}</td>
+                            <td class="tx-center tx-bold" colspan="5" *ngIf="!item.fullname && !item.route_name && !item.barcode && item.role_name == 'only'">{{'LBL_REPORT_MBS_CARD_MONTH_STAFF_TOTAL_ROLE' | translate}}</td>
+                            <td *ngIf="!item.fullname && !item.route_name && !item.barcode" class="tx-center tx-bold" >{{ item.count_times | number}}</td>
+                            <td *ngIf="!item.fullname && !item.route_name && !item.barcode" class="tx-right tx-bold" >{{ item.total_revenue | currency:'VND':'' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} .... {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table  class="table-striped"  style="width:100%">
+                    <tbody>
+                        <tr>
+                            <td colspan="3" class="tx-center fl" >
+                                <strong style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_NLB' | translate }}
+                                </strong>
+                                <br>
+                                <i class="tx-11">({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                            </td>
+                            <td colspan="3" class="tx-center fr" >
+                                <strong style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_TBDH' | translate }}
+                                </strong>
+                                <br>
+                                <i class="tx-11">({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- end print rp card month staff -->

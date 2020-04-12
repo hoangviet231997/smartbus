@@ -1,0 +1,271 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list routes -->
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+    <div class="row">
+        <div class="col-md-6 tx-left">
+          <h2 class="tx-gray-800 tx-bold mg-b-10">
+            <i class="fa fa-compass" aria-hidden="true"></i>
+            <span *ngIf="isEditRoute==false" class="menu-item-label">{{ 'BTN_ADD_ROU' | translate }}</span>
+            <span *ngIf="isEditRoute" class="menu-item-label">{{ 'BTN_EDIT_ROU' | translate }}</span>
+          </h2>
+        </div>
+        <div class="col-md-6 tx-right">
+          <button (click)="saveRoute()" class="btn btn-teal mg-b-20 pd-r-20">
+            <i class="fa fa-plus mg-r-5"></i> <span *ngIf="isEditRoute==false">{{ 'BTN_ADD_ROU' | translate }}</span> <span *ngIf="isEditRoute">{{ 'BTN_UPDATE_ROU' | translate }}</span>
+          </button>
+        </div>
+    </div>
+
+    <div class="row">
+      <div class="col-4 form-layout form-layout-1 pd-0">
+        <div class="col-lg-11">
+            <div class="form-group">
+                <label class="form-control-label">{{ 'TABLE_NAME' | translate }}:  <span class="tx-danger">*</span></label>
+                <input class="form-control" type="text" name="name" [(ngModel)]="route.name">
+            </div>
+        </div>
+        <div class="col-lg-11">
+            <div class="form-group">
+                <label class="form-control-label">{{ 'TABLE_NUM' | translate }}:  <span class="tx-danger">*</span></label>
+                <input class="form-control" type="text" name="number" [(ngModel)]="route.number">
+            </div>
+        </div>
+
+        <div class="col-lg-11">
+            <div class="form-group">
+                <label class="form-control-label">{{ 'TABLE_MODULE_APP' | translate }}:  <span class="tx-danger">*</span></label>
+                <div style="border: 1px solid #dadada; padding: 5px 10px">
+                    <div class="row">
+                        <div class="col-lg-12" *ngFor="let module of module_companies">
+                            <th class="tx-center">
+                                <label class="ckbox">
+                                    <input [checked]="module_arr.includes(module.id)" type="checkbox" (change)="onModuleChange($event, module.id)">
+                                    <span>&nbsp;</span>
+                                </label>
+                            </th>
+                            <td class="tx-left">{{module.display_name}}</td>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-11">
+            <div class="form-group">
+                <label class="form-control-label">{{ 'LBL_TICKET_ROU' | translate }}:</label>
+                <div style="border: 1px solid #dadada; padding: 5px 10px; overflow: auto; height: 200px;">
+                    <div class="row">
+                        <div class="col-lg-6" *ngFor="let ticket of tickeTypes">
+                            <th class="tx-center">
+                                <label class="ckbox">
+                                    <input type="checkbox" [checked]="ticket_arr.includes(ticket.id)" (change)="changeCheckedTicketPricew($event, ticket.id)">
+                                    <span>&nbsp;</span>
+                                </label>
+                            </th>
+                            <td class="tx-left">{{ticket.ticket_prices[ticket.ticket_prices.length-1].price | currency:'VND':''}}<span style="color: #a24343"> ({{ticket.order_code }})</span></td>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-11">
+            <div class="form-group">
+                <label class="form-control-label">{{ 'LBL_DISTANCE_SCAN_ROU' | translate }}(Km):</label>
+                <input class="form-control" type="number" name="name" [(ngModel)]="route.distance_scan">
+            </div>
+        </div>
+
+        <div class="col-lg-11">
+            <div class="form-group">
+                <label class="form-control-label">{{ 'LBL_TIMEOUT_SOUND_ROU' | translate }}(s):</label>
+                <input class="form-control" type="number" name="number" [(ngModel)]="route.timeout_sound">
+            </div>
+        </div>
+        <!-- start time-->
+        <div class="form-group">
+            <div class="pull-left col-5">
+                <label class="form-control-label">{{ 'LBL_STR_ROU' | translate }}:  <span class="tx-danger">*</span></label>
+                <timepicker [(ngModel)]="start_time" [showMeridian]="false" ></timepicker>
+            </div>
+
+            <div class="pull-left col-5">
+                <label class="form-control-label">{{ 'LBL_END_ROU' | translate }}:  <span class="tx-danger">*</span></label>
+                <timepicker [(ngModel)]="end_time"   [showMeridian]="false" ></timepicker>
+            </div>
+        </div>
+        <!-- end time -->
+      </div>
+
+      <div class="col-8">
+        <agm-map style="height: 100%"
+          [latitude]="lat"
+          [longitude]="lng"
+          [zoom]="zoom"
+          [disableDefaultUI]="false"
+          [zoomControl]="true"
+          (mapClick)="mapClicked($event)">
+            <agm-marker
+                *ngFor="let m of markers; let i = index"
+                [latitude]="m.lat"
+                [longitude]="m.lng"
+                [label]="m.label"
+                [markerDraggable]="true"
+                (markerClick)="clickedMarker(i)"
+                iconUrl="assets/img/bus_station.png"
+                (dragEnd)="markerDragEnd(i, $event)">
+            </agm-marker>
+        </agm-map>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end table list device -->
+
+<!-- add station -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 *ngIf="isEditMarker==false" class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_ADD_STATION' | translate }}</h6>
+            <h6 *ngIf="isEditMarker" class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_EDIT_DEV' | translate }} </h6>
+            <button (click)="hideMarket()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="row mg-b-25">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_STATION_NAME' | translate }}:  <span class="tx-danger">*</span></label>
+                        <input class="form-control" type="text" [(ngModel)]="bus_station.name" maxlength="50">
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_ADDRESS' | translate }}:  <span class="tx-danger">*</span></label>
+                        <input class="form-control" type="text" [(ngModel)]="bus_station.address">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_STATION_ORDER' | translate }}:  <span class="tx-danger">*</span></label>
+                        <input class="form-control" type="text" [(ngModel)]="bus_station.station_order">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_STATION_DIRECTION' | translate }}:  <span class="tx-danger">*</span></label>
+                        <input name="show-audio"  class="selector-control" type="radio" (click)="changeCheckDirection(0)" [checked]="isCheckDirectionInTurn">
+                        <label  class="selector-control" for="hide-poi">{{ 'TABLE_STATION_DIRECTION_IN_TURN' | translate }}</label>
+                        <input name="show-audio"  class="selector-control" type="radio" (click)="changeCheckDirection(1)" [checked]="isCheckDirectionTurnOn">
+                        <label  class="selector-control" for="show-poi">{{ 'TABLE_STATION_DIRECTION_TURN_ON' | translate }}</label>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_STATION_DISTANCE' | translate }}: <span class="tx-danger">*</span> </label>
+                        <select class="form-control" [(ngModel)]="statusDistance">
+                            <option value="null"> {{"TABLE_STATION_DISTANCE_NOT_CHOOSE" | translate}} </option>
+                            <option value="0"> {{"TABLE_STATION_DISTANCE_AUTO" | translate}} </option>
+                            <option value="1"> {{"TABLE_STATION_DISTANCE_INPUT" | translate}} </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-6" *ngIf="statusDistance == 1">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{'TABLE_STATION_DISTANCE_UNIT' | translate}}</label>
+                        <input class="form-control" type="text" [(ngModel)]="bus_station.distance"  id="distance" name="distance" >
+                    </div>
+                </div>
+                <div class="col-lg-12" *ngIf="bus_station.url_sound === null">
+                  <div class="form-group">
+                      <label class="form-control-label tx-bold">{{ 'TABLE_STATION_URL_SOUND' | translate }}:</label>
+                      <input  #myInputFile class="form-control" placeholder="File Name" (change)="onFileAudioChange($event)" type="file" accept="audio/mp3">
+                  </div>
+                </div>
+                <div class="col-lg-6" *ngIf="bus_station.url_sound !== null">
+                  <div class="form-group">
+                      <label class="form-control-label tx-bold">{{ 'TABLE_STATION_URL_SOUND' | translate }}:</label>
+                      <input #myInputFile class="form-control" placeholder="File Name" (change)="onFileAudioChange($event)" type="file" accept="audio/mp3">
+                  </div>
+                </div>
+                <div class="col-lg-6" *ngIf="bus_station.url_sound !== null">
+                    <div class="form-row">
+                        <div class="col-sm-10">
+                            <div class="form-group">
+                                <label class="form-control-label tx-bold">&nbsp;</label>
+                                <span class="form-control" style="background-color:#dadada" type="text"
+                                    disabled>{{bus_station.url_sound}}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <button (click)="playAudio(bus_station.url_sound)" class="fa fa-volume-up fa-3x" style="padding: 0px 4px;
+                                                color: lightslategrey;
+                                                height: 44px;
+                                                background: white;
+                                                margin-top: 29px;">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6" *ngIf="bus_station.url_sound !== null && this.str_audio_base64 == ''">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">&nbsp;</label>
+                        <span style="color: red;">{{'LBL_BUS_STATION_CHECK_REMOVE_URL_SOUND' | translate}}</span>&nbsp;&nbsp;&nbsp;
+                        <input class="" type="checkbox" [checked]="isCheckRemoveUrlSound" (change)="checkRemoveUrlSoundBusStation($event)"/>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_BUS_STATION_RELATIVE' | translate }}:  <span class="tx-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-custom" *ngFor="let item of routes">
+                        <div class="row">
+                            <div class="col-lg-6 tx-left">
+                                <label class="tx-bold">{{ item.route_name }}:</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3" *ngFor="let busStation of item.bus_stations; let i = index">
+                                <th class="tx-center">
+                                    <label class="ckbox">
+                                        <input type="checkbox"  [checked]="bus_station.station_relative.includes(busStation.id)" (change)="changeCheckedBusStation($event, busStation, item.id)">
+                                        <!-- <input *ngIf="busStation.direction != 0" type="checkbox" [disabled]="true" [checked]="bus_station.station_relative.includes(busStation.id)" (change)="changeCheckedBusStation($event, busStation, item.id)"> -->
+                                        <span></span>
+                                    </label>
+                                </th>
+                                <td class="tx-left">
+                                    <span>{{busStation.station_order}}. {{busStation.name}}(Đi)</span>
+                                    <!-- <span *ngIf="busStation.direction != 0">{{busStation.station_order}}. {{busStation.name}}(Về)</span> -->
+                                </td>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <input class="form-control" *ngIf="isUrlSound" [checked]="true" type="checkbox" disabled title="{{'TABLE_STATION_URL_SOUND_YES' | translate}}">
+                      <input class="form-control" *ngIf="!isUrlSound" [checked]="false" type="checkbox" disabled title="{{'TABLE_STATION_URL_SOUND_NO' | translate}}"> -->
+            </div>
+        </div>
+
+        <div class="modal-header pd-y-20 pd-x-25">
+              <button type="button" (click)="delMarker(index)" class="btn btn-danger tx-11 tx-uppercase pd-y-12 pd-x-25 pull-left">{{ 'BTN_DEL_STATION' | translate }}</button>
+              <div>
+                <button (click)="addStation()" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25 mg-x-10">
+                  <span *ngIf="isEditMarker==false">{{ 'FORM_ADD' | translate }}</span>
+                  <span *ngIf="isEditMarker">{{ 'FORM_UPDATE' | translate }}</span>
+                </button>
+                <button (click)="hideMarket()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_IGNORE' | translate }}</button>
+              </div>
+        </div>
+    </div>
+    </div>
+</div>

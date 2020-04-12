@@ -1,0 +1,220 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list category -->
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+    <div class="row">
+      <div class="col-md-6 tx-left">
+        <h2 class="tx-gray-800 tx-bold mg-b-10">
+          <i class="fa fa-inbox" aria-hidden="true"></i>
+          <span class="menu-item-label">{{ 'MENU_ACL_CATEGORY' | translate }}</span>
+        </h2>
+      </div>
+      <div class="col-md-6 tx-right">
+        <button type="button" class="btn btn-teal mg-b-20 pd-r-20" data-toggle="modal" (click)="showModalAdd()">
+          <i class="fa fa-plus"></i> {{ 'BTN_CATEGORY_ADD' | translate }}
+        </button>
+      </div>
+    </div>
+    <div class="row">
+        <table class="table mg-b-0">
+            <tr>
+                <td style="width:30%">
+                    <select class="form-control py-2 border-right-0 border" [(ngModel)]="style_search">
+                        <option value="">---- {{ 'LBL_SEARCH_BY_CATEGORY' | translate }} ----</option>
+                        <option value="display_name">{{ 'LBL_SEARCH_CATEGORY_VALUE_NAME' | translate }}</option>
+                        <option value="key">{{ 'LBL_SEARCH_CATEGORY_VALUE_KEY_WORK' | translate }}</option>
+
+                    </select>
+                </td>
+                <td *ngIf="style_search !== 'role'" style="width:70%">
+                    <div class="input-group">
+                        <input class="form-control py-2 border-right-0 border"  [(ngModel)]="key_input" (ngModelChange)="getDataCategoryByInput()" type="search" id="example-search-input" placeholder="Tìm kiếm...">
+                        <span class="input-group-append">
+                            <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover table-striped">
+        <thead class="thead-colored thead-primary">
+          <tr>
+            <th class="tx-center">{{ 'TABLE_CATEGORY_STT' | translate }}</th>
+            <th class="tx-center">{{ 'TABLE_CATEGORY_DIS_NAME' | translate }}</th>
+            <th class="tx-center">{{ 'TABLE_CATEGORY_KEY' | translate }}</th>
+            <!-- <th class="tx-center">{{ 'TABLE_CATEGORY_PAR' | translate }}</th> -->
+            <th class="tx-center">{{ 'TABLE_CATEGORY_TYPE' | translate }}</th>
+            <th class="tx-center">{{ 'TABLE_CATEGORY_ACT' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let category of categories; let i = index">
+            <td class="text-left">
+              <!-- <div *ngIf="category.parent_id == 0" class="tx-bold">{{ i+1 }}</div> -->
+              <div >{{((this.currentPage - 1) * this.limitPage) + (i + 1)}} </div>
+            </td>
+            <td class="text-left">
+              <!-- <div *ngIf="category.parent_id == 0" class="tx-bold">{{category.display_name}}</div> -->
+              <div >{{category.display_name}}</div>
+            </td>
+            <td class="text-left">
+              <!-- <div *ngIf="category.parent_id == 0" class="tx-bold"> {{category.key}}</div> -->
+              <div > {{category.key}}</div>
+            </td>
+            <!-- <td class="text-left">
+              <div *ngIf="category.parent_id == 0" class="tx-bold"> Trang cha</div>
+              <div *ngIf="category.parent_id > 0"> {{category.display_name}}</div>
+            </td> -->
+            <td class="text-left">
+              <!-- <div *ngIf="category.parent_id == 0" class="tx-bold"> {{category.type}}</div> -->
+              <div> {{category.type}}</div>
+            </td>
+            <td class="tx-center">
+              <button title="Cập nhật" type="button" class="btn btn-primary btn-width" data-toggle="modal"
+                (click)="showModalEdit(category.id)">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+              </button>
+              <button title="Xóa" type="button" class="btn btn-danger btn-width" data-toggle="modal"
+                (click)="deleteCategory(category.id)">
+                <i class="fa fa-times" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- page -->
+    <div *ngIf="this.key_input === ''">
+        <div class="row" *ngIf="paginationTotal > 0">
+            <div class="d-flex align-items-center justify-content-center col-md-12">
+                <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
+                    [totalItems]="paginationTotal" [itemsPerPage]="limitPage" [maxSize]="7" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+            </div>
+        </div>
+    </div>
+    <!-- end page -->
+  </div>
+  <footer class="br-footer"></footer>
+</div>
+<!-- end table list category -->
+
+<!-- edit category -->
+<div bsModal #editModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title tx-bold">{{ 'BTN_CATEGORY_UPD' | translate }}</h5>
+        <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <!-- <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>{{ 'LBL_CATEGORY_PARENT_PAGE' | translate }}</label>
+              <select class="form-control" [(ngModel)]="categoryUpdate.parent_id" name="parent_id" id="">
+                <option value="0">--- Trang cha ---</option>
+                <option *ngFor="let cate of categorieParent" value="{{cate.id}}">{{ cate.display_name }}</option>
+              </select>
+            </div>
+            <div class="form-group col-md-12">
+              <label class="form-control-label" for="">{{ 'LBL_CATEGORY_TYPE' | translate }}</label>
+              <select class="form-control" [(ngModel)]="categoryUpdate.type" name="type" id="type">
+                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div> -->
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>{{ 'LBL_CATEGORY_NAME_PAGE' | translate }}</label>
+              <input [(ngModel)]="categoryUpdate.display_name" name="name" type="text" class="form-control"
+                placeholder="Nhập tên trang">
+            </div>
+            <div class="form-group col-md-6">
+              <label>{{ 'LBL_CATEGORY_KEY_PAGE' | translate }}</label>
+              <input [(ngModel)]="categoryUpdate.key" name="key" type="text" class="form-control"
+                placeholder="Nhập từ khóa trang">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>{{ 'LBL_CATEGORY_DESCRIPTION' | translate }}</label>
+            <textarea [(ngModel)]="categoryUpdate.description" name="description" class="form-control" cols="30"
+              rows="2"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button (click)="editModal.hide()" type="button" class="btn btn-secondary"
+          data-dismiss="modal">{{ 'LBL_CATEGORY_CLOSE' | translate }}</button>
+        <button (click)="editCategory()" type="button"
+          class="btn btn-primary">{{ 'LBL_CATEGORY_SAVE' | translate }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end edit category -->
+
+<!-- add category -->
+<div bsModal #addModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title tx-bold">{{ 'BTN_CATEGORY_ADD' | translate }}</h6>
+        <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <!-- <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>{{ 'LBL_CATEGORY_PARENT_PAGE' | translate }}</label>
+              <select class="form-control" [(ngModel)]="category.parent_id" name="parent_id" id="">
+                <option value="0">--- Trang cha ---</option>
+                <option *ngFor="let cate of categorieParent" value="{{cate.id}}">{{ cate.display_name }}</option>
+              </select>
+            </div>
+            <div class="form-group col-md-12">
+              <label class="form-control-label" for="">{{ 'LBL_CATEGORY_TYPE' | translate }}</label>
+              <select class="form-control" [(ngModel)]="categoryCreate.type" name="type" id="type">
+                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div> -->
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>{{ 'LBL_CATEGORY_NAME_PAGE' | translate }}</label>
+              <input [(ngModel)]="categoryCreate.display_name" name="name" type="text" class="form-control"
+                placeholder="Nhập tên trang">
+            </div>
+            <div class="form-group col-md-6">
+              <label>{{ 'LBL_CATEGORY_KEY_PAGE' | translate }}</label>
+              <input [(ngModel)]="categoryCreate.key" name="key" type="text" class="form-control"
+                placeholder="Nhập từ khóa trang">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>{{ 'LBL_CATEGORY_DESCRIPTION' | translate }}</label>
+            <textarea [(ngModel)]="categoryCreate.description" name="description" class="form-control" cols="30"
+              rows="2"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button (click)="addModal.hide()" type="button" class="btn btn-secondary"
+          data-dismiss="modal">{{ 'LBL_CATEGORY_CLOSE' | translate }}</button>
+        <button (click)="addCategory()" type="button"
+          class="btn btn-primary">{{ 'LBL_CATEGORY_SAVE' | translate }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end add category -->

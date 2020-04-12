@@ -1,0 +1,1025 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- manager receipts -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-6 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-print" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'LBL_LIST_RCT' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-6 tx-right">
+                <button (click)="searchOption(1)" class="btn mg-b-20 pd-r-20" data-toggle="tooltip" data-placement="top">
+                    <i class="fa fa-undo"></i> {{ 'LBL_RCT_BACK' | translate }}
+                </button>&nbsp;
+                <button (click)="searchOption(2)" class="btn btn-outline-info mg-b-20 pd-r-20" data-toggle="tooltip" data-placement="top">
+                    <i class="fa fa-eye"></i> {{ 'BTN_RCT_UNPAID' | translate }}
+                </button>
+                &nbsp;
+                <button (click)="searchOption(3)" class="btn btn-info mg-b-20 pd-r-20" data-toggle="tooltip" data-placement="top">
+                    <i class="fa fa-eye"></i> {{ 'BTN_VIEW_RECEIPT' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="form-layout form-layout-1 pd-x-0">
+            <div class="row mg-b-10" *ngIf="statusView == 1">
+                <div class="col">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="chooseDate"
+                                [bsValue]="currentTime"
+                                [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                                [(ngModel)]="dateDefault"
+                                (ngModelChange)="searchReceipt()"
+                                [maxDate]="maxDate"
+                                #dp="bsDaterangepicker"
+                                bsDaterangepicker>
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="dp.toggle()" type="button">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_USER' | translate }}</label>
+                        <div class="input-group">
+                            <input class="form-control" type="text" [(ngModel)]="searchUserName" disabled>
+                            <input type="hidden" [(ngModel)]="receiptForm.user_id">
+                            <span class="input-group-btn">
+                                <button (click)="showListUserModal()" class="btn btn-info pd-x-15" type="button">
+                                    <i class="fa fa-user"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_LICENSE_PLATE' | translate }}</label>
+                        <div class="input-group">
+                            <input class="form-control" type="text" [(ngModel)]="licensePlatesInput" (ngModelChange)="searchReceipt()"
+                                disabled>
+                            <span class="input-group-btn">
+                                <button (click)="showListVehicleModal()" class="btn btn-info pd-x-15" type="button">
+                                    <i class="ion ion-android-bus"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mg-b-10" *ngIf="statusView == 2">
+                <div class="offset-lg-3 col-lg-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="chooseDate"
+                                [bsValue]="currentTime"
+                                [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                                [(ngModel)]="dateOnly"
+                                (ngModelChange)="searchDateOnly()"
+                                [maxDate]="maxDate"
+                                #dp="bsDaterangepicker"
+                                bsDaterangepicker>
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="dp.toggle()" type="button">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_USER' | translate }}</label>
+                        <div class="input-group">
+                            <input class="form-control" type="text" [(ngModel)]="searchUserName" disabled>
+                            <input type="hidden" [(ngModel)]="receiptForm.user_id">
+                            <span class="input-group-btn">
+                                <button (click)="showListUserModal()" class="btn btn-info pd-x-15" type="button">
+                                    <i class="fa fa-user"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mg-b-10" *ngIf="statusView == 3">
+                <div class="offset-lg-4 col-lg-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="chooseDate"
+                                [bsValue]="currentTime"
+                                [bsConfig]="{ dateInputFormat: 'DD/MM/YYYY' }"
+                                [(ngModel)]="dateAll"
+                                (ngModelChange)="searchDateAll()"
+                                [maxDate]="maxDate"
+                                #dp="bsDatepicker"
+                                bsDatepicker>
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="dp.toggle()" type="button">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Show is loading -->
+        <!-- <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+            <div class="d-flex pos-relative align-items-center">
+                <div class="sk-three-bounce">
+                    <div class="sk-child sk-bounce1 bg-gray-800"></div>
+                    <div class="sk-child sk-bounce2 bg-gray-800"></div>
+                    <div class="sk-child sk-bounce3 bg-gray-800"></div>
+                </div>
+            </div>
+        </div> -->
+        <!-- End is loading -->
+        <!-- show list receipt -->
+        <div *ngIf="isFound" class="mg-t-30 mg-b-20">
+            <table *ngIf="receipts.length > 0 else nodata" class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">
+                          <label class="ckbox mg-b-20">
+                              <input [checked]="isCheckAllTotal" type="checkbox" (change)="onReceiptChangedTotal($event)">
+                              <span></span>
+                          </label>
+                        </th>
+                        <th class="tx-center">{{ 'LBL_RCT_DATETIME' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_VEHICLE_ROUTE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_IMEI_DEVICE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_RCT_STATION' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_RCT_PAYMENT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_RCT_driver' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_RCT_subdriver' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_LP_VHC' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_RCT_AMT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_RCT_CHARGE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_RCT_DEPOSIT_AND_DEPOSIT_MONTH' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_RCT_GOODS' | translate }}</th>
+                        <th class="tx-center"></th>
+                        <th *ngIf="user_admin" class="tx-center"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let receipt of receipts; let i = index">
+                        <td class="tx-center">
+                            <div *ngIf="receipt.shift_destroy === 0">
+                                <label *ngIf="receipt.hidden === 0 " class="ckbox" >
+                                    <input [checked]="isCheckAll" type="checkbox" name="receipt[]" [value]="receipt.shift_id" (change)="onReceiptChanged($event, receipt, i)">
+                                    <span></span>
+                                </label>
+                                <label *ngIf="receipt.hidden === 1 " class="ckbox">
+                                    <input [checked]="isCheckAll" type="checkbox" name="receipt[]" [value]="receipt.shift_id" (change)="onReceiptChanged($event, receipt, i)" disabled>
+                                    <span></span>
+                                </label>
+                            </div>
+                            <label *ngIf="receipt.shift_destroy === -1 " class="ckbox disabled">
+                                <input [checked]="isCheckAll" type="checkbox" name="receipt[]" [value]="receipt.shift_id" (change)="onReceiptChanged($event, receipt, i)" disabled>
+                                <span></span>
+                            </label>
+                        </td>
+                        <td>{{ receipt.date_time }}</td>
+                        <td>{{ receipt.route_name }}</td>
+                        <td>{{ receipt.identity }}</td>
+                        <td>{{ receipt.from_station }}</td>
+                        <td class="tx-center tx-bold">
+                            <div *ngIf="receipt.collected === 1" class="tx-info">
+                                {{ 'LBL_RCT_PAIDED' | translate }}
+                            </div>
+                            <div *ngIf="receipt.collected === 0">
+                                <div *ngIf="receipt.shift_destroy === 0" >
+                                    <div *ngIf="receipt.hidden === 0 " >
+                                        <button *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" (click)="updateCollectedBt(receipt.shift_id, receipt)"  class="btn btn-sm btn-oblong btn-outline-danger btn-block">
+                                            {{ 'LBL_RCT_UNPAID' | translate }}
+                                        </button>
+                                    </div>
+                                    <div *ngIf="receipt.hidden === 1" >
+                                        <button *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" (click)="updateCollectedBt(receipt.shift_id, receipt)"  class="btn btn-sm btn-oblong btn-outline-danger btn-block" disabled>
+                                            {{ 'LBL_RCT_UNPAID' | translate }}
+                                        </button>
+                                    </div>
+                                        <!-- <button *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" class="btn btn-sm btn-oblong btn-outline-danger btn-block" disabled>
+                                            {{ 'LBL_RCT_UNPAID' | translate }}
+                                        </button> -->
+                                </div>
+                                <div *ngIf="receipt.shift_destroy === -1 " >
+                                    <button *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" (click)="updateCollectedBt(receipt.shift_id, receipt)"  class="btn btn-sm btn-oblong btn-outline-danger btn-block" disabled>
+                                        {{ 'LBL_RCT_UNPAID' | translate }}
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                        <td *ngIf="receipt.driver_name !== ''">{{ receipt.driver_name }}</td>
+                        <td *ngIf="receipt.driver_name === ''">
+                            <div *ngIf="receipt.shift_destroy === 0">
+                                <div *ngIf="receipt.hidden === 0 " >
+                                    <a *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" href="javascript:void(0)" (click)="showListUserByShiftId(receipt.shift_id, 1, i)" class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="top">
+                                        <i class="fa fa-pencil" aria-hidden="true"></i> {{ 'LBL_RCT_EDIT_USER'  | translate}}
+                                    </a>
+                                </div>
+                                <div *ngIf="receipt.hidden === 1 " >
+                                    <a *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" href="javascript:void(0)" (click)="showListUserByShiftId(receipt.shift_id, 1, i)" class="btn btn-sm btn-primary disabled" data-toggle="tooltip" data-placement="top" >
+                                        <i class="fa fa-pencil" aria-hidden="true"></i> {{ 'LBL_RCT_EDIT_USER'  | translate}}
+                                    </a>
+                                </div>
+                                <!-- <a *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" class="btn btn-sm btn-primary disabled" data-toggle="tooltip" data-placement="top" disabled>
+                                    <i class="fa fa-pencil" aria-hidden="true"></i> {{ 'LBL_RCT_EDIT_USER'  | translate}}
+                                </a> -->
+                            </div>
+                            <div *ngIf="receipt.shift_destroy === -1 " >
+                                <a *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" href="javascript:void(0)" (click)="showListUserByShiftId(receipt.shift_id, 1, i)" class="btn btn-sm btn-primary disabled" data-toggle="tooltip" data-placement="top" >
+                                    <i class="fa fa-pencil" aria-hidden="true"></i> {{ 'LBL_RCT_EDIT_USER'  | translate}}
+                                </a>
+                            </div>
+                        </td>
+                        <td *ngIf="receipt.subdriver_name !== ''">{{ receipt.subdriver_name }}</td>
+                        <td *ngIf="receipt.subdriver_name === ''">
+                            <div *ngIf="receipt.shift_destroy === 0">
+                                <div *ngIf="receipt.hidden === 0 " >
+                                    <a  *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" href="javascript:void(0)" (click)="showListUserByShiftId(receipt.shift_id, 0, i)" class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="top">
+                                        <i class="fa fa-pencil" aria-hidden="true"></i> {{ 'LBL_RCT_EDIT_SUB_DEVIRE_USER'  | translate}}
+                                    </a>
+                                </div>
+                                <div *ngIf="receipt.hidden === 1 " >
+                                    <a  *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" href="javascript:void(0)" (click)="showListUserByShiftId(receipt.shift_id, 0, i)" class="btn btn-sm btn-primary disabled" data-toggle="tooltip" data-placement="top" >
+                                        <i class="fa fa-pencil" aria-hidden="true"></i> {{ 'LBL_RCT_EDIT_SUB_DEVIRE_USER'  | translate}}
+                                    </a>
+                                </div>
+                                <!-- <a *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" class="btn btn-sm btn-primary disabled" data-toggle="tooltip" data-placement="top" disabled>
+                                    <i class="fa fa-pencil" aria-hidden="true"></i> {{ 'LBL_RCT_EDIT_SUB_DEVIRE_USER'  | translate}}
+                                </a> -->
+                            </div>
+                            <div *ngIf="receipt.shift_destroy === -1 " >
+                                <a *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" href="javascript:void(0)" (click)="showListUserByShiftId(receipt.shift_id, 0, i)" class="btn btn-sm btn-primary disabled" data-toggle="tooltip" data-placement="top" >
+                                    <i class="fa fa-pencil" aria-hidden="true"></i> {{ 'LBL_RCT_EDIT_SUB_DEVIRE_USER'  | translate}}
+                                </a>
+                            </div>
+                        </td>
+                        <td>{{ receipt.license_plates }}</td>
+                        <td class="tx-right">{{ receipt.total_price | currency:'VND':'' }}</td>
+                        <td class="tx-right">{{ receipt.total_charge | currency:'VND':'' }}</td>
+                        <td class="tx-right">{{ receipt.total_deposit | currency:'VND':'' }}</td>
+                        <td class="tx-right">{{ receipt.total_goods | currency:'VND':'' }}</td>
+                        <td class="tx-center">
+                            <div *ngIf="receipt.shift_destroy === 0">
+                                <button (click)="showdetailReceiptModal(receipt.shift_id, i, receipt.collected)" [ladda]="laddaBtnDetail[i]" class="btn-sm btn btn-info">
+                                    <i class="fa fa-eye pd-r-5" title="{{ 'LBL_RCT_VIEW_DETAIL' | translate }}"></i>
+                                </button>
+                                <div *ngIf="receipt.is_amount == 0 && (permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))">
+                                    <button (click)="showModalDestroyShift(receipt)"  class="btn-sm btn btn-danger">
+                                        <i class="fa fa-trash-o pd-r-5" title="{{ 'LBL_DEL_SHIFT' | translate }}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <span *ngIf="receipt.shift_destroy === -1" style="color:green"> {{'LBL_ACCEPTING' | translate}} </span>
+                        </td>
+                        <td *ngIf="user_admin">
+                            <button title="{{ 'LBL_RCT_WARNING_MONEY' | translate }}" *ngIf="(receipt.total_amount !== null) && (receipt.total_amount != (receipt.total_price + receipt.total_deposit + receipt.total_goods))" (click)="showInfoWarning(receipt)" style="background-color: rgb(252, 255, 73); border-radius: 10px;" class="status-warning" data-toggle="tooltip" data-placement="left">
+                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Cảnh báo
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" class="tx-center tx-bold tx-16">{{ 'LBL_RCT_TTL' | translate }}</td>
+                        <td colspan="1" class="tx-right">
+                            <div class="tx-15"> <strong> {{ checkedTotalPos | currency:'VND':'' }} </strong></div>
+                        </td>
+                        <td colspan="1" class="tx-right">
+                            <div class="tx-15"> <strong> {{ checkedTotalCharge | currency:'VND':'' }} </strong></div>
+                        </td>
+                        <td colspan="1" class="tx-right">
+                            <div class="tx-15"> <strong> {{ checkedTotalDeposit | currency:'VND':'' }} </strong></div>
+                        </td>
+                        <td colspan="1" class="tx-right">
+                            <div class="tx-15"> <strong> {{ checkedTotalGoods | currency:'VND':'' }} </strong></div>
+                        </td>
+                        <td *ngIf="user_admin" colspan="1" class="tx-right">
+                        </td>
+                        <td colspan="1" class="tx-right">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div id="print-section" class="d-none">
+                <table>
+                    <tr>
+                        <td class="tx-center w-10 pt-0">
+                            <div class="tx-11"> <strong > {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+                        </td>
+                        <td class="tx-center w-10">
+                            <div class="tx-11">
+                                <strong > Mẫu số 01-TT</strong><br />
+                                (Ban hành theo Thông tư số 200/2014/TT- <br />
+                                BTC Ngày 22/12/2014 của Bộ Tài Chính)
+                            </div>
+                        </td>
+                    </tr>
+                    <tr><td colspan="2">&nbsp;</td></tr>
+                    <tr>
+                        <td colspan="2" style="width:21cm;">
+                            <div class="tx-center" >
+                                <strong class="tx-12" > PHIẾU THU</strong><br>
+                                <i class="tx-10">Ngày {{days}} tháng {{months}} năm {{years}}</i>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="tx-center w-10 pt-0">&nbsp;</td>
+                        <td class="w-10" style="text-align:right">
+                            <div class="tx-10">Số phiếu: &nbsp; .........../{{months}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="w-3 tx-10">Người nộp tiền:</div>
+                            <div class="tx-10">{{payer_info}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="w-3 tx-10">Tuyến:</div>
+                            <div class="tx-10">{{route_name_info}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                            <td colspan="2">
+                                <div class="w-3 tx-10">Đi từ:</div>
+                                <div *ngIf="station_name !== ''"class="tx-10">Trạm {{station_name_info}}</div>
+                            </td>
+                        </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="w-3 tx-10">Lý do nộp:</div>
+                            <div class="tx-10">Thu tiền xe buýt từ {{date_started_ended}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="tx-10">Số tiền (tiền mặt):&nbsp;&nbsp;<strong>{{ checkedTotalPos| currency:'VND':'' }}</strong>&nbsp;&nbsp;-&nbsp;&nbsp;<i> (Bằng chữ: {{convert_number_pos }})</i></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="tx-10">Số tiền (nạp thẻ + gia hạn):&nbsp;&nbsp;&nbsp;<strong>{{ checkedTotalDeposit | currency:'VND':'' }}</strong>&nbsp;&nbsp;-&nbsp;&nbsp;<i> (Bằng chữ: {{convert_number_deposit  }})</i></div>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td colspan="2">
+                            <div class="tx-10">Số tiền (hh(tiền mặt)):&nbsp;&nbsp;&nbsp;<strong>{{ checkedTotalGoods | currency:'VND':'' }}</strong>&nbsp;&nbsp;-&nbsp;&nbsp;<i> (Bằng chữ: {{convert_number_goods  }})</i></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="tx-10">Tổng tiền cần nộp (tiền mặt + nạp thẻ/gia hạn + hh(tiền mặt)):&nbsp;&nbsp;<strong>{{ checkedTotalPrice | currency:'VND':'' }}</strong>&nbsp;&nbsp;-&nbsp;&nbsp;<i> (Bằng chữ: {{convert_number_all  }})</i></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="tx-center w-10 tx-10">Kèm theo</td>
+                        <td class="tx-center w-10 tx-10">Chứng từ gốc</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="w-4 fl">&nbsp;</div>
+                            <div class="w-4 fl">&nbsp;</div>
+                            <div class="w-4 fr tx-11" style="text-align:right">Ngày .... tháng .... năm .......</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="w-3 tx-10 fl"><div class="tx-center fl" ><strong >GIÁM ĐỐC</strong><br><i>(Ký, họ tên)</i></div></div>
+                            <div class="w-4 tx-10 fl"><div class="tx-center fl" ><strong>KẾ TOÁN TRƯỞNG</strong><br><i>(Ký, họ tên)</i></div></div>
+                            <div class="w-4 tx-10 fl"><div class="tx-center fl" ><strong >NGƯỜI NỘP TIỀN</strong><br><i>(Ký, họ tên)</i></div></div>
+                            <div class="w-4 tx-10 fl"><div class="tx-center fl" ><strong >NGƯỜI LẬP PHIẾU</strong><br><i>(Ký, họ tên)</i></div></div>
+                            <div class="w-3 tx-center tx-10 fr"><strong >THỦ QUỸ</strong><br><i>(Ký, họ tên)</i></div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- print demo -->
+            <div id="print-section-demo" class="d-none">
+                <p>1.Phần thu:</p>
+                <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th scope="col" colspan="5">{{ 'LBL_RCT_COLLECT_IN_TURN' | translate }}</th>
+                            <th scope="col" colspan="5">{{ 'LBL_RCT_COLLECT_TURN_ON' | translate }}</th>
+                        </tr>
+                        <tr>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_STATION' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_SK' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_UNIT_PRICE' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_TOTAL_MONEY' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_TOTAL_LATCH' | translate }}</th>
+
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_STATION' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_SK' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_UNIT_PRICE' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_TOTAL_MONEY' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_TOTAL_LATCH' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                        </tr>
+                        <tr>
+                            <td class="tx-center tx-bold">Cộng:</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td class="tx-center tx-bold">Cộng:</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>2.Phần chi:</p>
+                <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th scope="col" colspan="3">{{ 'LBL_RCT_COLLECT_IN_TURN' | translate }}</th>
+                            <th scope="col" colspan="3">{{ 'LBL_RCT_COLLECT_TURN_ON' | translate }}</th>
+                        </tr>
+                        <tr>
+                            <th scope="col">{{ 'TABLE_STT_NO' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_CONTENT' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_AMOUNT' | translate }}</th>
+
+                            <th scope="col">{{ 'TABLE_STT_NO' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_CONTENT' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_AMOUNT' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                            <td>---</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>3.Thanh Tra:</p>
+                <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th scope="col" colspan="3">{{ 'LBL_RCT_COLLECT_IN_TURN' | translate }}</th>
+                            <th scope="col" colspan="3">{{ 'LBL_RCT_COLLECT_TURN_ON' | translate }}</th>
+                        </tr>
+                        <tr>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_ADDRESS' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_GUEST_NUMBER' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_INSPECT' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_ADDRESS' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_GUEST_NUMBER' | translate }}</th>
+                            <th scope="col">{{ 'LBL_RCT_COLLECT_INSPECT' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="tx-center" rowspan="2">---</td>
+                            <td class="tx-center" rowspan="2">---</td>
+                            <td class="tx-center" rowspan="2">---</td>
+                            <td class="tx-center" rowspan="2">---</td>
+                            <td class="tx-center" rowspan="2">---</td>
+                            <td class="tx-center" rowspan="2">---</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    <strong>Lưu ý:</strong>
+                    <span style="font-style: italic;">
+                        Lái xe và NVPV phải luôn luôn cập nhật thông tin đầy đủ, rõ ràng, chính xác (không tẩy xóa)
+                        <br> cung đường khách lên và xuống, số lượng khách, đơn giá, số tiền thực thu vào Lệnh vận chuyển. <br>
+                    </span>
+                    <b>Tổng thu:....................................</b><b>Tổng chi....................................</b><b>Số
+                        tiền còn phải nộp..............................</b><br>
+                    <b>Bằng
+                        chữ:.......................................................................................................................................................</b>
+                </p>
+
+                <tr>
+                    <td>
+                        <div class="w-4 tx-10 fl">
+                            <div class="tx-center fl"><strong>LÁI XE</strong></div>
+                        </div>
+                        <div class="w-4 tx-10 fl">
+                            <div class="tx-center fl"><strong>NVPV</strong></div>
+                        </div>
+                        <div class="w-4 tx-10 fl">
+                            <div class="tx-center fl"><strong>KẾ TOÁN</strong></div>
+                        </div>
+                        <div class="w-4 tx-10 fl">
+                            <div class="tx-center fl"><strong>PHÒNG ĐIỀU HÀNH</strong></div>
+                        </div>
+                    </td>
+                </tr>
+            </div>
+            <!-- end print demo -->
+            <div *ngIf="receipts.length > 0" class="tx-center">
+                <!-- <button (click)="showPrintPreview('demo')" [ladda]="isCollectedIn" class="btn btn-info pd-r-20">
+                    <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN_DEMO' | translate }}
+                </button>
+                &nbsp; -->
+                <button *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('view_advanced'))" (click)="showPrintPreview('all')"  class="btn btn-dark pd-r-20">
+                    <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+                </button>
+                &nbsp;
+                <button *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" (click)="updateCollected()" [ladda]="isCollected" class="btn btn-danger pd-r-20">
+                    <i class="fa fa-money pd-r-5"></i> {{ 'LBL_RCT_COLLECT_MONEY' | translate }}
+                </button>
+                &nbsp;
+                <button *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('view_advanced'))" (click)="exportReceipt()" [ladda]="isExport" class="btn btn-teal pd-r-20">
+                    <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+                </button>
+            </div>
+        </div>
+        <!-- end show list receipt -->
+    </div>
+</div>
+<!-- end manager receipts -->
+
+<!-- show list user -->
+<div bsModal #listUserModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_LIST_USR' | translate }}</h6>
+            <button (click)="listUserModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="input-group mg-b-20">
+                <input class="form-control py-2 border-right-0 border" type="search" value="search" id="example-search-input"name="search" [(ngModel)]="inputUserName" placeholder="Tìm kiếm...">
+                <span class="input-group-append">
+                    <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th>{{ 'TABLE_STT_NO' | translate }}</th>
+                            <th>{{ 'LBL_RFID_USR' | translate }}</th>
+                            <th>{{ 'LBL_NAME_USR' | translate }}</th>
+                            <th>{{ 'LBL_RCT_PST' | translate }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let user of (users | filter: inputUserName); let i = index">
+                            <td>{{ i + 1 }}</td>
+                            <td>
+                                <span *ngIf="user.rfidcard">
+                                    {{ user.rfidcard.rfid }}
+                                </span>
+                            </td>
+                            <td>{{ user.fullname }}</td>
+                            <td>{{ 'LBL_RCT_' + user.role.name | translate }}</td>
+                            <th class="tx-center" scope="row">
+                                <button (click)="chooseUser(user.id)" class="btn btn-info">
+                                    {{ 'LBL_USER_PICK' | translate }}
+                                </button>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button (click)="listUserModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+        </div>
+    </div>
+</div>
+<!-- end show list user -->
+
+<!-- show list user filter select -->
+<div bsModal #listUserByShiftByRole="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_LIST_USR' | translate }}</h6>
+            <button (click)="listUserByShiftByRole.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="input-group mg-b-20">
+                <input class="form-control py-2 border-right-0 border" type="search" value="search" id="example-search-input"name="search" [(ngModel)]="input_User_Name" placeholder="Tìm kiếm...">
+                <span class="input-group-append">
+                    <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th>{{ 'TABLE_STT_NO' | translate }}</th>
+                            <th>{{ 'LBL_RFID_USR' | translate }}</th>
+                            <th>{{ 'LBL_NAME_USR' | translate }}</th>
+                            <th>{{ 'LBL_RCT_PST' | translate }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let user_role of (user_roles | filter: input_User_Name); let i = index">
+                            <td>{{ i + 1 }}</td>
+                            <td>
+                                <span *ngIf="user_role.rfidcard">
+                                    {{ user_role.rfidcard.rfid }}
+                                </span>
+                            </td>
+                            <td>{{ user_role.fullname }}</td>
+                            <td>{{ 'LBL_RCT_' + user_role.role.name | translate }}</td>
+                            <th class="tx-center" scope="row">
+                                <button class="btn btn-info" (click)="saveUserByShiftId(user_role.id,  user_role.fullname)">
+                                    {{ 'LBL_USER_PICK' | translate }}
+                                </button>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button (click)="listUserByShiftByRole.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+        </div>
+    </div>
+</div>
+<!-- end show list user filter select-->
+
+<!-- show detail receipt -->
+<div bsModal #detailReceiptModel="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_DETAIL' | translate }}</h6>
+                <button (click)="detailReceiptModel.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="bd rounded table-responsive">
+                    <tabset [justified]="true">
+                        <tab heading="{{ 'LBL_RCT_SUMMARY' | translate }}">
+                            <table class="table table-bordered table-hover table-striped mg-b-0">
+                                <thead class="thead-colored thead-primary">
+                                    <tr>
+                                        <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                                        <th class="tx-center">{{ 'LBL_PRICE_TYPE_TICK' | translate }} (vnđ)</th>
+                                        <th class="tx-center">{{ 'LBL_RCT_QUANT_POS' | translate }} (sl)</th>
+                                        <th class="tx-center">{{ 'LBL_RCT_QUANT_CHARGE' | translate }} (sl)</th>
+                                        <th class="tx-center">{{ 'LBL_RCT_QUANT_ONLINE' | translate }} (sl)</th>
+                                        <th class="tx-center">{{ 'LBL_RCT_AMT' | translate }} (vnđ)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let summary of summaries; let i = index;">
+                                        <th class="tx-center" scope="row">{{ i + 1 }}</th>
+                                        <td [ngSwitch]="summary.price" class="tx-right">
+                                            <!-- <div *ngIf="isModuleGoos"> -->
+                                                <div *ngSwitchCase="'pos_goods'">{{ 'LBL_RCT_DETAIL_POS_GOODS' | translate }} (sl/vnđ)</div>
+                                                <div *ngSwitchCase="'charge_goods'">{{ 'LBL_RCT_DETAIL_CHARGE_GOODS' | translate }} (sl/vnđ)</div>
+                                                <div *ngSwitchCase="'qrcode_goods'">{{ 'LBL_RCT_DETAIL_ONLINE_GOODS' | translate }} (sl/vnđ)</div>
+                                            <!-- </div> -->
+                                            <div *ngSwitchCase="'charge_month'">{{ 'LBL_RCT_DETAIL_CHARGE_MONTH' | translate }} (sl)</div>
+                                            <div *ngSwitchCase="'charge_free'">{{ 'LBL_RCT_DETAIL_CHARGE_FREE' | translate }} (sl)</div>
+                                            <div *ngSwitchCase="'online'">{{ 'LBL_RCT_DETAIL_QRCODE' | translate }} (vnđ)</div>
+                                            <div *ngSwitchCase="'deposit'">{{ 'LBL_RCT_DETAIL_RECHARGE_DEPOSIT_MONTH' | translate }} (vnđ)</div>
+                                            <div *ngSwitchCase="'charge'">{{ 'LBL_RCT_DETAIL_SWIPE' | translate }} (vnđ)</div>
+                                            <div *ngSwitchCase="'pos'">{{ 'LBL_RCT_DETAIL_CASH' | translate }} (vnđ)</div>
+                                            <div *ngSwitchDefault>{{ summary.price | currency:'VND':'' }}</div>
+                                        </td>
+                                        <td class="tx-center">
+                                            {{ summary.pos | number}}
+                                        </td>
+                                        <td class="tx-center">
+                                            {{ summary.charge | number}}
+                                        </td>
+                                        <td class="tx-center">
+                                            {{ summary.online | number}}
+                                        </td>
+                                        <td class="tx-right">
+                                            <span>
+                                                {{ summary.total_pos | currency:'VND':'' }}
+                                            </span>
+                                            <span *ngIf="summary.price == 'pos' || summary.price == 'charge' || summary.price == 'deposit' || summary.price == 'online'">
+                                                {{summary.total_price | currency:'VND':'' }}
+                                            </span>
+                                            <span *ngIf="summary.price == 'pos_goods' || summary.price == 'charge_goods' || summary.price == 'qrcode_goods'">
+                                                {{summary.count_goods}}/{{summary.total_price | currency:'VND':'' }}
+                                            </span>
+                                            <span *ngIf="summary.price == 'charge_free' || summary.price == 'charge_month'">
+                                                {{summary.total_price }}
+                                            </span>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="tx-center" colspan="5">
+                                            <strong>{{ 'LBL_RCT_TTL_CUSTOM' | translate }}</strong>
+                                        </td>
+                                        <td class="tx-right">
+                                            <strong>
+                                            {{ totalSummary | currency:'VND':'' }}
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </tab>
+                        <tab heading="{{ 'LBL_RCT_TRANS' | translate }}"  >
+                            <table *ngIf="transactions.length else nodata" class="table table-bordered table-hover table-striped mg-b-0">
+                                <thead class="thead-colored thead-primary">
+                                    <tr>
+                                        <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                                        <th class="tx-center" >{{ 'LBL_RCT_TYPE' | translate }}</th>
+                                        <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_STATION' | translate }}</th>
+                                        <th class="tx-center" >{{ 'LBL_RCT_TN' | translate }}</th>
+                                        <th class="tx-center" >{{ 'LBL_RCT_MONEY' | translate }}</th>
+                                        <th class="tx-center" >{{ 'TABLE_CRE' | translate }}</th>
+                                        <th *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))" >{{'TABLE_ACT' | translate}}</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let transaction of transactions; let i = index">
+                                        <th class="tx-center" scope="row">{{ i + 1 }}</th>
+                                        <td [ngSwitch]="transaction.type" class="tx-center" >
+                                            <!-- <div *ngIf="isModuleGoos"> -->
+                                                <div *ngSwitchCase="'pos_goods'">{{ 'LBL_RCT_DETAIL_POS_GOODS' | translate }}</div>
+                                                <div *ngSwitchCase="'charge_goods'">{{ 'LBL_RCT_DETAIL_CHARGE_GOODS' | translate }}</div>
+                                                <div *ngSwitchCase="'qrcode_goods'">{{ 'LBL_RCT_DETAIL_ONLINE_GOODS' | translate }}</div>
+                                            <!-- </div> -->
+                                            <div *ngSwitchCase="'pos'">{{ 'LBL_RCT_DETAIL_CASH' | translate }}</div>
+                                            <div *ngSwitchCase="'deposit'">{{ 'LBL_RCT_DETAIL_RECHARGE' | translate }}</div>
+                                            <div *ngSwitchCase="'deposit_month'">{{ 'LBL_RCT_DETAIL_DEPOSIT_MONTH' | translate }}</div>
+                                            <div *ngSwitchCase="'charge_month'">{{ 'LBL_RCT_DETAIL_CHARGE_MONTH' | translate }}</div>
+                                            <div *ngSwitchCase="'charge'">{{ 'LBL_RCT_DETAIL_SWIPE' | translate }}</div>
+                                            <div *ngSwitchCase="'app:1'">{{ 'LBL_RCT_DETAIL_APP:1' | translate }}</div>
+                                            <div *ngSwitchCase="'qrcode'">{{ 'LBL_RCT_DETAIL_QRCODE' | translate }}</div>
+                                            <div *ngSwitchCase="'charge_free'">{{ 'LBL_RCT_DETAIL_FREE' | translate }}</div>
+                                        </td>
+                                        <td class="tx-center" >{{ transaction.station_name }}</td>
+                                        <td class="tx-center" >{{ transaction.ticket_number }}</td>
+                                        <td class="tx-right">
+                                            <div *ngIf="transaction.type != 'charge_month'">{{ transaction.amount | currency:'VND':'' }}</div>
+                                            <div *ngIf="transaction.type == 'charge_month'">0</div>
+                                        </td>
+                                        <td class="tx-center" >{{ transaction.created_at }}</td>
+                                        <td class="tx-center" *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('edit'))">
+                                            <div *ngIf="collected == 0">
+                                                <a  *ngIf="
+                                                        (transaction.ticket_destroy === 0 && transaction.is_tkt_deposit_month <= 0) ||
+                                                        (transaction.ticket_destroy === '' && transaction.is_tkt_deposit_month <= 0)
+                                                    "
+                                                    (click)="showModalDestroyTicket(transaction.id,transaction.shift_id,transaction.ticket_price_id,transaction.ticket_number,transaction.type,transaction.amount,transaction.created_at, transaction.subuser_id)"
+                                                    href="javascript:void(0)"
+                                                    class="btn btn-danger"
+                                                    data-toggle="tooltip"
+                                                    data-placement="top"
+                                                    title="{{ 'LBL_RCT_DESTROY_TICKET_TRANSACTION_RM'  | translate}}">
+                                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                </a>
+                                                <span *ngIf="
+                                                    (transaction.ticket_destroy === 0 && transaction.is_tkt_deposit_month > 0) ||
+                                                    (transaction.ticket_destroy === '' && transaction.is_tkt_deposit_month > 0)
+                                                    " >--:--</span>
+                                                <span *ngIf="transaction.ticket_destroy === -1" style="color:green"> {{'LBL_ACCEPTING' | translate}} </span>
+                                            </div>
+                                            <div *ngIf="collected == 1">--:--</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </tab>
+                    </tabset>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="form-layout-footer tx-center">
+                        <button *ngIf="(permissions['summary_report_receipt'].key_tools != null && permissions['summary_report_receipt'].key_tools.includes('view_advanced'))" (click)="exportFileExel()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+                            <i class="fa fa-file-excel-o pd-r-5"></i>{{ 'LBL_RCT_EXCEL_TRANSACTION' | translate }}
+                        </button>
+                </div>
+                <button (click)="detailReceiptModel.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'LBL_RCT_CLOSE' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end show detail receipt -->
+
+<!-- show list user filter select -->
+<div bsModal #addDestroyTicket="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_DESTROY_TICKET_TRANSACTION_DES_ALL' | translate }}</h6>
+                <button (click)="addDestroyTicket.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="table-responsive">
+                    <!-- <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_RCT_DESTROY_TICKET_TRANSACTION_IMG' | translate }}: <span class="tx-danger">*</span></label>
+                            <label class="custom-file">
+                                <input type="file" (change)="onFileImageChange($event)" class="custom-file-input" accept="image/jpeg,image/png">
+                                <span class="custom-file-control"></span>
+                            </label>
+                        </div>
+                    </div> -->
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_RCT_DESTROY_TICKET_TRANSACTION_DES' | translate }}: <span class="tx-danger">*</span></label>
+                            <textarea rows="3" [(ngModel)]="ticketDestroyCreate.description"  class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button [disabled]="isDisabled" (click)="tiketDestroyCreate()"  type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_ACCEPT' | translate }}</button>
+                <button (click)="addDestroyTicket.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_IGNORE' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end show list user filter select-->
+
+<!-- show reason destroy shift -->
+<div bsModal #addDestroyShift="bs-modal" class="modal fade">
+        <div class="modal-dialog modal-lg wd-100p" role="document">
+            <div class="modal-content bd-0 tx-14">
+                <div class="modal-header pd-y-20 pd-x-25">
+                    <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_DESTROY_TICKET_TRANSACTION_DES_ALL' | translate }}</h6>
+                    <button (click)="addDestroyShift.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body pd-25 form-layout form-layout-1">
+                    <div class="table-responsive">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label tx-bold">{{ 'LBL_RCT_DESTROY_SHIFT_TRANSACTION_DES' | translate }}: <span class="tx-danger">*</span></label>
+                                <textarea rows="3" [(ngModel)]="shiftDestroyCreate.description"  class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button (click)="createShiftDestroy()"  type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_ACCEPT' | translate }}</button>
+                    <button (click)="addDestroyShift.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_IGNORE' | translate }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- end show reason destroy shift-->
+
+<ng-template #nodata>
+    <div class="alert alert-warning mg-b-0" role="alert">
+        <div class="d-flex align-items-center justify-content-start">
+            <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>
+            <span *ngIf="isNow && ended">{{ 'LBL_RCT_NOT_LOGIN' | translate }}</span>
+            <span *ngIf="!isNow && !ended">{{ 'LBL_RCT_NOT_SESSION' | translate }}</span>
+            <span *ngIf="!isNow && ended">{{ 'LBL_RCT_NOT_LOGOUT' | translate }}</span>
+        </div>
+    </div>
+</ng-template>
+
+<div bsModal #listVehical="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_LIST_VHC' | translate }}</h6>
+            <button (click)="listVehical.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="input-group mg-b-20">
+                <input class="form-control py-2 border-right-0 border" type="search" value="search" id="vehicle_id" name="search" [(ngModel)]="inputLicensePlates" placeholder="Tìm kiếm...">
+                <span class="input-group-append">
+                    <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th>{{ 'TABLE_STT_NO' | translate }}</th>
+                            <th>{{ 'LBL_RCT_RFID' | translate }}</th>
+                            <th>{{ 'LBL_RCT_LICENSE_PLATE' | translate }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="inputLicensePlates === ''">
+                            <td>#</td>
+                            <td>#</td>
+                            <td>{{ 'BTN_VIEW_RECEIPT' | translate }}</td>
+                            <th class="tx-center" scope="row">
+                                <button (click)="chooseVehicle(0)" class="btn btn-info">
+                                    {{ 'LBL_RCT_PICK_ALL' | translate }}
+                                </button>
+                            </th>
+                        </tr>
+                        <tr *ngFor="let vehicle of (vehicle_Items | filterVehicle: inputLicensePlates); let i = index">
+                            <td>{{ i + 1 }}</td>
+                            <td>{{ vehicle['rfidcard'].rfid }}</td>
+                            <td>{{ vehicle.license_plates }}</td>
+                            <th class="tx-center" scope="row">
+                                <button (click)="chooseVehicle(vehicle.id)" class="btn btn-info">
+                                    {{ 'LBL_RCT_PICK' | translate }}
+                                </button>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button (click)="listVehical.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #modalWarning="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_INFO_WARNING' | translate }}</h6>
+                <button (click)="modalWarning.hide()" type="button" class="close" data-dismiss="modal"
+                    aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="table-responsive">
+                    <table class="table table-bordered" *ngIf="info_warning">
+                        <tr>
+                            <td class="tx-bold">{{ 'LBL_RCT_ID_SHIFT' | translate }}</td>
+                            <td class="tx-bold">{{info_warning.shift_id}}</td>
+                        </tr>
+                        <tr>
+                            <td class="tx-bold">{{ 'LBL_RCT_TOTAL_AMOUNT_WEB' | translate }} (Web)</td>
+                            <td>{{(info_warning.total_price + info_warning.total_deposit + info_warning.total_goods)|number}} (VNĐ)</td>
+                        </tr>
+                        <tr>
+                            <td class="tx-bold">{{ 'LBL_RCT_TOTAL_AMOUNT_POS' | translate }} (Pos)</td>
+                            <td>{{ info_warning.total_amount |number}} (VNĐ)</td>
+                        </tr>
+                        <tr>
+                            <td class="tx-bold">{{ 'LBL_RCT_TOTAL_AMOUNT_DIFFERENCE' | translate }}</td>
+                            <td>
+                              {{
+                                 (((info_warning.total_price + info_warning.total_deposit + info_warning.total_goods) - info_warning.total_amount) >= 0)
+                                 ? (((info_warning.total_price + info_warning.total_deposit + info_warning.total_goods) - info_warning.total_amount) | number)
+                                 : ((((info_warning.total_price + info_warning.total_deposit + info_warning.total_goods) - info_warning.total_amount)*(-1)) | number)
+                               }} (VNĐ)
+                           </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,44 @@
+.form-layout-1 {
+    border: none;
+}
+
+.custom-file-control:lang(en)::before {
+    content: "Browse";
+}
+
+.custom-file-control:lang(en):empty::after {
+    content: "Choose file...";
+}
+
+.custom-file-control {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 5;
+    height: 2.5rem;
+    padding: 0.5rem 1rem;
+    line-height: 1.5;
+    color: #495057;
+    pointer-events: none;
+    user-select: none;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+}
+
+.custom-file-control::before {
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    bottom: -1px;
+    z-index: 6;
+    display: block;
+    height: 2.5rem;
+    padding: 0.5rem 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #e9ecef;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0 3px 3px 0;
+}

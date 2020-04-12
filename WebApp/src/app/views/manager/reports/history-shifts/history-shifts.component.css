@@ -1,0 +1,32 @@
+.form-layout-1 {
+    border: none;
+}
+
+.input-group-btn button {
+    border-left: 0px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.ckbox input[type='checkbox'], .rdiobox input[type='radio'] {
+    margin: 0px;
+    display: none;
+}
+
+.rdiobox span {
+    padding-left: 0px;
+}
+
+.checkedrow {
+    background-color: #f5f5f5;
+}
+
+.tx-middle{
+    vertical-align: middle;
+}
+.tx-border-butom{
+    border-bottom: 1px solid rgba(255,255,255,0.2) !important;
+}
+.tx-border-left{
+    border-left: 1px solid rgba(255,255,255,0.2) !important;
+}

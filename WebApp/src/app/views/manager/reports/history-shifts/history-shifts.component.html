@@ -1,0 +1,267 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- manager history money collection -->
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+      <div class="row">
+          <div class="col-md-12 tx-left">
+              <h2 class="tx-gray-800 tx-bold mg-b-10">
+                <i class="fa fa-history" aria-hidden="true"></i>
+                <span class="menu-item-label">{{ 'MENU_HISTORY_SHIFT' | translate }}</span>
+              </h2>
+          </div>
+      </div>
+      <div class="form-layout form-layout-1 pd-x-0">
+        <div class="row mg-b-10">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="chooseDate"
+                            [bsValue]="currentTime"
+                            [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                            [(ngModel)]="dateDefault"
+                            (ngModelChange)="searchHistoryShift()"
+                            [maxDate]="maxDate"
+                            #dp="bsDaterangepicker"
+                            bsDaterangepicker>
+                        <span class="input-group-btn">
+                            <button class="btn btn-info pd-x-15" (click)="dp.toggle()" type="button">
+                                <i class="fa fa-calendar"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'LBL_HOSTORY_CHOOSE_STAFF_COLLECT' | translate }}</label>
+                    <div class="input-group">
+                        <input class="form-control" type="text" [(ngModel)]="searchUserCollectedName" disabled>
+                        <input type="hidden" [(ngModel)]="user_collected_id">
+                        <span class="input-group-btn">
+                            <button (click)="showListUserCollectedModal()" class="btn btn-info pd-x-15" type="button">
+                                <i class="fa fa-user"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'LBL_HOSTORY_CHOOSE_STAFF' | translate }}</label>
+                    <div class="input-group">
+                        <input class="form-control" type="text" [(ngModel)]="searchUserName" disabled>
+                        <input type="hidden" [(ngModel)]="user_id">
+                        <span class="input-group-btn">
+                            <button (click)="showListUserModal()" class="btn btn-info pd-x-15" type="button">
+                                <i class="fa fa-user"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- button export file exel -->
+    <div class="form-layout-footer tx-center" *ngIf="(permissions['report_history_shift'].key_tools != null && permissions['report_history_shift'].key_tools.includes('view_advanced'))">
+        <!-- <button (click)="showPrintPreview()" [ladda]="isCollected" class="btn btn-dark pd-r-20" >
+            <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+        </button>
+                &nbsp; -->
+        <button (click)="exportFile()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+            <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+        </button>
+    </div>
+    <!-- end button export file exel -->
+
+    <div class="mg-t-30 mg-b-20" *ngIf="historyShifts.length > 0">
+        <table  class="table table-bordered table-hover table-striped">
+            <thead class="thead-colored thead-primary">
+                <tr>
+                    <th class="tx-center tx-middle" rowspan="3">{{ 'TABLE_STT_NO' | translate }}</th>
+                    <th class="tx-center tx-middle" rowspan="3">{{ 'TABLE_HISTORY_USE_SHIFT_TIME' | translate }}</th>
+                    <th class="tx-center tx-middle" rowspan="3">{{ 'TABLE_HISTORY_USE_COLLECT' | translate }}</th>
+                    <th class="tx-center tx-middle" rowspan="3">{{ 'LBL_RCT_driver' | translate }}</th>
+                    <th class="tx-center tx-middle" rowspan="3">{{ 'LBL_RCT_subdriver' | translate }}</th>
+                    <th class="tx-center tx-middle" rowspan="3">{{ 'TABLE_HISTORY_USE_ROUTER' | translate }}</th>
+                    <th class="tx-center tx-middle" rowspan="3">{{ 'TABLE_HISTORY_USE_DATE' | translate }}</th>
+                    <th class="tx-center tx-border-butom" colspan="3">
+                        {{ 'LBL_ROUTE_REVENUE' | translate }}
+                    </th>
+                    <th class="tx-center tx-border-butom" colspan="2">
+                        {{ 'TABLE_MEMBER_DETAIL_TOTAL' | translate }}
+                    </th>
+                    <th class="tx-center tx-middle" rowspan="3">{{ 'LBL_RCT_DEPOSIT' | translate }}</th>
+                    <!-- <th class="tx-center">{{ 'LBL_RCT_AMT' | translate }}</th>
+
+                    <th class="tx-center">{{ 'TABLE_HISTORY_TOTAL' | translate }}</th> -->
+                </tr>
+                <tr>
+                    <th class="tx-center tx-border-left tx-middle" rowspan="2">{{ 'LBL_RCT_AMT' | translate }}</th>
+                    <th class="tx-center tx-border-butom" colspan="2">{{ 'LBL_STAFF_CARD' | translate }}</th>
+                    <th class="tx-center tx-middle" rowspan="2">{{ 'LBL_STAFF_TOTAL_REVENUE_ALL' | translate }}</th>
+                    <th class="tx-center tx-middle" rowspan="2">{{ 'LBL_STAFF_TOTAL_COLLECTED_ALL' | translate }}</th>
+                </tr>
+                <tr>
+                    <th class="tx-center tx-middle tx-border-left">{{ 'LBL_STAFF_TOTAL_REVENUE' | translate }}</th>
+                    <th class="tx-center tx-middle">{{ 'LBL_STAFF_TOTAL_COLLECTED' | translate }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let history_shift of historyShifts; let i = index">
+                    <td class="tx-center">{{ i + 1 }}</td>
+                    <td class="tx-center">{{ history_shift.shift_time }}</td>
+                    <td class="tx-center">{{ history_shift.user_collecte }}</td>
+                    <td>{{ history_shift.driver_name }}</td>
+                    <td>{{ history_shift.subdriver_name }}</td>
+                    <td>{{ history_shift.routes_name }}</td>
+                    <td class="tx-center">{{ history_shift.created_at | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+                    <td class="tx-right">{{ history_shift.totalPos | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ history_shift.totalCharge | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ history_shift.totalChargeReal | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ history_shift.totalPos + history_shift.totalCharge | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ history_shift.totalPos + history_shift.totalChargeReal | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ history_shift.totalDeposit | currency:'VND':'' }}</td>
+                </tr>
+
+                <tr *ngFor="let collect of total_collect">
+                    <td class="tx-center"></td>
+                    <td colspan="6" class="tx-left"><b>{{'TABLE_TOTAL_COLLECT' | translate }} {{ collect['user_collecte'].user_collecte }}</b></td>
+                    <td class="tx-right">{{ collect.collection_totalPos | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ collect.collection_totalCharge | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ collect.collection_totalChargeReal | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ collect.collection_totalPos + collect.collection_totalCharge | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ collect.collection_totalPos + collect.collection_totalChargeReal | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ collect.collection_totalDeposit | currency:'VND':'' }}</td>
+                </tr>
+
+                <tr>
+                    <td class="tx-center"></td>
+                    <td colspan="6" class="tx-left"><b>{{'TABLE_MEMBER_DETAIL_TOTAL' | translate}}</b></td>
+                    <td class="tx-right">{{ total_all.all_totalPos | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ total_all.all_totalCharge | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ total_all.all_totalChargeReal | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ total_all.all_totalPos + total_all.all_totalCharge | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ total_all.all_totalPos + total_all.all_totalChargeReal | currency:'VND':'' }}</td>
+                    <td class="tx-right">{{ total_all.all_totalDeposit | currency:'VND':'' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="mg-t-30 mg-b-20" *ngIf="isLoading">
+        <div *ngIf="historyShifts.length == 0" class="alert alert-warning mg-b-0" role="alert">
+            <div class="d-flex align-items-center justify-content-start">
+                <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+<!-- end manager history money collection-->
+
+<!-- show list user -->
+<div bsModal #listUserModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_LIST_USR' | translate }}</h6>
+            <button (click)="listUserModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="input-group mg-b-20">
+                <input class="form-control py-2 border-right-0 border" type="search" value="search" id="example-search-input" name="search" [(ngModel)]="inputUserName" placeholder="Tìm kiếm...">
+                <span class="input-group-append">
+                    <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_NAME_USR' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_RCT_PST' | translate }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let user of (users | filter: inputUserName); let i = index">
+                            <td>{{ i + 1 }}</td>
+                            <td>{{ user.fullname }}</td>
+                            <td>{{ 'LBL_RCT_' + user.role.name | translate }}</td>
+                            <th class="tx-center" scope="row">
+                                <button (click)="chooseUser(user.id)" class="btn btn-info">
+                                    {{ 'LBL_USER_PICK' | translate }}
+                                </button>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button (click)="listUserModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+        </div>
+    </div>
+</div>
+<!-- end show list user -->
+
+
+<!-- show list user -->
+<div bsModal #listUserCollectedModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_LIST_USR' | translate }}</h6>
+            <button (click)="listUserCollectedModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="input-group mg-b-20">
+                <input class="form-control py-2 border-right-0 border" type="search" value="search" id="example-search-input" name="search" [(ngModel)]="inputUserCollectedName" placeholder="Tìm kiếm...">
+                <span class="input-group-append">
+                    <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_NAME_USR' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_RCT_PST' | translate }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let user of (user_collectes | filter: inputUserCollectedName); let i = index">
+                            <td>{{ i + 1 }}</td>
+                            <td>{{ user.fullname }}</td>
+                            <td>{{ 'LBL_RCT_' + user.role.name | translate }}</td>
+                            <th class="tx-center" scope="row">
+                                <button (click)="chooseUser(user.id)" class="btn btn-info">
+                                    {{ 'LBL_USER_PICK' | translate }}
+                                </button>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button (click)="listUserCollectedModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+        </div>
+    </div>
+</div>
+<!-- end show list user -->

@@ -1,0 +1,171 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list company -->
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+      <div class="row">
+          <div class="col-md-6 tx-left">
+              <h2 class="tx-gray-800 tx-bold mg-b-10">
+                  <i class="fa fa-briefcase" aria-hidden="true"></i>
+                  <span class="menu-item-label">{{ 'LBL_LIST_NOTIFY_TYPE' | translate }}</span>
+              </h2>
+          </div>
+          <div class="col-md-6 tx-right">
+              <button (click)="showAddNotifyTypeModal()" class="btn btn-teal mg-b-20 pd-r-20">
+                  <i class="fa fa-plus mg-r-5"></i> {{ 'LBL_ADD' | translate }}
+              </button>
+          </div>
+      </div>
+      <div class="table-responsive">
+          <table class="table table-bordered table-hover table-striped">
+              <thead class="thead-colored thead-primary">
+                  <tr>
+                      <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_URL_IMG' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_NAME' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_KEY' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_ROUTE_LINK' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_CRE' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr *ngFor="let notify_type of notify_types; let i = index">
+                      <th class="tx-center" scope="row">{{i + 1}} </th>
+                      <td>
+                          <img src="../img/notifies/notify-types/{{notify_type.url_img}}" alt="" width="40px" height="40px">
+                      </td>
+                      <td>{{notify_type.name}}</td>
+                      <td>{{notify_type.key}}</td>
+                      <td>{{notify_type.route_link}}</td>
+                      <td class="tx-center">{{notify_type.created_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                      <td class="tx-18 tx-center"> 
+                          <a href="javascript:void(0)" class="btn btn-primary btn-width" (click)="showEditNotifyTypeModal(notify_type.id)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_EDIT' | translate }}">
+                              <i class="fa fa-pencil" aria-hidden="true"></i>
+                          </a>
+                          <a href="javascript:void(0)" class="btn btn-danger btn-width" (click)="deleteNotifyType(notify_type.id)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_DEL' | translate }}">
+                              <i class="fa fa-times" aria-hidden="true"></i>
+                          </a>
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
+      </div>
+  </div>
+  <footer class="br-footer"></footer>
+</div>
+<!-- end table list notify_type -->
+
+<!-- form add notify_type -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_ADD_NOTIFY_TYPE' | translate }}</h6>
+                <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_NOTIFY_TYPE_NAME' | translate }}:<label class="tx-danger">*</label></label>
+                            <input type="text" class="form-control" [(ngModel)]="notifyTypeCreate.name">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_NOTIFY_TYPE_KEY' | translate }}:<label class="tx-danger">*</label></label>
+                            <input type="text" class="form-control" [(ngModel)]="notifyTypeCreate.key">
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label
+                                class="form-control-label tx-bold">{{ 'LBL_NOTIFY_TYPE_ROUTE_LINK' | translate }}:<label class="tx-danger">*</label></label>
+                            <input type="text" class="form-control" [(ngModel)]="notifyTypeCreate.route_link">
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label
+                                class="form-control-label tx-bold">{{ 'LBL_NOTIFY_TYPE_URL_IMG' | translate }}:</label>
+                            <input class="form-control" (change)="onFileImageChange($event)"
+                                [(ngModel)]="notifyTypeCreate.url_img" type="file"
+                                accept="image/jpeg,image/png,image/jpg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="addNotifyType()" [ladda]="isCreated" type="button"
+                    class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_CREATE' | translate }}</button>
+                <button (click)="addModal.hide()" type="button"
+                    class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25"
+                    data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end form add notify_type -->
+
+<!-- form edit notify_type -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_EDIT_NOTIFY_TYPE' | translate }}</h6>
+                <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_NOTIFY_TYPE_NAME' | translate }}:<label class="tx-danger">*</label></label>
+                            <input type="text" class="form-control" [(ngModel)]="notifyTypeUpdate.name">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_NOTIFY_TYPE_KEY' | translate }}:<label class="tx-danger">*</label></label>
+                            <input type="text" class="form-control" [(ngModel)]="notifyTypeUpdate.key">
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label
+                                class="form-control-label tx-bold">{{ 'LBL_NOTIFY_TYPE_ROUTE_LINK' | translate }}:<label class="tx-danger">*</label></label>
+                            <input type="text" class="form-control" [(ngModel)]="notifyTypeUpdate.route_link">
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_NOTIFY_TYPE_URL_IMG' | translate }}:</label>
+                            <div class="input-group mb-3">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="inputGroupFile01" (change)="onFileImageChange($event)" accept="image/jpeg,image/png,image/jpg">
+                                    <label class="custom-file-label" for="inputGroupFile01">{{notifyTypeUpdate.url_img}}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button (click)="editNotifyType()" [ladda]="isUpdated" type="button"
+                        class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+                    <button (click)="editModal.hide()" type="button"
+                        class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25"
+                        data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end form edit notify_type -->

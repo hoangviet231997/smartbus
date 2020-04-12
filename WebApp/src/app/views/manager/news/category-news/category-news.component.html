@@ -1,0 +1,126 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+    <div class="row">
+      <div class="col-md-8 tx-left">
+        <h2 class="tx-gray-800 tx-bold mg-b-10">
+          <i class="ion-clipboard" aria-hidden="true"></i>
+          <span class="menu-item-label">{{ 'LBL_CATEGORY_NEWS' | translate }}</span>
+        </h2>
+      </div>
+      <div class="col-md-4 tx-right">
+        <button class="btn btn-teal mg-b-20 pd-r-20" (click)="showModalAddCategoryNews()">
+          <i class="fa fa-plus mg-r-5"></i> {{ 'LBL_CATEGORY_ADD_NEWS' | translate }}
+        </button>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover table-striped">
+        <thead class="thead-colored thead-primary">
+          <tr>
+            <th class="tx-center">{{ 'LBL_CATEGORY_NEWS_STT' | translate }}</th>
+            <th class="tx-center">{{ 'LBL_CATEGORY_NAME_TYPE_NEWS' | translate }}</th>
+            <th class="tx-center">{{ 'LBL_CATEGORY_DESCRIPTION_NEWS' | translate }}</th>
+            <th class="tx-center">{{ 'LBL_CATEGORY_WEIGHT_NEWS' | translate }}</th>
+            <th class="tx-center">{{ 'LBL_CATEGORY_NEWS_ACTION' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of cate_news; let i = index">
+            <td class="tx-center">{{ i+1 }}</td>
+            <td class="tx-center">{{data.name}}</td>
+            <td class="tx-center">{{data.description}}</td>
+            <td class="tx-center">{{data.weigth}}</td>
+            <td class="tx-center">
+              <button title="Cập nhật" type="button" class="btn btn-primary btn-width" data-toggle="modal"
+                (click)="showModalEditCategoryNews(data.id)">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+              </button>
+              <button title="Xóa" type="button" class="btn btn-danger btn-width" data-toggle="modal"
+                (click)="deleteCateNews(data.id)">
+                <i class="fa fa-times" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div bsModal #modalAddCateNews='bs-modal' class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document" style="max-width: 1000px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'LBL_CATEGORY_ADD_NEWS' | translate }}</h5>
+        <button (click)="modalAddCateNews.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body pd-25 form-layout form-layout-1">
+        <div class="row">
+          <div class="col-md-12">
+            <label class="tx-bold" for="">{{ 'LBL_CATEGORY_NAME_TYPE_NEWS' | translate }}:<span class="text-danger">*</span></label>
+            <input class="form-control" type="text" [(ngModel)]="createCateNews.name">
+          </div>
+
+          <div class="col-md-12">
+            <label class="tx-bold" for="">{{ 'LBL_CATEGORY_WEIGHT_NEWS' | translate }}:<span class="text-danger">*</span></label>
+            <input class="form-control" type="number" min="1" [(ngModel)]="createCateNews.weigth">
+          </div>
+
+          <div class="col-md-12">
+            <label class="tx-bold" for="">{{ 'LBL_CATEGORY_DESCRIPTION_NEWS' | translate }}:</label>
+            <textarea class="form-control" [(ngModel)]="createCateNews.description" cols="30" rows="10"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="modalAddCateNews.hide()" type="button" class="btn btn-secondary"
+          data-dismiss="modal">Đóng</button>
+        <button (click)="addCateNews()" type="button" class="btn btn-primary">Lưu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div bsModal #modalEditCateNews='bs-modal' class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document" style="max-width: 1000px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'LBL_CATEGORY_EDIT_NEWS' | translate }}</h5>
+        <button (click)="modalEditCateNews.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body pd-25 form-layout form-layout-1">
+        <div class="row">
+          <div class="col-md-12">
+            <label class="tx-bold" for="">{{ 'LBL_CATEGORY_NAME_TYPE_NEWS' | translate }}:<span class="text-danger">*</span></label>
+            <input class="form-control" type="text" [(ngModel)]="updateCateNews.name">
+          </div>
+
+          <div class="col-md-12">
+            <label class="tx-bold" for="">{{ 'LBL_CATEGORY_WEIGHT_NEWS' | translate }}:<span class="text-danger">*</span></label>
+            <input class="form-control" type="number" min="1" [(ngModel)]="updateCateNews.weigth">
+          </div>
+
+          <div class="col-md-12">
+            <label class="tx-bold" for="">{{ 'LBL_CATEGORY_DESCRIPTION_NEWS' | translate }}:</label>
+            <textarea class="form-control" [(ngModel)]="updateCateNews.description" cols="30" rows="10"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="modalEditCateNews.hide()" type="button" class="btn btn-secondary"
+          data-dismiss="modal">Đóng</button>
+        <button (click)="editCateNews()" type="button" class="btn btn-primary">Lưu thay đổi</button>
+      </div>
+    </div>
+  </div>
+</div>

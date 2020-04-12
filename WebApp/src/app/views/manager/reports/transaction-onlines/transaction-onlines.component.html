@@ -1,0 +1,229 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- manager tickets report -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+    <div class="row">
+        <div class="col-md-6 tx-left">
+            <h2 class="tx-gray-800 tx-bold mg-b-10">
+                <i class="fa fa-print" aria-hidden="true"></i>
+                <span class="menu-item-label">{{ 'TABLE_TRANSACTION_ONLINE' | translate }}</span>
+            </h2>
+        </div>
+    </div>
+    <div class="form-layout form-layout-1 pd-x-0">
+        <div class="row mg-b-25">
+            <div class="col-lg-4 col-md-6">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'LBL_TRANSACTION_ONLINE_PARTNER' | translate }}</label>
+                    <select id="typeId" name="typeId" class="form-control" (change)="getTransactionOnline()" [(ngModel)]="selectedPartner">
+                        <option value="momo">Momo</option>
+                        <option value="vietinbank">Vietinbank</option>
+                    </select>
+                </div>
+            </div><!-- col-4 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'LBL_TRANSACTION_ONLINE_DATE' | translate }}</label>
+                    <div class="input-group">
+                        <input class="form-control"
+                            #drp="bsDaterangepicker"
+                            bsDaterangepicker
+                            [(ngModel)]="bsRangeValue"
+                            [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                            [maxDate]="maxDate"
+                            (ngModelChange)="getTransactionOnline()"
+                        >
+                        <span class="input-group-btn">
+                            <button class="btn btn-info pd-x-15" (click)="drp.toggle()" [attr.aria-expanded]="drp.isOpen">
+                                <i class="fa fa-calendar"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div><!-- col-4 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'LBL_TRANSACTION_ONLINE_TYPE' | translate }}</label>
+                    <select id="typeId" name="typeId" class="form-control" (change)="getTransactionOnline()" [(ngModel)]="selectedType">
+                        <option value="payment">{{ 'LBL_TRANSACTION_ONLINE_PAYMENT' | translate }}</option>
+                        <option value="topup">{{ 'LBL_TRANSACTION_ONLINE_TOPUP' | translate }}</option>
+                    </select>
+                </div>
+            </div><!-- col-4 -->
+        </div>
+
+        <!-- button export file exel  -->
+        <div class="form-layout-footer tx-center" *ngIf="transactionOnlines.length > 0 && (permissions['report_transaction_online'].key_tools != null && permissions['report_transaction_online'].key_tools.includes('view_advanced'))">
+            <button (click)="printFile()" class="btn btn-dark pd-r-20">
+                <i class="fa fa-print"></i> {{ 'LBL_TICKET_IN_SUMMARY' | translate }}
+            </button>
+            &nbsp;
+            <button (click)="exportFile()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+                <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+            </button>
+        </div>
+        <!-- end button export file exel -->
+
+        <!-- Show is alert -->
+        <div *ngIf="isLoading"  class="mg-t-30 mg-b-20">
+            <div *ngIf="transactionOnlines.length == 0" class="alert alert-warning mg-b-0" role="alert">
+                <div class="d-flex align-items-center justify-content-start">
+                    <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+                </div>
+            </div>
+        </div>
+        <!-- End is alert -->
+
+        <!-- show list tickets -->
+        <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+            <div *ngIf="isCheckModuleApp">
+                <table *ngIf="transactionOnlines.length > 0"  class="table table-bordered table-hover table-striped" >
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                            <th class="tx-center">{{ 'TABLE_TRANSACTION_ONLINE_TYPE' | translate }}</th>
+                            <th class="tx-center">
+                                <span *ngIf="selectedType == 'payment'">{{ 'TABLE_TRANSACTION_ONLINE_CODE_BILL' | translate }}</span>
+                                <span *ngIf="selectedType == 'topup'">{{ 'TABLE_TRANSACTION_ONLINE_CODE' | translate }}</span>
+                            </th>
+                            <th class="tx-center">{{ 'TABLE_TRANSACTION_ONLINE_AMOUNT' | translate }} (VNĐ)</th>
+                            <th class="tx-center">{{ 'TABLE_TRANSACTION_ONLINE_DATE' | translate }}</th>
+                            <th class="tx-center">{{ 'TABLE_TRANSACTION_ONLINE_STATUS' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let transaction of transactionOnlines; let i = index">
+                            <td class="tx-center">{{i + 1}}</td>
+                            <td class="tx-center">
+                                <span *ngIf="transaction.type == 'qrcode' || transaction.type == 'qrcode_taxi'">{{ 'LBL_TRANSACTION_ONLINE_PAYMENT' | translate }}</span>
+                                <span *ngIf="transaction.type == 'topup_momo'">{{ 'LBL_TRANSACTION_ONLINE_TOPUP' | translate }}</span>
+                            </td>
+                            <td class="tx-center">{{transaction.transaction_code}}</td>
+                            <td class="tx-right">{{transaction.amount | currency:'VND':'' }}</td>
+                            <td class="tx-center">{{transaction.activated | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                            <td class="tx-center tx-success">{{ 'TABLE_TRANSACTION_ONLINE_STATUS_VALUE' | translate}}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="tx-center tx-bold">{{ 'TABLE_TRANSACTION_ONLINE_TOTAL' | translate }}</td>
+                            <td colspan="3" class="tx-right tx-bold">{{ totalOnlines['total'] | currency:'VND':'' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div *ngIf="!isCheckModuleApp" >
+              <!--  -->
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+<!-- end manager tickets report-->
+<div id="print-section" class="d-none" *ngIf="company">
+    <table>
+        <tr>
+            <td class="tx-center w-10 pt-0">
+                <div class="tx-11"> <strong > {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+            </td>
+            <td class="tx-center w-10">
+                <div class="tx-11">
+                    <strong > {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                    ({{ 'LBL_PRINT_BH' | translate }} <br />
+                    {{ 'LBL_PRINT_BTC' | translate }})
+                </div>
+            </td>
+        </tr>
+        <tr><td colspan="2">&nbsp;</td></tr>
+        <tr>
+            <td colspan="2" style="width:21cm;">
+                <div class="tx-center">
+                    <strong class="tx-12" style="text-transform: uppercase"> {{ 'TABLE_TRANSACTION_ONLINE' | translate }}</strong><br>
+                    <i class="tx-10">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }} {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i><br>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="tx-center w-10 pt-0"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div *ngIf="isCheckModuleApp">
+                    <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%" *ngIf="transactionOnlines.length > 0">
+                        <thead class="thead-colored thead-primary">
+                            <tr>
+                                <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_ONLINE_TYPE' | translate }}</th>
+                                <th class="tx-center">
+                                    <span *ngIf="selectedType == 'payment'">{{ 'TABLE_TRANSACTION_ONLINE_CODE_BILL' | translate }}</span>
+                                    <span *ngIf="selectedType == 'topup'">{{ 'TABLE_TRANSACTION_ONLINE_CODE' | translate }}</span>
+                                </th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_ONLINE_AMOUNT' | translate }} (VNĐ)</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_ONLINE_DATE' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_ONLINE_STATUS' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let transaction of transactionOnlines; let i = index">
+                                <td class="tx-center">{{i + 1}}</td>
+                                <td class="tx-center">
+                                    <span *ngIf="transaction.type == 'qrcode' || transaction.type == 'qrcode_taxi'">{{ 'LBL_TRANSACTION_ONLINE_PAYMENT' | translate }}</span>
+                                    <span *ngIf="transaction.type == 'topup_momo'">{{ 'LBL_TRANSACTION_ONLINE_TOPUP' | translate }}</span>
+                                </td>
+                                <td class="tx-center">{{transaction.transaction_code}}</td>
+                                <td class="tx-right">{{transaction.amount | currency:'VND':'' }}</td>
+                                <td class="tx-center">{{transaction.activated | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                                <td class="tx-center tx-success">{{ 'TABLE_TRANSACTION_ONLINE_STATUS_VALUE' | translate}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="tx-center tx-bold">{{ 'TABLE_TRANSACTION_ONLINE_TOTAL' | translate }}</td>
+                                <td colspan="3" class="tx-right tx-bold">{{ totalOnlines['total'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div *ngIf="!isCheckModuleApp">
+
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} .... {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table  class="table-striped"  style="width:100%">
+                    <tbody>
+                        <tr>
+                            <td colspan="2" class="tx-center w-4 fl" >
+                                <strong style="text-transform: uppercase">{{ 'LBL_PRINT_NLB' | translate }}
+                                </strong>
+                                <br>
+                                <i>({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                            </td>
+                            <td colspan="2" class="tx-center w-4" >
+                                <strong style="text-transform: uppercase">{{ 'LBL_PRINT_KT' | translate }}
+                                </strong>
+                                <br>
+                                <i>({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                            </td>
+                            <td colspan="3" class="tx-center w-5 fr" >
+                                <strong style="text-transform: uppercase">{{ 'LBL_PRINT_GD' | translate }}
+                                </strong>
+                                <br>
+                                <i>({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>

@@ -1,0 +1,258 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list shifts -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+      <div class="row">
+          <div class="col-md-6 tx-left">
+              <h2 class="tx-gray-800 tx-bold mg-b-10">
+                  <i class="fa fa-print" aria-hidden="true"></i>
+                  <span class="menu-item-label">{{ 'MENU_SHIFT_SUPERVISOR' | translate }}</span>
+              </h2>
+          </div>
+      </div>
+      <div class="form-layout form-layout-1 pd-x-0 " style="border: none;">
+          <div class="row mg-b-25">
+              <div class="col-lg-3"></div>
+              <div class="col-lg-3 col-md-6">
+                  <div class="form-group">
+                      <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                      <div class="input-group">
+                          <input type="text" class="form-control" name="chooseDate"
+                              [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                              [(ngModel)]="bsRangeValue"
+                              (ngModelChange)="getDataShiftSupervisor()"
+                              [maxDate]="maxDate"
+                              #dp="bsDaterangepicker"
+                              bsDaterangepicker>
+                          <span class="input-group-btn">
+                              <button class="btn btn-info pd-x-15" (click)="dp.toggle()" type="button">
+                                  <i class="fa fa-calendar"></i>
+                              </button>
+                          </span>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
+                  <div class="form-group">
+                      <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_USER' | translate }}</label>
+                      <div class="input-group">
+                          <input class="form-control" type="text" [(ngModel)]="searchUserName" disabled>
+                          <input type="hidden" [(ngModel)]="searchUserID">
+                          <span class="input-group-btn">
+                              <button (click)="showListUserModal()" class="btn btn-info pd-x-15" type="button">
+                                  <i class="fa fa-user"></i>
+                              </button>
+                          </span>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-lg-3"></div>
+          </div>
+
+          <!-- Show is alert -->
+          <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+              <div *ngIf="shift_supervisor.length == 0" class="alert alert-warning mg-b-0" role="alert">
+                  <div class="d-flex align-items-center justify-content-start">
+                      <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+                  </div>
+              </div>
+          </div>
+          <!-- End is alert -->
+
+          <!-- button export file PDF -->
+          <div class="form-layout-footer tx-center" *ngIf="(permissions['summary_report_shift_supervisor'].key_tools != null && permissions['summary_report_shift_supervisor'].key_tools.includes('view_advanced'))">
+              <div *ngIf="shift_supervisor.length > 0">
+                  <button (click)="showPrintPreview()" class="btn btn-dark pd-r-20" >
+                      <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+                  </button>
+                  &nbsp;
+                  <button (click)="exportFile()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+                    <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+                  </button>
+              </div>
+          </div>
+          <!-- end button export file PDF -->
+
+          <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+              <table *ngIf="shift_supervisor.length > 0" class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                      <tr>
+                        <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_SHIFT_SUPERVISOR_FULLNAME' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_SHIFT_SUPERVISOR_LISENCE_PLATES' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_SHIFT_SUPERVISOR_ROUTE_NAME' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_SHIFT_SUPERVISOR_STATION_UP' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_SHIFT_SUPERVISOR_STATION_DOWN' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_SHIFT_SUPERVISOR_START_END' | translate }}</th>
+                      </tr>
+                    </thead>
+                  <tbody>
+                        <tr *ngFor="let item of shift_supervisor; let i = index">
+                            <td class="tx-center">{{ i + 1 }}</td>
+                            <td class="tx-center">{{ item.fullname }}</td>
+                            <td class="tx-center">{{ item.license_plates }}</td>
+                            <td class="tx-center">{{ item.route_name }}</td>
+                            <td class="tx-center">{{ item.station_up }}</td>
+                            <td class="tx-center">{{ item.station_down }}</td>
+                            <td class="tx-center">{{ item.start_end }}</td>
+                        </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+    </div>
+</div>
+<!-- end table list shifts -->
+
+<!-- start print shift destroy-->
+<div id="print-section" class="d-none" *ngIf="company">
+    <table style="width:100%">
+        <tr>
+            <td class="tx-center w-10 pt-0">
+                <div class="tx-11"> <strong > {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+            </td>
+            <td class="tx-center w-10">
+                <div class="tx-11">
+                    <strong > {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                    ({{ 'LBL_PRINT_BH' | translate }} <br />
+                    {{ 'LBL_PRINT_BTC' | translate }})
+                </div>
+            </td>
+        </tr>
+        <tr><td colspan="2">&nbsp;</td></tr>
+        <tr>
+            <td colspan="2" style="width:21cm;">
+                <div class="tx-center">
+                    <strong class="tx-12" style="text-transform: uppercase"> {{ 'PRINT_SHIFT_SUPERVISOR' | translate }}</strong><br>
+                    <i class="tx-11">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }} {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="tx-center w-10 pt-0"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%; font-size: 11px;"  *ngIf="shift_supervisor.length > 0">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_SHIFT_SUPERVISOR_FULLNAME' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_SHIFT_SUPERVISOR_LISENCE_PLATES' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_SHIFT_SUPERVISOR_ROUTE_NAME' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_SHIFT_SUPERVISOR_STATION_UP' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_SHIFT_SUPERVISOR_STATION_DOWN' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_SHIFT_SUPERVISOR_START_END' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of shift_supervisor; let i = index">
+                            <td class="tx-center">{{ i + 1 }}</td>
+                            <td class="tx-center">{{ item.fullname }}</td>
+                            <td class="tx-center">{{ item.license_plates }}</td>
+                            <td class="tx-center">{{ item.route_name }}</td>
+                            <td class="tx-center">{{ item.station_up }}</td>
+                            <td class="tx-center">{{ item.station_down }}</td>
+                            <td class="tx-center">{{ item.start_end }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} .... {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table  class="table-striped"  style="width:100%">
+                    <tbody>
+                        <tr>
+                            <td colspan="3" class="tx-center fl" >
+                                <strong style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_NLB' | translate }}
+                                </strong>
+                                <br>
+                                <i class="tx-11">({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                            </td>
+                            <td colspan="3" class="tx-center fr" >
+                                <strong style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_TBDH' | translate }}
+                                </strong>
+                                <br>
+                                <i class="tx-11">({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- end print shift destroy-->
+
+<!-- show list user -->
+<div bsModal #listUserModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_LIST_USR' | translate }}</h6>
+            <button (click)="listUserModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="input-group mg-b-20">
+                <input class="form-control py-2 border-right-0 border" type="search" value="search" id="example-search-input"name="search" [(ngModel)]="inputUserName" placeholder="Tìm kiếm...">
+                <span class="input-group-append">
+                    <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th>{{ 'TABLE_STT_NO' | translate }}</th>
+                            <th>{{ 'LBL_RFID_USR' | translate }}</th>
+                            <th>{{ 'LBL_NAME_USR' | translate }}</th>
+                            <th>{{ 'LBL_RCT_PST' | translate }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let user of (users | filterUserSupervisor: inputUserName); let i = index">
+                            <td>{{ i + 1 }}</td>
+                            <td>
+                                <span *ngIf="user.rfidcard">
+                                    {{ user.rfidcard.rfid }}
+                                </span>
+                            </td>
+                            <td>{{ user.fullname }}</td>
+                            <td>{{ 'LBL_RCT_' + user.role.name | translate }}</td>
+                            <th class="tx-center" scope="row">
+                                <button (click)="chooseUser(user.id)" class="btn btn-info">
+                                    {{ 'LBL_USER_PICK' | translate }}
+                                </button>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button (click)="listUserModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+        </div>
+    </div>
+</div>
+<!-- end show list user -->

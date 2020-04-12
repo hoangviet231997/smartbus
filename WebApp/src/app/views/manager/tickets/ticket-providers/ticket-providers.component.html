@@ -1,0 +1,152 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list ticket -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+        <div class="col-md-6 tx-left">
+            <h2 class="tx-gray-800 tx-bold mg-b-10">
+                <i class="fa fa-ticket" aria-hidden="true"></i>
+                <span class="menu-item-label">{{ 'LBL_TKT_MANAGER_PROVIDER' | translate }}</span>
+            </h2>
+        </div>
+        <div class="col-md-6 tx-right">
+            <button *ngIf="statusView === 1" (click)="callBack()" class="btn mg-b-20 pd-r-20" data-toggle="tooltip" data-placement="top">
+                <i class="fa fa-undo mg-r-5"></i> {{ 'LBL_RCT_BACK' | translate }}
+            </button>&nbsp;
+            <button (click)="searchStatusTicketProvides(1)"  *ngIf="(permissions['ticket_provider'].key_tools != null && permissions['ticket_provider'].key_tools.includes('view_advanced'))" class="btn btn-teal mg-b-20 pd-r-20">
+                <i class="fa fa-search-plus mg-r-5"></i> {{ 'BTN_SEARCH_STATUS_USE_TICKET' | translate }}
+            </button>
+        </div>
+        </div>
+        <div *ngIf="statusView === 0" class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_PRICE_ALLOCATE_TICK' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_SIGN_TYPE_TICK' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_ORDER_CODE_ALLOCATE_TICK' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_START_NUM_TO_END_NUM_ALLOCATE_TICK' | translate }}</th>
+                        <!-- <th class="tx-center">{{ 'LBL_CURRENT_NUM_ALLOCATE_TICK' | translate }}</th> -->
+                        <th class="tx-center">{{ 'LBL_STATUS_WARNING_ALLOCATE_TICK' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let ticket of ticketTypes; let i = index">
+                        <th class="tx-center" scope="row">{{(i + 1)}}</th>
+                        <td class="tx-center">{{ ticket.price | currency:'VND':'' }}</td>
+                        <td class="tx-center">{{ ticket.sign}}</td>
+                        <td class="tx-center">{{ ticket.order_code}}</td>
+                        <td class="tx-center"> Từ {{ ticket.start_number }} đến {{ ticket.end_number }}</td>
+                        <!-- <td class="tx-center">{{ ticket.current_number }}</td> -->
+                        <td class="tx-center">
+                            <span *ngIf="ticket.status_warning  === 0">--:--</span>
+                            <span *ngIf="ticket.status_warning === 1"
+                                class="status-warning"
+                                data-toggle="tooltip"
+                                data-placement="left"
+                                title="{{ 'SWAL_ERROR_SERI_LIMIT_TICKET' | translate }}">
+                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>Cảnh báo
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div *ngIf="statusView === 1" class="form-layout form-layout-1 pd-x-0">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_ALLOCATE_TICK_DATE' | translate }}</label>
+                        <div class="input-group">
+                            <input
+                                class="form-control"
+                                #drp="bsDaterangepicker"
+                                [(ngModel)]="bsRangeValue"
+                                [maxDate]="maxDate"
+                                (ngModelChange)="getDataTickeAllocate()"
+                                [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                bsDaterangepicker>
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="dp.toggle()" type="button">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_ALLOCATE_TICK_DEVICE' | translate }}</label>
+                        <ng-select
+                            [items]="deviceItems"
+                            [allowClear]="true"
+                            (data)="refreshValueDevice($event)"
+                            (selected)="selectedDevice($event)"
+                            (removed)="removedDevice($event)"
+                            placeholder="{{ 'LBL_ALLOCATE_TICK_DEVICE' | translate }}">
+                        </ng-select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_ALLOCATE_TICK_PRICE' | translate }}</label>
+                        <ng-select
+                            [items]="ticketPriceItems"
+                            [allowClear]="true"
+                            (data)="refreshValuePrice($event)"
+                            (selected)="selectedPrice($event)"
+                            (removed)="removedPrice($event)"
+                            placeholder="{{ 'LBL_ALLOCATE_TICK_PRICE' | translate }}">
+                        </ng-select>
+                    </div>
+                </div>
+            </div>
+            <!-- Show is alert -->
+            <div *ngIf="!isLoading" class="mg-t-30 mg-b-20">
+                <div *ngIf="!ticket_allocates.length" class="alert alert-warning mg-b-0" role="alert">
+                    <div class="d-flex align-items-center justify-content-start">
+                        <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- End is alert -->
+            <div *ngIf="ticket_allocates.length > 0" class="table-responsive">
+                <table class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_PRICE_IDENTITY_TICK' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_PRICE_ALLOCATE_TICK' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_SIGN_TYPE_TICK' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_ORDER_CODE_ALLOCATE_TICK' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_START_NUM_TO_END_NUM_ALLOCATE_TICK_PROVIDE' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_START_NUM_TO_END_NUM_ALLOCATE_TICK_USE_DATE' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_START_NUM_TO_END_NUM_ALLOCATE_TICK_USED' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let ticket_allocate of ticket_allocates ; let i = index">
+                            <td class="tx-center">{{i+1}}</td>
+                            <td class="tx-center">{{ticket_allocate.device.identity}}</td>
+                            <td class="tx-center">{{ticket_allocate.price | currency:'VND':''}}</td>
+                            <td class="tx-center">{{ticket_allocate.sign }}</td>
+                            <td class="tx-center">{{ticket_allocate.order_code }}</td>
+                            <td class="tx-center">{{ticket_allocate.start_number }} đến số {{ticket_allocate.end_number}}</td>
+                            <td class="tx-center">{{ticket_allocate.created_at }}</td>
+                            <td class="tx-center">
+                                <span *ngIf="ticket_allocate.current_number">{{ticket_allocate.current_number}}</span>
+                                <span *ngIf="!ticket_allocate.current_number">--:--</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+<footer class="br-footer"></footer>
+</div>
+<!-- end table list ticket -->

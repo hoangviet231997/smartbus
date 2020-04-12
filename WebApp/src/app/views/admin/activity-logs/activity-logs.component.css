@@ -1,0 +1,61 @@
+.form-layout-1 {
+    border: none;
+}
+
+.btn-width{
+    width: 40px;
+    margin-right: 5px;
+}
+
+.custom-modal-header {
+    background-color: #17A2B8;
+    color: white;
+}
+
+.custom-modal-body, .custom-modal-footer {
+    background-color: #beeff7;
+}
+
+.btn-close-white {
+    color: white;
+}
+
+.text-color {
+    color: #212529;
+}
+
+.btn-default {
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.btn-default:hover, .btn-defaultt:focus {
+    color: #333;
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}
+
+.btn-default:not([disabled]):not(.disabled):active, .btn-default:not([disabled]):not(.disabled).active, .show > .btn-default.dropdown-toggle {
+    color: #333;
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}
+
+.open>.dropdown-menu {
+    display: block;
+}
+
+.glyphicon {
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+    
+.glyphicon-remove:before {
+    content: "\F00D";
+    cursor: pointer;
+}

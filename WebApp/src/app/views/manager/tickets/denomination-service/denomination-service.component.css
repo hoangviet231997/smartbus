@@ -1,0 +1,34 @@
+.form-layout-1 {
+    border: none;
+}
+
+.open > .dropdown-menu {
+    display: block;
+}
+
+.btn-default {
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.btn-default:hover, .btn-defaultt:focus {
+    color: #333;
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}
+
+.btn-default:not([disabled]):not(.disabled):active, .btn-default:not([disabled]):not(.disabled).active, .show > .btn-default.dropdown-toggle {
+    color: #333;
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}
+.cus-width {
+    min-width: 500px;
+}
+.purple {
+    background-color: purple;
+  }
+.tx-color{
+    color: #e07b48;
+}

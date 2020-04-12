@@ -1,0 +1,356 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list group company -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-6 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-users" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'LBL_LIST_GROUP_BUS_STATION' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-6 tx-right">
+                <button (click)="showAddGroupCompaniesModal()" class="btn btn-teal mg-b-20 pd-r-20">
+                    <i class="fa fa-plus mg-r-5"></i> {{ 'LBL_ADD_GROUP_BUS_STATION' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <div class="input-group mg-b-20">
+                    <input class="form-control py-2 border-right-0 border" type="search"
+                        [(ngModel)]="searchGroupBusStation" (ngModelChange)="getInputGroupBusStation()"
+                        placeholder="{{ 'LBL_GROUP_BUS_STATION_SEARCH_NAME' | translate }}">
+                    <span class="input-group-append">
+                        <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4"></div>
+        </div>
+        <br>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_NAME' | translate }}</th>
+                        <th *ngIf="isModuleCar" class="tx-center">{{ 'TABLE_DIRECTION' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_TYPE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_CRE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of groupBusStations; let i = index">
+                        <th class="tx-right" scope="row">{{((this.currentPage - 1) * this.limitPage) + (i + 1)}}</th>
+                        <td>{{item.name}}</td>
+                        <td class="center" *ngIf="isModuleCar">{{(item.direction == 0) ? 'Đi' : 'Về'}}</td>
+                        <td>{{'LBL_GROUP_BUS_STATION_TYPE_VALUE_'+item.type | translate}}</td>
+                        <td>{{item.created_at}}</td>
+                        <td class="tx-18 tx-center">
+                            <a href="javascript:void(0)" class="btn btn-primary btn-width"
+                                (click)="showGetGroupBusStationById(item.id)" data-toggle="tooltip" data-placement="top"
+                                title="{{ 'LBL_DEL_COM' | translate }}">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </a>
+                            <a href="javascript:void(0)" class="btn btn-danger btn-width"
+                                (click)="deleteGroupBusStation(item.id)" data-toggle="tooltip" data-placement="top"
+                                title="{{ 'LBL_DEL_COM' | translate }}">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row" *ngIf="paginationTotal > 0 && searchGroupBusStation === ''">
+            <div class="d-flex align-items-center justify-content-center col-md-12">
+                <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;"
+                    lastText="&raquo;" [totalItems]="paginationTotal" [maxSize]="7" [itemsPerPage]="limitPage"
+                    [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+            </div>
+        </div>
+    </div>
+    <footer class="br-footer"></footer>
+</div>
+<!-- end table list group company -->
+
+<!-- form add group company -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header custom-modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_ADD_GROUP_BUS_STATION' | translate }}
+                </h6>
+                <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body custom-modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_GROUP_BUS_STATION_TYPE' | translate }}:
+                                <span class="tx-danger">*</span></label>
+                            <select class="form-control" [(ngModel)]="groupBusStationCreate.type" required>
+                                <option value="month">{{'LBL_GROUP_BUS_STATION_TYPE_MONTH' | translate}}</option>
+                                <option *ngIf="isModuleCardPrepaidKm" value="prepaid">{{'LBL_GROUP_BUS_STATION_TYPE_PREPAID' | translate}}</option>
+                                <option *ngIf="isModuleCar" value="ticket_pos">{{'LBL_GROUP_BUS_STATION_TYPE_TICKET_POS' | translate}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_NAME_GROUP_BUS_STATION' | translate }}:
+                                <span class="tx-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" [(ngModel)]="groupBusStationCreate.name">
+                        </div>
+                    </div>
+                    <div class="col-lg-6" *ngIf="groupBusStationCreate.type == 'month' || groupBusStationCreate.type == 'ticket_pos'">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_PRICE_GROUP_BUS_STATION' | translate }}:
+                                <span class="tx-danger">*</span></label>
+                            <select class="form-control" [(ngModel)]="groupBusStationCreate.ticket_price_id" required>
+                                <option *ngFor="let ticketType of ticketTypes"
+                                    value="{{ticketType.ticket_prices[ticketType.ticket_prices.length-1].id}}">
+                                    <span>{{ ticketType.ticket_prices[ticketType.ticket_prices.length-1].price | currency:'VND':''}}
+                                        ({{ticketType.order_code}})</span>
+                                    <span *ngIf="isModuleCardMonthChargeLimit"> -
+                                        {{ ticketType.ticket_prices[ticketType.ticket_prices.length-1].charge_limit }}</span>
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6" *ngIf="isModuleCar && groupBusStationCreate.type == 'ticket_pos'">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label
+                                    class="form-control-label tx-bold">{{ 'TABLE_DIRECTION_GROUP_BUS_STATION' | translate }}:
+                                    <span class="tx-danger">*</span></label>
+                                <input name="show-audio" class="selector-control" type="radio"
+                                    (click)="changeCheckDirection(0,0)" [checked]="isCheckDirectionInTurnCr">
+                                <label class="selector-control"
+                                    for="hide-poi">{{ 'TABLE_DIRECTION_GROUP_BUS_STATION_IN_TURN' | translate }}</label>
+                                <input name="show-audio" class="selector-control" type="radio"
+                                    (click)="changeCheckDirection(1,0)" [checked]="isCheckDirectionTurnOnCr">
+                                <label class="selector-control"
+                                    for="show-poi">{{ 'TABLE_DIRECTION_GROUP_BUS_STATION_TURN_ON' | translate }}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6" *ngIf="isModuleCar && groupBusStationCreate.type == 'ticket_pos'">
+                      <div class="form-group">
+                          <label class="form-control-label tx-bold">{{ 'LBL_GROUP_BUS_STATION_COLOR' | translate }}:</label>
+                          <input class="form-control" [value]="groupBusStationCreate.color" [style.background]="groupBusStationCreate.color" [(colorPicker)]="groupBusStationCreate.color"/>
+                      </div>
+                    </div>
+                    <div class="col-lg-12" *ngIf="isModuleCar && groupBusStationCreate.type == 'ticket_pos'">
+                        <div class="form-group">
+                            <label
+                                class="form-control-label tx-bold">{{ 'TABLE_PARENT_ID_BUS_STATION_GROUP_BUS_STATION' | translate }} (chỉ được chọn một tuyến duy nhất):
+                                <span class="tx-danger">*</span></label>
+                            <div class="form-custom" *ngFor="let item of routes">
+                                <div class="row">
+                                    <div class="col-lg-12 tx-left">
+                                        <label class="tx-bold">Tuyến: {{ item.route_name }}:</label>
+                                    </div>
+                                    <div class="col-lg-12 tx-left">
+                                        <select class="form-control"
+                                            [(ngModel)]="groupBusStationCreate.parent_gr_bus_station_id" required>
+                                            <option *ngFor="let busStation of item.bus_stations; let i = index"
+                                                value="{{busStation.id}}">
+                                                <span>{{busStation.station_order}}. {{busStation.name}}</span>
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label
+                                class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_MONTH_ROUTE_LK_WAY' | translate }} (trên mỗi tuyến chỉ được chọn 2 trạm đầu và cuối):
+                                <span class="tx-danger">*</span></label>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-custom" *ngFor="let item of routes">
+                            <div class="row">
+                                <div class="col-lg-6 tx-left">
+                                    <label class="tx-bold">Tuyến {{ item.route_name }}:</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3" *ngFor="let busStation of item.bus_stations; let i = index">
+                                    <th class="tx-center">
+                                        <label class="ckbox">
+                                            <input type="checkbox" [checked]="tmpBusStation.includes(busStation.id)"
+                                                (change)="changeCheckedBusStation($event, busStation, item.id)">
+                                            <span></span>
+                                        </label>
+                                    </th>
+                                    <td class="tx-left">
+                                        <span>{{busStation.station_order}}. {{busStation.name}}(Đi)</span>
+                                    </td>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer custom-modal-footer">
+                <button (click)="addGroupBusStation()" type="button"
+                    class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_CREATE' | translate }}</button>
+                <button (click)="addModal.hide()" type="button"
+                    class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25"
+                    data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end form add group company -->
+
+<!-- form edit group company -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header custom-modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_EDIT_GROUP_BUS_STATION' | translate }}
+                </h6>
+                <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body custom-modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-lg-12">
+                      <div class="form-group">
+                          <label class="form-control-label tx-bold">{{ 'LBL_GROUP_BUS_STATION_TYPE' | translate }}:
+                              <span class="tx-danger">*</span></label>
+                          <select class="form-control" [(ngModel)]="groupBusStationUpdate.type" disabled>
+                              <option value="month">{{'LBL_GROUP_BUS_STATION_TYPE_MONTH' | translate}}</option>
+                              <option *ngIf="isModuleCardPrepaidKm" value="prepaid">{{'LBL_GROUP_BUS_STATION_TYPE_PREPAID' | translate}}</option>
+                              <option *ngIf="isModuleCar" value="ticket_pos">{{'LBL_GROUP_BUS_STATION_TYPE_TICKET_POS' | translate}}</option>
+                          </select>
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_NAME_GROUP_BUS_STATION' | translate }}:
+                                <span class="tx-danger">*</span></label>
+                            <input type="text" class="form-control" [(ngModel)]="groupBusStationUpdate.name">
+                        </div>
+                    </div>
+                    <div class="col-lg-6" *ngIf="groupBusStationUpdate.type == 'month' || groupBusStationUpdate.type == 'ticket_pos'">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_PRICE_GROUP_BUS_STATION' | translate }}:
+                                <span class="tx-danger">*</span></label>
+                            <select class="form-control" [(ngModel)]="groupBusStationUpdate.ticket_price_id" required>
+                                <option *ngFor="let ticketType of ticketTypes"
+                                    value="{{ticketType.ticket_prices[ticketType.ticket_prices.length-1].id}}">
+                                    <span>{{ ticketType.ticket_prices[ticketType.ticket_prices.length-1].price | currency:'VND':''}}
+                                        ({{ticketType.order_code}})</span>
+                                    <span *ngIf="isModuleCardMonthChargeLimit"> -
+                                        {{ ticketType.ticket_prices[ticketType.ticket_prices.length-1].charge_limit }}</span>
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6" *ngIf="isModuleCar && groupBusStationUpdate.type == 'ticket_pos'">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label
+                                    class="form-control-label tx-bold">{{ 'TABLE_DIRECTION_GROUP_BUS_STATION' | translate }}:
+                                    <span class="tx-danger">*</span></label>
+                                <input name="show-audio" class="selector-control" type="radio"
+                                    (click)="changeCheckDirection(0,1)" [checked]="isCheckDirectionInTurnUp">
+                                <label class="selector-control"
+                                    for="hide-poi">{{ 'TABLE_DIRECTION_GROUP_BUS_STATION_IN_TURN' | translate }}</label>
+                                <input name="show-audio" class="selector-control" type="radio"
+                                    (click)="changeCheckDirection(1,1)" [checked]="isCheckDirectionTurnOnUp">
+                                <label class="selector-control"
+                                    for="show-poi">{{ 'TABLE_DIRECTION_GROUP_BUS_STATION_TURN_ON' | translate }}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6" *ngIf="isModuleCar && groupBusStationUpdate.type == 'ticket_pos'">
+                      <div class="form-group">
+                          <label class="form-control-label tx-bold">{{ 'LBL_GROUP_BUS_STATION_COLOR' | translate }}:</label>
+                          <input class="form-control" [value]="groupBusStationUpdate.color" [style.background]="groupBusStationUpdate.color" [(colorPicker)]="groupBusStationUpdate.color"/>
+                      </div>
+                    </div>
+                    <div class="col-lg-12" *ngIf="isModuleCar && groupBusStationUpdate.type == 'ticket_pos'">
+                        <div class="form-group">
+                            <label
+                                class="form-control-label tx-bold">{{ 'TABLE_PARENT_ID_BUS_STATION_GROUP_BUS_STATION' | translate }} (chỉ được chọn một tuyến duy nhất):
+                                <span class="tx-danger">*</span></label>
+                            <div class="form-custom" *ngFor="let item of routes">
+                                <div class="row">
+                                    <div class="col-lg-12 tx-left">
+                                        <label class="tx-bold">Tuyến {{ item.route_name }}:</label>
+                                    </div>
+                                    <div class="col-lg-12 tx-left">
+                                        <select class="form-control"
+                                            [(ngModel)]="groupBusStationUpdate.parent_gr_bus_station_id" required>
+                                            <option *ngFor="let busStation of item.bus_stations; let i = index"
+                                                value="{{busStation.id}}">
+                                                <span>{{busStation.station_order}}. {{busStation.name}}</span>
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label
+                                class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_MONTH_ROUTE_LK_WAY' | translate }} (trên mỗi tuyến chỉ được chọn 2 trạm đầu và cuối):
+                                <span class="tx-danger">*</span></label>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-custom" *ngFor="let item of routes">
+                            <div class="row">
+                                <div class="col-lg-6 tx-left">
+                                    <label class="tx-bold">Tuyến {{ item.route_name }}:</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3" *ngFor="let busStation of item.bus_stations; let i = index">
+                                    <th class="tx-center">
+                                        <label class="ckbox">
+                                            <input type="checkbox" [checked]="tmpBusStation.includes(busStation.id)"
+                                                (change)="changeCheckedBusStation($event, busStation, item.id)">
+                                            <span></span>
+                                        </label>
+                                    </th>
+                                    <td class="tx-left">
+                                        <span>{{busStation.station_order}}. {{busStation.name}}(Đi)</span>
+                                    </td>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer custom-modal-footer">
+                <button (click)="editGroupBusStation()" type="button"
+                    class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+                <button (click)="editModal.hide()" type="button"
+                    class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25"
+                    data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end form edit group company -->

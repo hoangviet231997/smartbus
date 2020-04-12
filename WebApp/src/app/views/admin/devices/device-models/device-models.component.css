@@ -1,0 +1,21 @@
+.custom-modal-header {
+    background-color: #17A2B8;
+    color: white;
+}
+
+.custom-modal-body, .custom-modal-footer {
+    background-color: #beeff7;
+}
+
+.btn-close-white {
+    color: white;
+}
+
+.text-color {
+    color: #212529;
+}
+
+.btn-width{
+    width: 40px;
+    margin-right: 5px;
+}

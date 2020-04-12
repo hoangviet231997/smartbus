@@ -1,0 +1,107 @@
+<app-header #appHeaderComponent></app-header>
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+    <h3 class="tx-gray-800 tx-bold mg-b-10">
+      <i class="ion-ios-list" aria-hidden="true"></i>
+      <span class="menu-item-label">Danh sách thông báo</span>
+    </h3>
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-8">
+        <table class="table mg-b-0">
+          <tr>
+            <td style="width:30%">
+              <select class="form-control py-2 border-right-0 border tx-12" [(ngModel)]="style_search">
+                <option value="">---- {{ 'LBL_SEARCH_BY_NOTIFY' | translate }} ----</option>
+                <option value="title">{{ 'LBL_SEARCH_NOTIFY_VALUE_TITLE' | translate }}</option>
+                <option value="date">{{ 'LBL_SEARCH_NOTIFY_VALUE_DATE' | translate }}</option>
+                <option value="type">{{ 'LBL_SEARCH_NOTIFY_VALUE_TYPE' | translate }}</option>
+              </select>
+            </td>
+            <td *ngIf="style_search === '' || style_search === 'title'" style="width:70%">
+              <div class="input-group">
+                <input class="form-control py-2 border-right-0 border tx-12" [(ngModel)]="key_input"
+                  (ngModelChange)="getDataSearchNotify()" type="search" id="example-search-input"
+                  placeholder="Tìm kiếm...">
+                <span class="input-group-append">
+                  <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                </span>
+              </div>
+            </td>
+            <td *ngIf="style_search === 'date'" style="width:70%">
+              <div class="form-group">
+                <div class="input-group">
+                  <input class="form-control py-2 border-right-0 border tx-12" #drp="bsDaterangepicker" bsDaterangepicker
+                    [(ngModel)]="key_input" [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }" [maxDate]="maxDate"
+                    (ngModelChange)="getDataSearchNotify()">
+                  <span class="input-group-btn">
+                    <button class="btn btn-info pd-x-15" (click)="drp.toggle()" [attr.aria-expanded]="drp.isOpen">
+                      <i class="fa fa-calendar"></i>
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </td>
+            <td *ngIf="style_search === 'type'" style="width:70%">
+              <div class="input-group">
+                <select name="" id="" class="form-control py-2 border-right-0 border tx-13" [(ngModel)]="key_input"
+                  (ngModelChange)="getDataSearchNotify()">
+                  <option *ngIf="permissions['card_membership_tmp']" value="mbs_register">{{ 'LBL_NOTIFY_CARD_VALUE_REGISTER' | translate }}</option>
+                  <option *ngIf="permissions['card_membership_card']" value="mbs_expired">{{ 'LBL_NOTIFY_CARD_VALUE_EXPIRATION' | translate }}</option>
+                </select>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-md-2"></div>
+    </div>
+    <div class="row" (change)="getNotify()">
+      <div class="col-md-2"></div>
+      <div class="col-md-8" *ngIf="notifies.length > 0">
+        <div class="media-list hovernow">
+          <div *ngFor="let notify of notifies">
+            <div class="relative">
+              <a href="javascript:void(0)" (click)="gotoNotifyByRouteLink(notify)" class="media-list-link read"
+                [ngStyle]="{'background':notify.color}">
+                <div class="media pd-x-10 pd-y-10 cus_hover">
+                  <img
+                    src="{{(notify.avatar) ? '/img/avatar-membership/'+notify.avatar : '/img/notifies/notify-types/'+notify.url_img}}"
+                    class="wd-40 rounded-circle" height="40px" alt="TB">
+                  <div class="media-body">
+                    <p class="tx-11 mg-b-0 tx-gray-700" [innerHTML]="notify.title"></p>
+                    <img src="../img/notifies/notify-types/{{notify.url_img}}" alt="" width="16px" height="16px"> &nbsp;
+                    <span class="tx-10">{{notify.created_at | date:'MMMM d, y, h:mm:ss a'}}</span>
+                  </div>
+                </div>
+              </a>
+              <div class="absolute"
+                *ngIf="permissions['web_notifies'].key_tools != null && permissions['web_notifies'].key_tools.includes('edit')">
+                <button title="Xóa" type="button" class="tx-center btn-custom " data-toggle="modal"
+                  (click)="deleteWebNotify(notify.id)">
+                  <i class="fa fa-times" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2"></div>
+    </div>
+    <br>
+    <div>
+      <div class="row" *ngIf="paginationTotal > 0">
+        <div *ngIf="key_input === ''" class="d-flex align-items-center justify-content-center col-md-12">
+          <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;"
+            lastText="&raquo;" [totalItems]="paginationTotal" [itemsPerPage]="limitPage" [maxSize]="7"
+            [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)">
+          </pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

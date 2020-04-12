@@ -1,0 +1,328 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list device model -->
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+      <div class="row">
+          <div class="col-md-8 tx-left">
+              <h2 class="tx-gray-800 tx-bold mg-b-10">
+                  <i class="fa fa-barcode" aria-hidden="true"></i>
+                  <span class="menu-item-label">{{ 'LBL_DEV_MDL' | translate }}</span>
+              </h2>
+          </div>
+          <div class="col-md-4 tx-right">
+              <button (click)="showAddDeviceModel()" class="btn btn-teal mg-b-20 pd-r-20">
+                  <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_DEV_MDL' | translate }}
+              </button>
+          </div>
+      </div>
+      <div class="table-responsive">
+          <table class="table table-bordered table-hover table-striped">
+              <thead class="thead-colored thead-primary">
+                  <tr>
+                      <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_NAME' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_MDL' | translate }}</th>
+                      <th class="tx-center">{{ 'LBL_FTR_DEV_MDL' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_CRE' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_UPD' | translate }}</th>
+                      <th class="tx-center">{{'Actions'}}</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr *ngFor="let deviceModel of deviceModels; let i = index">
+                      <th  class="tx-center" scope="row">{{i + 1}}</th>
+                      <td>{{deviceModel.name}}</td>
+                      <td>{{deviceModel.model}}</td>
+                      <td>
+                          <span class="pd-l-15" *ngFor="let feature of deviceModel.features"> 
+                          <img src="assets/img/features/{{feature}}.png" class="img-avatar wd-25" />
+                          </span>
+                      </td>
+                      <td class="tx-center">{{deviceModel.created_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                      <td class="tx-center">{{deviceModel.updated_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                      <td class="tx-18 tx-center">
+                          <a href="javascript:void(0)" class="btn btn-primary btn-width" (click)="showEditDeviceModal(deviceModel.id)">
+                              <i class="fa fa-pencil" aria-hidden="true"></i>
+                          </a>
+                          <a href="javascript:void(0)" class="btn btn-danger btn-width" (click)="deleteDeviceModel(deviceModel.id)">
+                              <i class="fa fa-times" aria-hidden="true"></i>
+                          </a>   
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
+      </div>    
+  </div>
+  <footer class="br-footer"></footer>    
+</div>
+<!-- end table list device model -->
+
+<!-- from add device model -->
+<div bsModal #addDeviceModel="bs-modal" class="modal fade">
+  <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content bd-0 tx-14">
+      <div class="modal-header pd-y-20 pd-x-25">
+          <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_ADD_DEV_MDL' | translate }}</h6>
+          <button (click)="addDeviceModel.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body pd-25">
+          <div class="form-layout">
+              <div class="row">
+                  <label class="col-sm-4 form-control-label tx-bold">{{ 'TABLE_NAME' | translate }}</label>
+                  <div class="col-sm-8 mg-t-10 mg-sm-t-0">
+                  <input type="text" class="form-control" name="name" [(ngModel)]="deviceModel.name" required>
+                  </div>
+              </div>
+              <div class="row mg-t-20">
+                  <label class="col-sm-4 form-control-label tx-bold">{{ 'TABLE_MDL' | translate }}</label>
+                  <div class="col-sm-8 mg-t-10 mg-sm-t-0">
+                  <input type="text" class="form-control" name="model" [(ngModel)]="deviceModel.model" required>
+                  </div>
+              </div>
+              <div class="row mg-t-25">
+                  <label class="col-12 form-control-label tx-bold">{{ 'LBL_FTR_DEV_MDL' | translate }}</label>
+                  <div class="col-12 row mg-t-5 mg-l-0 mg-r-0 pd-l-0 pd-r-0">
+                      <div class="col-lg-4 col-md-3 mg-t-5" *ngFor="let feature of chckBoxFeatures">
+                          <label class="ckbox">
+                          <input type="checkbox" name="features[]" class="model-features" [value]="feature" (change)="onFeatureChanged($event,feature, 'add')"><span>{{feature}}</span>
+                          </label>
+                      </div>                                                                 
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+          <button (click)="createDeviceModel()" type="button" [ladda]="isCreated" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_CREATE' | translate }}</button>
+          <button (click)="addDeviceModel.hide()" type="button"  class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+      </div>
+      </div>
+  </div>
+</div>
+<!-- end from add device model -->
+
+<!-- from edit device model -->
+<div bsModal #editDeviceModal="bs-modal" class="modal fade">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bd-0 tx-14">
+      <div class="modal-header pd-y-20 pd-x-25">
+          <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_EDIT_DEV_MDL' | translate }}</h6>
+          <button (click)="editDeviceModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+
+      <div class="modal-body pd-25">
+        <div class="form-layout">
+          <div class="row">
+            <label class="col-sm-4 form-control-label tx-bold">{{ 'TABLE_NAME' | translate }}</label>
+            <div class="col-sm-8 mg-t-10 mg-sm-t-0">
+              <input type="text" class="form-control" name="name" [(ngModel)]="deviceModelForm.name">
+            </div>
+          </div>
+
+          <div class="row mg-t-20">
+            <label class="col-sm-4 form-control-label tx-bold">{{ 'TABLE_MDL' | translate }}</label>
+            <div class="col-sm-8 mg-t-10 mg-sm-t-0">
+              <input type="text" class="form-control" name="model" [(ngModel)]="deviceModelForm.model">
+            </div>
+          </div>
+
+          <div class="row mg-t-25">
+              <label class="col-12 form-control-label tx-bold">{{ 'LBL_FTR_DEV_MDL' | translate }}</label>
+              <div class="col-12 row mg-t-5 mg-l-0 mg-r-0 pd-l-0 pd-r-0">
+                <div class="col-lg-4 col-md-3 mg-t-5" *ngFor="let feature of chckBoxFeatures">
+                  <label class="ckbox">
+                    <input type="checkbox" name="features[]" class="model-features" [value]="feature" [checked]="deviceModelForm.features.indexOf(feature) > -1"  (change)="onFeatureChanged($event,feature, 'edit')"><span>{{feature}}</span>
+                  </label>
+                </div>                                     
+            </div>
+          </div>
+
+          <div class="row mg-t-25">
+              <div class="row col-12 mg-l-0 mg-r-0">
+                  <label class="col-8 form-control-label tx-bold tx-20 pd-l-0 pd-r-0">{{ 'LBL_FIR_DEV_MDL' | translate }}</label>
+                  <div class="col-4 tx-right pd-r-0 pd-l-0">
+                      <button (click)="showAddFirmwareModal()" class="btn btn-teal mg-b-20 pd-r-20">
+                          <i class="fa fa-plus mg-r-5"></i> {{ 'FORM_ADD' | translate }}
+                        </button>
+                  </div>
+              </div>
+
+              <div class="col-12 row mg-t-5 mg-l-0 mg-r-0 pd-l-10 pd-r-10">
+                  <table class="table table-bordered table-colored table-primary">
+                      <thead>
+                        <tr>
+                          <th>{{ 'TABLE_STT' | translate }}</th>
+                          <th>{{ 'LBL_IP_FIR_DEV_MDL' | translate }}</th>
+                          <th>{{ 'LBL_USN_USR' | translate }}</th>
+                          <th>{{ 'LBL_PWD_USR' | translate }}</th>
+                          <th>{{ 'TABLE_VER' | translate }}</th>
+                          <th>{{ 'LBL_FIL_FIR_DEV_MDL' | translate }}</th>
+                          <th class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let firmware of firmwares; let i = index">
+                          <th scope="row">{{i + 1 }}</th>
+                          <td>{{firmware.server_ip}}</td>
+                          <td>{{firmware.username}}</td>
+                          <td>{{firmware.password}}</td>
+                          <td>{{firmware.version}}</td>
+                          <td>{{firmware.filename}}</td>
+                          <td>
+                            <div class="tx-18 tx-center">
+                              <a href="javascript:void(0)" class="btn btn-primary btn-icon btn-width" (click)="showEditFirmwareModal(firmware.id)">
+                                <div>
+                                  <i class="fa fa-pencil" aria-hidden="true"></i>
+                                </div>
+                              </a>
+                              <a href="javascript:void(0)" class="btn btn-danger btn-icon btn-width" (click)="deleteFirmware(firmware.id)">
+                                <div>
+                                  <i class="fa fa-times" aria-hidden="true"></i>
+                                </div>
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="updateDeviceModel()" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+        <button (click)="editDeviceModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end from edit device model -->
+
+<!-- Modal add firmware -->
+<div bsModal #addFirmwareModal="bs-modal" class="modal fade">
+<div class="modal-dialog " role="document">
+  <div class="modal-content bd-0 tx-14">
+    <div class="modal-header custom-modal-header pd-y-20 pd-x-25">
+        <h6 class="tx-14 mg-b-0 tx-uppercase tx-bold">{{ 'LBL_ADD_FIR_DEV_MDL' | translate }}</h6>
+        <button (click)="addFirmwareModal.hide()" type="button" class="close btn-close-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body custom-modal-body pd-25">
+      <div class="form-layout">
+          <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                  <label class="form-control-label text-color">{{ 'LBL_IP_FIR_DEV_MDL' | translate }}: <span class="tx-danger">*</span></label>
+                  <input type="text" class="form-control" name="server_ip" maxlength="50" required [(ngModel)]="firmware.server_ip">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                  <label class="form-control-label text-color">{{ 'LBL_USN_USR' | translate }}: <span class="tx-danger">*</span></label>
+                  <input type="text" class="form-control" name="username" maxlength="100" required [(ngModel)]="firmware.username">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                  <label class="form-control-label text-color">{{ 'LBL_PWD_USR' | translate }}: <span class="tx-danger">*</span></label>
+                  <input type="password" class="form-control" name="password" required [(ngModel)]="firmware.password">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                  <label class="form-control-label text-color">{{ 'LBL_PATH_FIR_DEV_MDL' | translate }}: <span class="tx-danger">*</span></label>
+                  <input type="text" class="form-control" name="path" required [(ngModel)]="firmware.path">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                  <label class="form-control-label text-color">{{ 'TABLE_VER' | translate }}: <span class="tx-danger">*</span></label>
+                  <input type="number" class="form-control" name="version" required [(ngModel)]="firmware.version">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                  <label class="form-control-label text-color">{{ 'LBL_FIL_FIR_DEV_MDL' | translate }}: <span class="tx-danger">*</span></label>
+                  <input type="text" class="form-control" name="filename" required [(ngModel)]="firmware.filename">
+                </div>
+            </div>                                                                 
+          </div>
+      </div>
+    </div>
+    <div class="modal-footer custom-modal-footer">
+        <button (click)="createFirmware()" type="button" [ladda]="isCreated" class="btn btn-success tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_CREATE' | translate }}</button>
+        <button (click)="addFirmwareModal.hide()" type="button"  class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+    </div>
+  </div>
+</div>
+</div>
+<!-- end Modal add firmware -->
+
+<!-- Modal edit firmware -->
+<div bsModal #editFirmwareModal="bs-modal" class="modal fade">
+  <div class="modal-dialog " role="document">
+    <div class="modal-content bd-0 tx-14">
+      <div class="modal-header custom-modal-header pd-y-20 pd-x-25">
+          <h6 class="tx-14 mg-b-0 tx-uppercase tx-bold">{{ 'LBL_EDIT_FIR_DEV_MDL' | translate }}</h6>
+          <button (click)="editFirmwareModal.hide()" type="button" class="close btn-close-white" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body custom-modal-body pd-25">
+        <div class="form-layout">
+            <div class="row">
+              <div class="col-md-12">
+                  <div class="form-group">
+                    <label class="form-control-label text-color">{{ 'LBL_IP_FIR_DEV_MDL' | translate }}: <span class="tx-danger">*</span></label>
+                    <input type="text" class="form-control" name="server_ip" maxlength="50" required [(ngModel)]="firmwareForm.server_ip">
+                  </div>
+              </div>
+              <div class="col-md-12">
+                  <div class="form-group">
+                    <label class="form-control-label text-color">{{ 'LBL_USN_USR' | translate }}: <span class="tx-danger">*</span></label>
+                    <input type="text" class="form-control" name="username" maxlength="100" required [(ngModel)]="firmwareForm.username">
+                  </div>
+              </div>
+              <div class="col-md-12">
+                  <div class="form-group">
+                    <label class="form-control-label text-color">{{ 'LBL_PWD_USR' | translate }}: <span class="tx-danger">*</span></label>
+                    <input type="password" class="form-control" name="password" required [(ngModel)]="firmwareForm.password">
+                  </div>
+              </div>
+              <div class="col-md-12">
+                  <div class="form-group">
+                    <label class="form-control-label text-color">{{ 'LBL_PATH_FIR_DEV_MDL' | translate }}: <span class="tx-danger">*</span></label>
+                    <input type="text" class="form-control" name="path" required [(ngModel)]="firmwareForm.path">
+                  </div>
+              </div>
+              <div class="col-md-12">
+                  <div class="form-group">
+                    <label class="form-control-label text-color">{{ 'TABLE_VER' | translate }}: <span class="tx-danger">*</span></label>
+                    <input type="number" class="form-control" name="version" required [(ngModel)]="firmwareForm.version">
+                  </div>
+              </div>
+              <div class="col-md-12">
+                  <div class="form-group">
+                    <label class="form-control-label text-color">{{ 'LBL_FIL_FIR_DEV_MDL' | translate }}: <span class="tx-danger">*</span></label>
+                    <input type="text" class="form-control" name="filename" required [(ngModel)]="firmwareForm.filename">
+                  </div>
+              </div>                                                                 
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer custom-modal-footer">
+          <button (click)="updateFirmware()" type="button" [ladda]="isUpdated" class="btn btn-success tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+          <button (click)="editFirmwareModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+  <!-- end Modal edit firmware -->

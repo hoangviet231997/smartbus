@@ -1,0 +1,236 @@
+<!-- ########## START: LEFT PANEL ########## -->
+<div class="br-logo">
+    <a [routerLink]="['/manager']">
+        <img src="assets/img/logoDFM.png" class="img-avatar" />
+    </a>
+</div>
+<div class="br-sideleft overflow-y-auto" >
+    <label class="sidebar-label pd-x-15 mg-t-20">{{ 'MENU_NAV' | translate }}</label>
+    <div class="br-sideleft-menu">
+        <a *ngIf="permissions['dashboard']" [routerLink]="['/manager/dashboard']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-ios-home-outline tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_HOME' | translate }}</span>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <!-- <a [routerLink]="['/manager/static']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-stats-bars tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_STATIC' | translate }}</span>
+            </div>
+        </a> -->
+        <a *ngIf="permissions['sub_dashboard']" [routerLink]="['/manager/sub-dashboard']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-ios-home-outline tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_HOME' | translate }}</span>
+            </div><!-- menu-item -->
+        </a>
+        <!-- br-menu-link -->
+        <a *ngIf="permissions['user']" [routerLink]="['/manager/users/users-list']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-ios-people-outline tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_USERS' | translate }}</span>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <a *ngIf="permissions['vehicle']" [routerLink]="['/manager/vehicles']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon ion-android-bus tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_VHC' | translate }}</span>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <a *ngIf="permissions['devices'] || permissions['devics_status']" href="#" class="br-menu-link">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-iphone tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_MANAGER_DEVICE' | translate }}</span>
+                <i class="menu-item-arrow fa fa-angle-down"></i>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <ul *ngIf="permissions['devices'] || permissions['devics_status']" class="br-menu-sub nav flex-column">
+            <li *ngIf="permissions['devices']" class="nav-item"><a [routerLink]="['/manager/devices']" class="nav-link" routerLinkActive="active">{{ 'MENU_MANAGER_DEVICE_LIST' | translate }}</a></li>
+            <li *ngIf="permissions['devices_status']" class="nav-item"><a [routerLink]="['/manager/device-status']" class="nav-link" routerLinkActive="active">{{ 'MENU_MANAGER_DEVICE_STATUS' | translate }}</a></li>
+            <li *ngIf="permissions['devices_locations']" class="nav-item"><a [routerLink]="['/manager/device-locations']" class="nav-link" routerLinkActive="active">{{ 'MENU_MANAGER_DEVICE_LOCATION' | translate }}</a></li>
+        </ul>
+
+        <a *ngIf="permissions['route_create'] || permissions['routes'] || permissions['routes_group_busstation']" href="#" class="br-menu-link">
+            <div class="br-menu-item">
+                <i class="menu-item-icon ion-ios-navigate-outline tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_ROUTE' | translate }}</span>
+                <i class="menu-item-arrow fa fa-angle-down"></i>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <ul *ngIf="permissions['route_create']
+        || permissions['routes']
+        || permissions['routes_group_busstation']"
+        class="br-menu-sub nav flex-column">
+            <li *ngIf="permissions['route_create'] && (permissions['route_create'].key_tools != null && permissions['route_create'].key_tools.includes('edit')) && user_down !== null" class="nav-item"><a [routerLink]="['/manager/routes/routes-form']" class="nav-link" routerLinkActive="active">{{ 'LBL_ROU_ADD' | translate }}</a></li>
+            <li *ngIf="permissions['routes']" class="nav-item"><a [routerLink]="['/manager/routes/routes-list']" class="nav-link" routerLinkActive="active">{{ 'LBL_ROU_LIST' | translate }}</a></li>
+            <li *ngIf="permissions['routes_group_busstation'] && (permissions['routes_group_busstation'].key_tools != null && permissions['routes_group_busstation'].key_tools.includes('edit')) && user_down !== null" class="nav-item"><a [routerLink]="['/manager/routes/group-bus-stations']" class="nav-link" routerLinkActive="active">{{ 'LBL_ROU_GROUP_BUS_STATION' | translate }}</a></li>
+        </ul>
+        <a *ngIf="permissions['ticket_types'] || permissions['ticket_provider'] || permissions['ticket_denominations_goods'] || permissions['ticket_denominations_service']" href="#" class="br-menu-link">
+            <div class="br-menu-item">
+                <i class="menu-item-icon ion-ios-keypad-outline tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_TKT' | translate }}</span>
+                <i class="menu-item-arrow fa fa-angle-down"></i>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <ul *ngIf="permissions['ticket_types']
+        || permissions['ticket_provider']
+        || permissions['ticket_denominations_goods']
+        || permissions['ticket_denominations_service']"
+        class="br-menu-sub nav flex-column">
+            <li *ngIf="permissions['ticket_types']" class="nav-item"><a [routerLink]="['/manager/tickets/tickets']" class="nav-link" routerLinkActive="active">{{ 'LBL_TKT_MANAGER_LIST' | translate }}</a></li>
+            <li *ngIf="permissions['ticket_provider']" class="nav-item"><a [routerLink]="['/manager/tickets/ticket-provicers']" class="nav-link" routerLinkActive="active">{{ 'LBL_TKT_MANAGER_PROVIDER' | translate }}</a></li>
+            <li *ngIf="permissions['ticket_denominations_goods']" class="nav-item"><a [routerLink]="['/manager/tickets/denomination-goods']" class="nav-link" routerLinkActive="active">{{ 'LBL_TKT_MANAGER_DENOMINATION_GOODS' | translate }}</a></li>
+            <li *ngIf="permissions['ticket_denominations_service']" class="nav-item"><a [routerLink]="['/manager/tickets/denomination-service']" class="nav-link" routerLinkActive="active">{{ 'LBL_TKT_MANAGER_DENOMINATION_SERVICE' | translate }}</a></li>
+        </ul>
+        <a *ngIf="permissions['card_membership_card']
+        || permissions['card_membership_type_card']
+        || permissions['card_denomination_nfc']
+        || permissions['card_blank_check']
+        || permissions['card_membership_tmp']"
+        href="#" class="br-menu-link">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon fa fa-credit-card tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_CARD' | translate }}</span>
+                <i class="menu-item-arrow fa fa-angle-down"></i>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <ul *ngIf="permissions['card_membership_card']
+        || permissions['card_membership_type_card']
+        || permissions['card_denomination_nfc']
+        || permissions['card_blank_check']
+        || permissions['card_membership_tmp']"
+        class="br-menu-sub nav flex-column">
+            <li *ngIf="permissions['card_membership_card']" class="nav-item"><a [routerLink]="['/manager/memberships/membership-cards']" class="nav-link" routerLinkActive="active">{{ 'MENU_RFID_CARD_MANAGRER' | translate }}</a></li>
+            <li *ngIf="permissions['card_membership_type_card']" class="nav-item"><a [routerLink]="['/manager/memberships/membership-type-cards']" class="nav-link" routerLinkActive="active">{{ 'MENU_MANAGER_CARD_TYPE' | translate }}</a></li>
+            <li *ngIf="permissions['card_denomination_nfc']" class="nav-item"><a [routerLink]="['/manager/memberships/denominations']" class="nav-link" routerLinkActive="active">{{ 'denomination' | translate }}</a></li>
+            <li *ngIf="permissions['card_blank_check']" class="nav-item"><a [routerLink]="['/manager/memberships/blank-cards']" class="nav-link" routerLinkActive="active">{{ 'MENU_BLANK_CARD_CHECK' | translate }}</a></li>
+            <li *ngIf="permissions['card_membership_tmp']" class="nav-item"><a [routerLink]="['/manager/memberships/memberships-tmp']" class="nav-link" routerLinkActive="active">{{ 'MENU_MEMBERSHIP_TMP' | translate }}</a></li>
+        </ul>
+
+        <a *ngIf="permissions['module_app']" [routerLink]="['/manager/module-apps']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-social-android tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_MODULE_APP' | translate }}</span>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <!-- component news -->
+        <!-- <a *ngIf="permissions['news']" href="#" class="br-menu-link">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-ios-world-outline tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_MANAGER_NEWS' | translate }}</span>
+                <i class="menu-item-arrow fa fa-angle-down"></i>
+            </div>
+        </a>
+        <ul *ngIf="permissions['news']" class="br-menu-sub nav flex-column">
+            <li *ngIf="permissions['news']" class="nav-item"><a [routerLink]="['/manager/news/news']" class="nav-link" routerLinkActive="active">{{ 'MENU_MANAGER_NEWS' | translate }}</a></li>
+            <li *ngIf="permissions['news']" class="nav-item"><a [routerLink]="['/manager/news/category-news']" class="nav-link" routerLinkActive="active">{{ 'MENU_MANAGER_CATEGORY_NEWS' | translate }}</a></li>
+        </ul> -->
+        <!-- end component news -->
+        <a *ngIf="permissions['app_notifies']" href="#" class="br-menu-link">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-alert tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_NOTIFY' | translate }}</span>
+                <i class="menu-item-arrow fa fa-angle-down"></i>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <ul *ngIf="permissions['app_notifies']" class="br-menu-sub nav flex-column">
+            <li *ngIf="permissions['app_notifies']" class="nav-item"><a [routerLink]="['/manager/notifies/app-notifies']" class="nav-link" routerLinkActive="active">{{ 'MENU_APP_NOTIFY' | translate }}</a></li>
+            <!-- <li *ngIf="permissions['web_notifies']" class="nav-item"><a [routerLink]="['/manager/notifies/web-notifies']" class="nav-link" routerLinkActive="active">Thong bao web</a></li> -->
+        </ul>
+        <a *ngIf="permissions['application']" [routerLink]="['/manager/applications']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-android-apps tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_APPLICATIONS' | translate }}</span>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <!-- menu-summary -->
+        <a *ngIf="permissions['dictates_transports']" [routerLink]="['/manager/dictates-transports']" class="br-menu-link"
+            routerLinkActive="active">
+            <div class="br-menu-item">
+               <i class="menu-item-icon icon ion-paper-airplane	tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_DICTATES_TRANSPORTS' | translate }}</span>
+            </div>
+        </a>
+        <a *ngIf="permissions['summary_report_receipt'] || permissions['summary_report_shift_supervisor']" href="#" class="br-menu-link">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-ios-paper tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_SUMMARY' | translate }}</span>
+                <i class="menu-item-arrow fa fa-angle-down"></i>
+            </div>
+        </a>
+        <ul class="br-menu-sub nav flex-column">
+            <li *ngIf="permissions['summary_report_receipt']" class="nav-item"><a [routerLink]="['/manager/reports/receipts']" class="nav-link" routerLinkActive="active">{{ 'MENU_RCT' | translate }}</a></li>
+            <li *ngIf="permissions['summary_report_shift_supervisor']" class="nav-item"><a [routerLink]="['/manager/reports/shift-supervisor']" class="nav-link" routerLinkActive="active">{{ 'MENU_SHIFT_SUPERVISOR' | translate }}</a></li>
+        </ul>
+        <!-- end-menu-summary -->
+        <a *ngIf="
+        permissions['report_ticket_destroy']
+        || permissions['report_shift_destroy']
+        || permissions['report_daily']
+        || permissions['report_staff']
+        || permissions['report_vehicle_route']
+        || permissions['report_vehicle_all']
+        || permissions['report_vehicle_period']
+        || permissions['report_transaction_detail']
+        || permissions['report_transaction_online']
+        || permissions['report_time_trips']
+        || permissions['report_tickets']
+        || permissions['report_print_ticket']
+        || permissions['report_card_prepaid']
+        || permissions['report_card_month']
+        || permissions['report_order']
+        || permissions['report_history_shift']
+        || permissions['report_output']
+        || permissions['report_card_month_group_busstation']"
+        href="#" class="br-menu-link">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-clipboard tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_RPT' | translate }}</span>
+                <i class="menu-item-arrow fa fa-angle-down"></i>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <ul class="br-menu-sub nav flex-column">
+            <li *ngIf="permissions['report_ticket_destroy']" class="nav-item"><a [routerLink]="['/manager/reports/ticket-destroy']" class="nav-link" routerLinkActive="active">{{ 'MENU_TICKETS_DESTROY' | translate }}</a></li>
+            <li *ngIf="permissions['report_shift_destroy']" class="nav-item"><a [routerLink]="['/manager/reports/shift_destroys']" class="nav-link" routerLinkActive="active">{{ 'MENU_SHIFT_DESTROY' | translate }}</a></li>
+            <li *ngIf="permissions['report_daily']" class="nav-item"><a [routerLink]="['/manager/reports/dailies']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_DAILIES' | translate }}</a></li>
+            <li *ngIf="permissions['report_staff']" class="nav-item"><a [routerLink]="['/manager/reports/staffs']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_STAFFS' | translate }}</a></li>
+            <li *ngIf="permissions['report_vehicle_route']" class="nav-item"><a [routerLink]="['/manager/reports/vehicles']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_VEHICLES' | translate }}</a></li>
+            <li *ngIf="permissions['report_vehicle_all']" class="nav-item"><a [routerLink]="['/manager/reports/vehicles-all']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_VEHICLES_ALL' | translate }}</a></li>
+            <li *ngIf="permissions['report_vehicle_period']" class="nav-item"><a [routerLink]="['/manager/reports/vehicles-period']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_VEHICLES_PERIOD' | translate }}</a></li>
+            <li *ngIf="permissions['report_vehicle_route_period']" class="nav-item"><a [routerLink]="['/manager/reports/vehicles-routes-period']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_VEHICLES_ROUTES_PERIOD' | translate }}</a></li>
+            <li *ngIf="permissions['report_transaction_detail']" class="nav-item"><a [routerLink]="['/manager/reports/transaction-detail']" class="nav-link" routerLinkActive="active">{{ 'TABLE_TRANSACTION_DETAIL' | translate }}</a></li>
+            <li *ngIf="permissions['report_transaction_online']" class="nav-item"><a [routerLink]="['/manager/reports/transaction-online']" class="nav-link" routerLinkActive="active">{{ 'TABLE_TRANSACTION_ONLINE' | translate }}</a></li>
+            <li *ngIf="permissions['report_time_trips']" class="nav-item"><a [routerLink]="['/manager/reports/time-trips']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_TIME_TRIPS' | translate }}</a></li>
+            <li *ngIf="permissions['report_tickets']" class="nav-item"><a [routerLink]="['/manager/reports/tickets']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_TICKETS' | translate }}</a></li>
+            <li *ngIf="permissions['report_print_ticket']" class="nav-item"><a [routerLink]="['/manager/reports/print-tickets']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_TICKETS_PRINT' | translate }}</a></li>
+            <li *ngIf="permissions['report_card_prepaid']" class="nav-item"><a [routerLink]="['/manager/reports/cards']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_CARDS' | translate }}</a></li>
+            <li *ngIf="permissions['report_card_month']" class="nav-item"><a [routerLink]="['/manager/reports/card-months']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_CARD_MONTHS' | translate }}</a></li>
+            <li *ngIf="permissions['report_card_exemption']" class="nav-item"><a [routerLink]="['/manager/reports/card-exemption']" class="nav-link" routerLinkActive="active">{{ 'MENU_EXEMPTION_CARDS' | translate }}</a></li>
+            <li *ngIf="permissions['report_order']" class="nav-item"><a [routerLink]="['/manager/reports/invoices']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_INVOICES' | translate }}</a></li>
+            <li *ngIf="permissions['report_history_shift']" class="nav-item"><a [routerLink]="['/manager/reports/history-shift']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_HISTORY_SHIFT' | translate }}</a></li>
+            <li *ngIf="permissions['report_output']" class="nav-item"><a [routerLink]="['/manager/reports/output']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_UPDATE_OUTPUT' | translate }}</a></li>
+            <li *ngIf="permissions['report_card_month_group_busstation']" class="nav-item"><a [routerLink]="['/manager/reports/card-month-group-station']" class="nav-link" style="white-space: normal" routerLinkActive="active">{{ 'MENU_CARD_MONTHS_GROUP_BUSSTIONS' | translate }}</a></li>
+        </ul>
+        <a *ngIf="permissions['setting_global']" [routerLink]="['/manager/setting-global']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon fa fa-cogs tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_SETTING_GLOBAL' | translate }}</span>
+            </div>
+        </a>
+        <a *ngIf="permissions['company_info']" [routerLink]="['/manager/profile']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-ios-information-outline tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_GNR' | translate }}</span>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+    </div><!-- br-sideleft-menu -->
+    <br>
+</div><!-- br-sideleft -->
+<!-- ########## END: LEFT PANEL ########## -->
+<app-header></app-header>
+<!-- ########## START: MAIN PANEL ########## -->
+<div class="br-mainpanel">
+    <router-outlet></router-outlet>
+</div><!-- br-mainpanel -->
+<!-- ########## END: MAIN PANEL ########## -->

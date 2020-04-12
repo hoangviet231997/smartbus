@@ -1,0 +1,72 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+    </div>
+    
+    <div class="br-pagebody">
+        <div class="br-section-wrapper">
+            <div class="row">
+                <div class="col-md-8 tx-left">
+                    <h2 class="tx-gray-800 tx-bold mg-b-10">
+                        <i class="fa fa-money" aria-hidden="true"></i>
+                        <span class="menu-item-label">{{ 'MENU_GOODS_DENOMINATION' | translate }}</span>
+                    </h2>
+                </div>
+                <div class="col-md-4 tx-right">
+                    <button *ngIf="permissions['ticket_denominations_goods'].key_tools != null && permissions['ticket_denominations_goods'].key_tools.includes('edit')" (click)="showAddPriceModel()" class="btn btn-teal mg-b-20 pd-r-20">
+                        <i class="fa fa-plus mg-r-5"></i> {{ 'ADD_DENOMINATION' | translate }}
+                    </button>
+                </div>
+            </div>
+            <div class="br-section-wrapper">
+                <div class="row">
+                    <div *ngFor="let denomination of denominations; let i = index" class="col-xs-6 col-md-3 pd-t-20">
+                        <div class="border border-danger rounded" [ngStyle]="{'background-color': denomination.color}">
+                            <div class="thumbnail">
+                                <p class="float-right" *ngIf="permissions['ticket_denominations_goods'].key_tools != null && permissions['ticket_denominations_goods'].key_tools.includes('edit')"> 
+                                    <a href="javascript:void(0)" class="btn btn-sm btn-danger" (click)="deleteDenomination(denomination.id)"  data-toggle="tooltip" data-placement="top" title="{{ 'FORM_DEL' | translate }}">
+                                        <i class="fa fa-times " aria-hidden="true"></i>
+                                    </a>
+                                </p>
+                                <h3 class="tx-center tx-color">{{denomination.price | currency:'VND':''}}</h3>
+                                <h4 class="tx-center tx-color">VNĐ</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  <div bsModal #addPriceModel="bs-modal" class="modal fade">
+      <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content bd-0 tx-14 cus-width">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'ADD_DENOMINATION' | translate }}</h6>
+                <button (click)="addPriceModel.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'DENOMINATION' | translate }}</label>
+                            <input type="text" class="form-control" maxlength="170" [(ngModel)]="denominationGoodForm.price"
+                                required>
+                        </div>
+                    </div>
+                    <div class="col-lg-12" *ngIf="isModuleGoods">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'DENOMINATION_COLOR' | translate }}</label>
+                            <input class="form-control" [value]="denominationGoodForm.color ? denominationGoodForm.color : ''"
+                                [style.background]="denominationGoodForm.color" [(colorPicker)]="denominationGoodForm.color" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+          <div class="modal-footer">
+              <button (click)="addDenomination()" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_CREATE' | translate }}</button>
+              <button (click)="addPriceModel.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+          </div>
+      </div>
+    </div>
+  </div>

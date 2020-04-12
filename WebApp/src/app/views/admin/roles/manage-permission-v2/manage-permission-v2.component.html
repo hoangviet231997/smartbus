@@ -1,0 +1,419 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+<h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-8 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-sitemap" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'LBL_LIST_PER' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-4 tx-right">
+                <button  (click)="showAddModal()" class="btn btn-teal mg-b-20 pd-r-20">
+                    <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_PER' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-4">
+          </div>
+          <div class="form-group col-md-4">
+            <label class="form-control-label tx-bold">{{ 'MENU_COMPANY' | translate }}</label>
+            <select class="form-control" [(ngModel)]="companyIdSearch" (change)="searchPermission()">
+              <option value="0">---- Chọn công ty ----</option>
+              <option *ngFor="let company of companies" value="{{company.id}}">{{company.name}}</option>
+            </select>
+          </div>
+          <div class="form-group col-md-4">
+          </div>
+        </div>
+        <div class="br-section-wrapper" *ngIf="permissions.length">
+            <div class="row">
+                <div *ngFor="let permission of permissions;let i = index " class="col-xs-6 col-md-3 pd-t-20">
+                    <div class="rounded item-custom">
+                        <div class="thumbnail">
+                          <p class="float-right">
+                            <a href="javascript:void(0)" class="btn btn-sm btn-custom"  (click)="deletePermisionByRole(permission)"  data-toggle="tooltip" data-placement="top" title="{{ 'FORM_DEL' | translate }}">
+                              <i class="fa fa-times " aria-hidden="true"></i>
+                            </a>
+                          </p>
+                        </div>
+                        <h3 class="tx-center tx-color text-custom">{{'LBL_RCT_' + permission.role_name | translate }}</h3>
+                        <br>
+                        <div class="row">
+                          <div class="col-md-2"></div>
+                          <div class="col-md-8 tx-center">
+                            <button title="Cập nhật" type="button" class="btn btn-primary btn-width" data-toggle="modal"
+                              (click)="showModalEdit(permission)">
+                              <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </button>
+                            <button title="xem" type="button" class="btn btn-info btn-width" data-toggle="modal"
+                              (click)="showDetailPermisionByRole(permission)">
+                              <i class="fa fa-eye" aria-hidden="true"></i>
+                            </button>
+                          </div>
+                          <div class="col-md-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- from add permission -->
+<div bsModal #addModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document" style="max-width: 843px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'BTN_ADD_PER' | translate }}</h5>
+        <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label class="form-control-label tx-bold">{{ 'MENU_COMPANY' | translate }}</label>
+              <select class="form-control" name="company_id" id="company_id" [(ngModel)]="permissionCreate.company_id">
+                <option value="0">---- Chọn công ty ----</option>
+                <option *ngFor="let company of companies" value="{{company.id}}">{{company.name}}</option>
+              </select>
+            </div>
+            <div class="form-group col-md-6">
+              <label class="form-control-label tx-bold">{{ 'LBL_ROLE_USR' | translate }}</label>
+              <select class="form-control" class="form-control" name="role_id" id="role_id" [(ngModel)]="permissionCreate.role_id">
+                <option value="0">---- Chọn vai trò ----</option>
+                <option *ngFor="let role of roles" value="{{role.id}}">{{ 'LBL_RCT_' + role.name | translate }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+              <thead class="thead-colored thead-primary">
+                <tr>
+                  <th class="tx-center">
+                    <label class="ckbox mg-b-0" style="right: -3px;">
+                      <input type="checkbox" name="checkAll" [(ngModel)]="masterSelected"
+                        (change)="onChangeAllKeyCategory($event, 0)" />
+                      <span></span>
+                    </label>
+                  </th>
+                  <th class="text-center">{{ 'LBL_PERMISSION_NAME_PAGE' | translate }}</th>
+                  <th class="text-center">{{ 'LBL_PERMISSION_KEY_PAGE' | translate }}</th>
+                  <th class="text-center">{{ 'LBL_PERMISSION_ACT' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cate of categories">
+                  <td >
+                    <div class="tx-center">
+                      <input type="checkbox" name="checkAny" value="{{cate.key}}" [checked]="cate.isSelected"
+                      (change)="onChangeKeyCategory($event, 0)" />
+                    </div>
+                  </td>
+                  <td class="tx-left">{{cate.display_name}}</td>
+                  <td class="tx-left">{{cate.key}}</td>
+                  <td class="tx-left">
+                    <div>
+                      <label class="form-check-label" style="margin-right: 10px;">
+                        <input *ngIf="!cate.isSelected" class="form-check-input" type="checkbox" value="view_advanced"
+                          disabled />
+                        <input *ngIf="cate.isSelected" class="form-check-input" type="checkbox" value="view_advanced"
+                          (change)="onChangeCheckKeyTools($event,cate.key, 0)" />
+                        <!-- <input [disabled]="!cate.isSelected" [checked]="isChecked"
+                          (change)="onChangeCheckKeyTools($event,cate.key)" class="form-check-input" type="checkbox"
+                          value="view_advanced" /> -->
+                        Xem nâng cao
+                      </label>
+                      <label class="form-check-label">
+                        <!-- <input [disabled]="!cate.isSelected" (change)="onChangeCheckKeyTools($event,cate.key)"
+                          class="form-check-input" type="checkbox" value="edit"> -->
+                        <input *ngIf="!cate.isSelected" class="form-check-input" type="checkbox" value="edit"
+                          disabled />
+                        <input *ngIf="cate.isSelected" class="form-check-input" type="checkbox" value="edit"
+                          (change)="onChangeCheckKeyTools($event,cate.key, 0)" />
+                        Chỉnh sửa
+                      </label>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button (click)="addModal.hide()" type="button" class="btn btn-secondary"
+          data-dismiss="modal">{{ 'LBL_PERMISSION_CLOSE' | translate }}</button>
+        <button (click)="addPermission()" type="button"
+          class="btn btn-primary">{{ 'LBL_PERMISSION_SAVE' | translate }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end from add permission -->
+
+<!-- view permission detail -->
+<div bsModal #detailModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 843px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ 'BTN_VIEW_DETAIL_PER' | translate }}</h5>
+          <button (click)="detailModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                  <tr>
+                    <th class="text-center">{{ 'TABLE_STT' | translate }}</th>
+                    <th class="text-center">{{ 'LBL_PERMISSION_NAME_PAGE' | translate }}</th>
+                    <th class="text-center">{{ 'LBL_PERMISSION_KEY_PAGE' | translate }}</th>
+                    <th class="text-center">{{ 'LBL_PERMISSION_ACT' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of permissionDatail; let i = index">
+                    <td class="tx-left">{{i + 1}}</td>
+                    <td class="tx-left">{{item.page_name}}</td>
+                    <td class="tx-left">{{item.key}}</td>
+                    <td class="tx-left">
+                      <div>
+                        <label class="form-check-label" style="margin-right: 15px;">
+                          <input *ngIf="item.key_tools != null" [checked]="item.key_tools.includes('view_advanced')" class="form-check-input" type="checkbox" value="view_advanced" disabled />
+                          <input *ngIf="item.key_tools == null" class="form-check-input" type="checkbox" value="view_advanced" disabled />
+                          {{item.key_tools != null ? 'Xem nâng cao' : ''}}
+                        </label>
+                        <label class="form-check-label">
+                          <input *ngIf="item.key_tools != null" [checked]="item.key_tools.includes('edit')" class="form-check-input" type="checkbox" value="edit" disabled />
+                          <input *ngIf="item.key_tools == null" class="form-check-input" type="checkbox" value="edit" disabled />
+                          {{item.key_tools != null ? 'Chỉnh sửa' : ''}}
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button (click)="detailModal.hide()" type="button" class="btn btn-secondary"
+            data-dismiss="modal">{{ 'LBL_PERMISSION_CLOSE' | translate }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- end view permission detail -->
+
+<!-- <div class="container" style="background-color:white;max-width: 1615px;margin-top: 120px;box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.21);">
+  <div class="row pt-5">
+    <div class="col-lg-6">
+      <h1 class="tx-gray-800 tx-bold mg-b-10" style="padding-left: 48px;">
+        <i class="fa fa-sitemap" aria-hidden="true"></i>
+        <span class="menu-item-label">{{ 'LBL_LIST_PER' | translate }}</span>
+      </h1>
+    </div>
+    <div class="col-lg-6 text-right">
+      <button (click)="showAddModal()" class="btn btn-teal mg-b-20 pd-r-20" style="margin-right: 44px;" >
+        <i class="fa fa-plus"> {{ 'BTN_ADD_PER' | translate }}</i>
+      </button>
+    </div>
+  </div>
+  <form action="">
+    <div class="form-row">
+      <div class="form-group col-md-4">
+      </div>
+      <div class="form-group col-md-4">
+        <label class="form-control-label tx-bold">{{ 'MENU_COMPANY' | translate }}</label>
+        <select class="form-control" name="companyIdSearch" id="" [(ngModel)]="companyIdSearch" (change)="searchPermission()">
+          <option value="0">---- Chọn công ty ----</option>
+          <option *ngFor="let company of companies" value="{{company.id}}">{{company.name}}</option>
+        </select>
+      </div>
+      <div class="form-group col-md-4">
+      </div>
+    </div>
+
+    <div class="table-responsive" style="padding: 48px;">
+      <table class="table table-bordered table-hover table-striped">
+        <thead class="thead-colored thead-primary">
+          <tr>
+            <th class="tx-center">{{ 'TABLE_STT' | translate }} </th>
+            <th class="tx-center">{{ 'TABLE_PERMISION_PAGE' | translate }}</th>
+            <th class="tx-center">{{ 'TABLE_PERMISION_VIEW_ADVANCED' | translate }}</th>
+            <th class="tx-center">{{ 'TABLE_PERMISION_EDIT' | translate }}</th>
+            <th class="tx-center">{{ 'TABLE_COM' | translate }}</th>
+            <th class="tx-center">{{ 'TABLE_ROLE' | translate }}</th>
+            <th class="tx-center">{{ 'TABLE_CRE' | translate }}</th>
+            <th class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let permission of permissions;let i = index ">
+            <td>{{ i+1 }}</td>
+            <td>{{permission.page_name}}</td>
+            <td class="text-center">
+              <i *ngIf="permission.key_tools && permission.key_tools.includes('view_advance')" class="fa fa-check"
+                aria-hidden="true"></i>
+              <i *ngIf="permission.key_tools && !permission.key_tools.includes('view_advance')" class="fa fa-times"
+                aria-hidden="true"></i>
+              <i *ngIf="!permission.key_tools" class="fa fa-times" aria-hidden="true"></i>
+            </td>
+            <td class="text-center">
+              <i *ngIf="permission.key_tools && permission.key_tools.includes('edit')" class="fa fa-check"
+                aria-hidden="true"></i>
+              <i *ngIf="permission.key_tools && !permission.key_tools.includes('edit')" class="fa fa-times"
+                aria-hidden="true"></i>
+              <i *ngIf="!permission.key_tools" class="fa fa-times" aria-hidden="true"></i>
+            </td>
+            <td>{{permission.company_name}}</td>
+            <td class="text-center">{{ 'LBL_RCT_' + permission.role_name | translate }}</td>
+            <td class="text-center">{{permission.created_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+            <td class="text-center">
+              <button title="Cập nhật" type="button" class="btn btn-primary btn-width" data-toggle="modal"
+                (click)="showModalEdit(permission.id)">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+              </button>
+              <button title="Xóa" type="button" class="btn btn-danger btn-width" data-toggle="modal"
+                (click)="deletePermission(permission.id)">
+                <i class="fa fa-times" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div> -->
+
+
+<!-- edit permission -->
+<div bsModal #editModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document" style="max-width: 843px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'BTN_EDIT_PER' | translate }}</h5>
+        <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form >
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+              <thead class="thead-colored thead-primary">
+                <tr>
+                  <th class="tx-center">
+                    <label class="ckbox mg-b-0" style="right: -3px;">
+                      <input type="checkbox" name="checkAll" [(ngModel)]="masterSelected"
+                        (change)="onChangeAllKeyCategory($event, 1)" />
+                      <span></span>
+                    </label>
+                  </th>
+                  <th class="text-center">{{ 'LBL_PERMISSION_NAME_PAGE' | translate }}</th>
+                  <th class="text-center">{{ 'LBL_PERMISSION_KEY_PAGE' | translate }}</th>
+                  <th class="text-center">{{ 'LBL_PERMISSION_ACT' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cate of categories">
+                  <td >
+                    <div class="tx-center">
+                      <input type="checkbox" name="checkAny" value="{{cate.key}}" [checked]="cate.isSelected"
+                      (change)="onChangeKeyCategory($event, 1)" />
+                    </div>
+                  </td>
+                  <td class="tx-left">{{cate.display_name}}</td>
+                  <td class="tx-left">{{cate.key}}</td>
+                  <td class="tx-left">
+                    <div>
+                      <label class="form-check-label" style="margin-right: 10px;">
+                        <input *ngIf="!cate.isSelected" [checked]="cate.key_tools.includes('view_advanced')" class="form-check-input" type="checkbox" value="view_advanced"
+                          disabled />
+                        <input *ngIf="cate.isSelected" [checked]="cate.key_tools.includes('view_advanced')" class="form-check-input" type="checkbox" value="view_advanced"
+                          (change)="onChangeCheckKeyTools($event,cate.key, 1)" />
+                        Xem nâng cao
+                      </label>
+                      <label class="form-check-label">
+                        <input *ngIf="!cate.isSelected" [checked]="cate.key_tools.includes('edit')" class="form-check-input" type="checkbox" value="edit"
+                          disabled />
+                        <input *ngIf="cate.isSelected" [checked]="cate.key_tools.includes('edit')" class="form-check-input" type="checkbox" value="edit"
+                          (change)="onChangeCheckKeyTools($event,cate.key, 1)" />
+                        Chỉnh sửa
+                      </label>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+              <thead class="thead-colored thead-primary">
+                <tr>
+                  <th class="tx-center">
+                    <label class="ckbox">
+                      <input type="checkbox" name="checkAll" [(ngModel)]="masterSelected" value=""
+                        (change)="onChangeAllKeyCategory($event, 1)" />
+                      <span></span>
+                    </label>
+                  </th>
+                  <th class="text-center">{{ 'LBL_PERMISSION_NAME_PAGE' | translate }}</th>
+                  <th class="text-center">{{ 'LBL_PERMISSION_KEY_PAGE' | translate }}</th>
+                  <th class="text-center">{{ 'LBL_PERMISSION_ACT' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cate of categories">
+                  <td class="text-center">
+                    <input type="checkbox" name="checkAny" value="{{cate.key}}" [checked]="cate.isSelected"
+                      (change)="onChangeKeyCategory($event, 1)" />
+                  </td>
+                  <td class="text-center">{{cate.display_name}}</td>
+                  <td class="text-center">{{cate.key}}</td>
+                  <td class="">
+                    <div class="form-check form-check-inline">
+                      <label class="form-check-label">
+                        <input *ngIf="!cate.isSelected" class="form-check-input" type="checkbox" value="view_advance"
+                          disabled />
+                        <input *ngIf="cate.isSelected" class="form-check-input" type="checkbox" value="view_advance"
+                          (change)="onChangeCheckKeyTools($event,cate.key, 1)"
+                          [checked]="view_advance" />
+                        {{ 'TABLE_PERMISSION_VIEW_ADVANDCED' | translate }} </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <label class="form-check-label">
+                        <input *ngIf="!cate.isSelected" class="form-check-input" type="checkbox" value="edit"
+                          disabled />
+                        <input *ngIf="cate.isSelected" class="form-check-input" type="checkbox" value="edit"
+                          (change)="onChangeCheckKeyTools($event,cate.key, 1)"
+                          [checked]="edit" />
+                        {{ 'TABLE_PERMISSION_EDIT' | translate }} </label>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div> -->
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button (click)="editModal.hide()" type="button" class="btn btn-secondary"
+          data-dismiss="modal">{{ 'LBL_PERMISSION_CLOSE' | translate }}
+        </button>
+        <button (click)="editPermission()" type="button" class="btn btn-primary">{{ 'LBL_PERMISSION_SAVE' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--end edit permission -->

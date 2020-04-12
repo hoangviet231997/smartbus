@@ -1,0 +1,391 @@
+
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list ticket -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-6 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-ticket" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'LBL_LIST_TYPE_TICK' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-6 tx-right">
+                <button (click)="showAddTicketModal()" *ngIf="(permissions['ticket_types'].key_tools != null && permissions['ticket_types'].key_tools.includes('edit'))" class="btn btn-teal mg-b-20 pd-r-20">
+                    <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_TYPE_TICK' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <table class="table mg-b-0">
+                <tr>
+                    <td style="width:30%">
+                        <select class="form-control py-2 border-right-0 border" [(ngModel)]="style_search">
+                            <option value="">---- {{ 'LBL_SEARCH_BY_TICKET' | translate }} ----</option>
+                            <option value="type">{{ 'LBL_PRICE_TYPE_TYPE' | translate }}</option>
+                            <option value="name">{{ 'TABLE_NAME' | translate }}</option>
+                            <option value="price">{{ 'LBL_PRICE_TYPE_TICK' | translate }}</option>
+                        </select>
+                    </td>
+                    <td *ngIf="style_search !== 'type'" style="width:70%">
+                        <div class="input-group">
+                            <input class="form-control py-2 border-right-0 border" type="search" id="example-search-input"
+                                [(ngModel)]="key_input" (ngModelChange)="getInputTicket()" placeholder="Tìm kiếm...">
+                            <span class="input-group-append">
+                                <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                            </span>
+                        </div>
+                    </td>
+                    <td *ngIf="style_search === 'type'" style="width:70%">
+                        <div class="input-group">
+                            <select class="form-control" [(ngModel)]="key_input" (ngModelChange)="getInputTicket()" >
+                                <option value="">---- {{ 'LBL_SEARCH_BY_TYPE' | translate }} ----</option>
+                                <option value="0">{{'LBL_PRICE_TYPE_TYPE_POS' | translate}}</option>
+                                <option value="1">{{'LBL_PRICE_TYPE_TYPE_DEPOSIT_MOTNH' | translate}}</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_PRICE_TYPE_TYPE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_NAME' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_PRICE_TYPE_TICK' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_CODE_TYPE_TICK' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_SIGN_TYPE_TICK' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_TICKET_TYPE_TYPE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_TICKET_TYPE_TIME' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_KM_TYPE_TICK' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_KM_TYPE_SALE_OF' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_LIMIT_TICK_PRICE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_PRICE_TYPE_CL' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_LANGUAGE' | translate }}</th>
+                        <th class="tx-center" *ngIf="(permissions['ticket_types'].key_tools != null && permissions['ticket_types'].key_tools.includes('edit'))">{{ 'TABLE_ACT' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let ticket of ticketTypes; let i = index">
+                        <th class="tx-center"scope="row">{{((this.currentPage - 1) * this.limitPage) + (i + 1)}}</th>
+                        <td class="tx-left">
+                            <span *ngIf="ticket.type == 0">{{'LBL_PRICE_TYPE_TYPE_POS' | translate}}</span>
+                            <span *ngIf="ticket.type == 1">{{'LBL_PRICE_TYPE_TYPE_DEPOSIT_MOTNH' | translate}}</span>
+                        </td>
+                        <td class="tx-left">{{ ticket.name }}</td>
+                        <td class="tx-center">{{ ticket.ticket_prices[ticket.ticket_prices.length-1].price | currency:'VND':'' }}</td>
+                        <td class="tx-center">{{ ticket.order_code }}</td>
+                        <td class="tx-left">{{ ticket.sign }}</td>
+                        <td class="tx-left">
+                            <span *ngIf="ticket.duration > 0">
+                                {{ 'LBL_TICKET_TYPE_TIME_LIMITED' | translate }}
+                            </span>
+                            <span *ngIf="ticket.duration == 0">
+                                {{ 'LBL_TICKET_TYPE_USE_1_TIME' | translate }}
+                            </span>
+                        </td>
+                        <td class="tx-center">
+                            <span *ngIf="ticket.duration/3600 > 0 && ticket.duration/3600 <= 12">
+                                {{ 'LBL_TICKET_TYPE_'+ ticket.duration/3600 +'_HOUR' | translate }}
+                            </span>
+                            <span *ngIf="ticket.duration/3600 > 12">
+                                {{ 'LBL_TICKET_TYPE_'+ (ticket.duration/3600)/24 +'_DAY' | translate }}
+                            </span>
+                        </td>
+                        <td class="tx-center"> 
+                            <span *ngIf="ticket.number_km  == null">--:--</span>
+                            <span *ngIf="ticket.number_km  != null">{{ticket.number_km/1000}} km</span>
+                        </td>
+                        <td class="tx-center"> 
+                            <span *ngIf="ticket.sale_of  == null">--:--</span>
+                            <span *ngIf="ticket.sale_of  != null">{{ticket.sale_of}} %</span>
+                        </td>
+                        <td *ngIf="ticket.ticket_prices.length > 0" class="tx-center"> 
+                            <span *ngIf="ticket.ticket_prices[ticket.ticket_prices.length-1].limit_number  == null">--:--</span>
+                            <span *ngIf="ticket.ticket_prices[ticket.ticket_prices.length-1].limit_number  != null">{{ticket.ticket_prices[ticket.ticket_prices.length-1].limit_number}}</span>
+                        </td>
+                        <td *ngIf="ticket.ticket_prices.length > 0" class="tx-center"> 
+                            <span *ngIf="ticket.ticket_prices[ticket.ticket_prices.length-1].charge_limit  == null">--:--</span>
+                            <span *ngIf="ticket.ticket_prices[ticket.ticket_prices.length-1].charge_limit  != null">{{ticket.ticket_prices[ticket.ticket_prices.length-1].charge_limit}}</span>
+                        </td>
+                        <td class="tx-center"> 
+                            <span *ngIf="ticket.language  == null">--:--</span>
+                            <span *ngIf="ticket.language  != null">{{ticket.language}}</span>
+                        </td>
+                        <td class="tx-18 tx-center" *ngIf="(permissions['ticket_types'].key_tools != null && permissions['ticket_types'].key_tools.includes('edit'))">
+                            <a *ngIf="user_down !== null" href="javascript:void(0)" class="btn btn-primary btn-width" (click)="showEditTicketModal(ticket.id)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_EDIT_TYPE_TICK' | translate }}">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </a>
+                            <a *ngIf="user_down !== null"  href="javascript:void(0)" class="btn btn-danger btn-width" (click)="deleteTicket(ticket.id)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_DEL_TYPE_TICK' | translate }}">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                           <span  *ngIf="user_down === null" >--:--</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row" *ngIf="key_input === ''">
+            <div *ngIf="paginationTotal > 0" class="d-flex align-items-center justify-content-center col-md-12">
+                <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
+                    [totalItems]="paginationTotal" [itemsPerPage]="limitPage" [maxSize]="7" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+            </div>
+        </div>
+    </div>
+    <footer class="br-footer"></footer>
+</div>
+<!-- end table list ticket -->
+
+<!-- from add ticket -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_ADD_TYPE_TICK' | translate }}</h6>
+            <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="row mg-b-25">
+                <div class="col-md-10"> </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <select class="form-control" style="background-color: #91929ab3; font-weight: bold" [(ngModel)]="language" >
+                            <option value="vn" style="font-weight: bold">VN</option>
+                            <option value="en" style="font-weight: bold">EN</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_PRICE_TYPE_TYPE' | translate }}:  <span class="tx-danger">*</span></label>
+                        <select class="form-control" [(ngModel)]="ticketCreate.type" >
+                            <option value="0">{{'LBL_PRICE_TYPE_TYPE_POS' | translate}}</option>
+                            <option value="1">{{'LBL_PRICE_TYPE_TYPE_DEPOSIT_MOTNH' | translate}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_NAME' | translate }}:  <span class="tx-danger">*</span></label>
+                        <input class="form-control" type="text" [(ngModel)]="ticketCreate.name" maxlength="50">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_PRICE_TYPE_TICK' | translate }}:  <span class="tx-danger">*</span></label>
+                        <input class="form-control" type="number" min="5000" max="1000000" [(ngModel)]="ticketCreate.price">
+                    </div>
+                </div>
+                <div class="col-md-6" >
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_TICKET_TYPE_TYPE' | translate }}:  <span class="tx-danger">*</span></label>
+                        <select class="form-control" name="type" [(ngModel)]="type" tabindex="-1" aria-hidden="true">
+                            <option value="usedOnce">{{ 'LBL_TICKET_TYPE_USE_1_TIME' | translate }}</option>
+                            <option value="limit">{{ 'LBL_TICKET_TYPE_TIME_LIMITED' | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6" >
+                    <div class="form-group" *ngIf="type == 'limit'">
+                        <label class="form-control-label tx-bold">{{ 'LBL_TICKET_TYPE_TIME' | translate }}:  <span class="tx-danger">*</span></label>
+                        <select class="form-control" name="duration" [(ngModel)]="ticketCreate.duration" tabindex="-1" aria-hidden="true">
+                            <option value="1">{{ 'LBL_TICKET_TYPE_1_HOUR' | translate }}</option>
+                            <option value="6">{{ 'LBL_TICKET_TYPE_6_HOUR' | translate }}</option>
+                            <option value="8">{{ 'LBL_TICKET_TYPE_8_HOUR' | translate }}</option>
+                            <option value="9">{{ 'LBL_TICKET_TYPE_9_HOUR' | translate }}</option>
+                            <option value="12">{{ 'LBL_TICKET_TYPE_12_HOUR' | translate }}</option>
+                            <option value="24">{{ 'LBL_TICKET_TYPE_1_DAY' | translate }}</option>
+                            <option value="48">{{ 'LBL_TICKET_TYPE_2_DAY' | translate }}</option>
+                            <option value="168">{{ 'LBL_TICKET_TYPE_7_DAY' | translate }}</option>
+                            <option value="360">{{ 'LBL_TICKET_TYPE_15_DAY' | translate }}</option>
+                            <option value="720">{{ 'LBL_TICKET_TYPE_30_DAY' | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_CODE_TYPE_TICK' | translate }}</label>
+                        <input class="form-control" type="text" [(ngModel)]="ticketCreate.order_code" maxlength="100">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_SIGN_TYPE_TICK' | translate }}</label>
+                        <input class="form-control" type="text" [(ngModel)]="ticketCreate.sign" maxlength="100">
+                    </div>
+                </div>
+                <div class="col-md-6" *ngIf="ticketCreate.type == 0">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_KM_TYPE_TICK' | translate }}</label>
+                        <input class="form-control" type="number" [(ngModel)]="ticketCreate.number_km" maxlength="100">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_LIMIT_TICK_PRICE' | translate }}</label>
+                        <input class="form-control" type="number" [(ngModel)]="ticketCreate.limit_number" maxlength="100">
+                    </div>
+                </div>
+                <div class="col-md-12" *ngIf="ticketCreate.type == 0">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_KM_TYPE_SALE_OF' | translate }}</label>
+                        <input class="form-control" type="number" [(ngModel)]="ticketCreate.sale_of" maxlength="3">
+                    </div>
+                </div>
+                <div class="col-md-6" *ngIf="ticketCreate.type == 1 && isModuleCardMonthChargeLimit">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_PRICE_TYPE_CHARGE_LIMIT' | translate }}</label>
+                        <input class="form-control" type="number" [(ngModel)]="ticketCreate.charge_limit" maxlength="3">
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_DESC_TYPE_TICK' | translate }}</label>
+                        <textarea rows="3" class="form-control" [(ngModel)]="ticketCreate.description"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button (click)="addTicket()" [ladda]="isCreated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_ADD' | translate }}</button>
+            <button (click)="addModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+    </div>
+    </div>
+</div>
+<!-- end from add ticket -->
+
+<!-- from edit ticket -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_EDIT_TYPE_TICK' | translate }}</h6>
+            <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="row mg-b-25">
+                <div class="col-md-10"> </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <select class="form-control" style="background-color: #91929ab3; font-weight: bold" [(ngModel)]="language" >
+                            <option value="vn" style="font-weight: bold">VN</option>
+                            <option value="en" style="font-weight: bold">EN</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_PRICE_TYPE_TYPE' | translate }}:  <span class="tx-danger">*</span></label>
+                        <select class="form-control" [(ngModel)]="ticketUpdate.type" disabled>
+                            <option value="0">{{'LBL_PRICE_TYPE_TYPE_POS' | translate}}</option>
+                            <option value="1">{{'LBL_PRICE_TYPE_TYPE_DEPOSIT_MOTNH' | translate}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_NAME' | translate }}:  <span class="tx-danger">*</span></label>
+                        <input class="form-control" type="text" [(ngModel)]="ticketUpdate.name" maxlength="50">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_PRICE_TYPE_TICK' | translate }}:  <span class="tx-danger">*</span></label>
+                        <input class="form-control" type="number" min="5000" max="1000000" [(ngModel)]="ticketUpdate.price">
+                    </div>
+                </div>
+                <div class="col-md-6" >
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_TICKET_TYPE_TYPE' | translate }}:  <span class="tx-danger">*</span></label>
+                        <select class="form-control" name="type" [(ngModel)]="type" tabindex="-1" aria-hidden="true">
+                            <option value="usedOnce">{{ 'LBL_TICKET_TYPE_USE_1_TIME' | translate }}</option>
+                            <option value="limit">{{ 'LBL_TICKET_TYPE_TIME_LIMITED' | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6" >
+                    <div class="form-group" *ngIf="type == 'limit'">
+                        <label class="form-control-label tx-bold">{{ 'LBL_TICKET_TYPE_TIME' | translate }}:  <span class="tx-danger">*</span></label>
+                        <select class="form-control" name="duration" [(ngModel)]="ticketUpdate.duration" tabindex="-1" aria-hidden="true">
+                            <option value="1">{{ 'LBL_TICKET_TYPE_1_HOUR' | translate }}</option>
+                            <option value="6">{{ 'LBL_TICKET_TYPE_6_HOUR' | translate }}</option>
+                            <option value="8">{{ 'LBL_TICKET_TYPE_8_HOUR' | translate }}</option>
+                            <option value="9">{{ 'LBL_TICKET_TYPE_9_HOUR' | translate }}</option>
+                            <option value="12">{{ 'LBL_TICKET_TYPE_12_HOUR' | translate }}</option>
+                            <option value="24">{{ 'LBL_TICKET_TYPE_1_DAY' | translate }}</option>
+                            <option value="48">{{ 'LBL_TICKET_TYPE_2_DAY' | translate }}</option>
+                            <option value="168">{{ 'LBL_TICKET_TYPE_7_DAY' | translate }}</option>
+                            <option value="360">{{ 'LBL_TICKET_TYPE_15_DAY' | translate }}</option>
+                            <option value="720">{{ 'LBL_TICKET_TYPE_30_DAY' | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_CODE_TYPE_TICK' | translate }}</label>
+                        <input class="form-control" type="text" [(ngModel)]="ticketUpdate.order_code" maxlength="100">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_SIGN_TYPE_TICK' | translate }}</label>
+                        <input class="form-control" type="text" [(ngModel)]="ticketUpdate.sign" maxlength="100">
+                    </div>
+                </div>
+                <div class="col-md-6" *ngIf="ticketUpdate.type == 0">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_KM_TYPE_TICK' | translate }}</label>
+                        <input class="form-control" type="number" [(ngModel)]="ticketUpdate.number_km" maxlength="100">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_LIMIT_TICK_PRICE' | translate }}</label>
+                        <input class="form-control" type="number" [(ngModel)]="ticketUpdate.limit_number" maxlength="100">
+                    </div>
+                </div>
+                <div class="col-md-12" *ngIf="ticketUpdate.type == 0">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_KM_TYPE_SALE_OF' | translate }}</label>
+                        <input class="form-control" type="number" [(ngModel)]="ticketCreate.sale_of" maxlength="3">
+                    </div>
+                </div>
+                <div class="col-md-6" *ngIf="ticketUpdate.type == 1 && isModuleCardMonthChargeLimit">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_PRICE_TYPE_CHARGE_LIMIT' | translate }}</label>
+                        <input class="form-control" type="number" [(ngModel)]="ticketUpdate.charge_limit" maxlength="3">
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_DESC_TYPE_TICK' | translate }}</label>
+                        <textarea rows="3" class="form-control" [(ngModel)]="ticketUpdate.description"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button (click)="editTicket()" [ladda]="isUpdated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+            <button (click)="editModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+    </div>
+    </div>
+</div>
+
+
+<!-- end from edit ticket -->

@@ -1,0 +1,340 @@
+
+<div class="br-pagebody mg-t-5 pd-30">
+
+  <div class="row row-sm">
+    <div class="col-sm-6 col-xl-4 mg-t-20 mg-sm-t-0">
+      <div class="bg-danger rounded overflow-hidden">
+        <div class="pd-25 d-flex align-items-center">
+          <i class="ion ion-person-stalker tx-60 lh-0 tx-white op-7"></i>
+          <div class="mg-l-20">
+            <p class="tx-10 tx-spacing-1 tx-mont tx-medium tx-uppercase tx-white-8 mg-b-10">{{ 'LBL_TOTAL_STAFF_COM' | translate }}</p>
+            <p class="tx-24 tx-white tx-lato tx-bold mg-b-2 lh-1">{{countUser}}</p>
+          </div>
+        </div>
+      </div>
+    </div><!-- col-4 -->
+    <div class="col-sm-6 col-xl-4 mg-t-20 mg-xl-t-0">
+      <div class="bg-primary rounded overflow-hidden">
+        <div class="pd-25 d-flex align-items-center">
+          <i class="ion-iphone tx-60 lh-0 tx-white op-7"></i>
+          <div class="mg-l-20">
+            <p class="tx-10 tx-spacing-1 tx-mont tx-medium tx-uppercase tx-white-8 mg-b-10">{{ 'LBL_DB_DEV' | translate }}</p>
+            <p class="tx-24 tx-white tx-lato tx-bold mg-b-2 lh-1">{{ countDevice }}</p>
+          </div>
+        </div>
+      </div>
+    </div><!-- col-4 -->
+    <div class="col-sm-6 col-xl-4 mg-t-20 mg-xl-t-0">
+      <div class="bg-br-primary rounded overflow-hidden">
+        <div class="pd-25 d-flex align-items-center">
+          <i class="ion ion-android-bus tx-60 lh-0 tx-white op-7"></i>
+          <div class="mg-l-20">
+            <p class="tx-10 tx-spacing-1 tx-mont tx-medium tx-uppercase tx-white-8 mg-b-10">{{ 'LBL_DB_VHC' | translate }}</p>
+            <p class="tx-24 tx-white tx-lato tx-bold mg-b-2 lh-1">{{countVehicle}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="br-section mg-t-30">
+    <div class="map-radio" >
+        <input name="show-audio"  class="selector-control" type="radio" id="hide-poi" (click)="checkedMaker(0)" checked="checked">
+        <label  class="selector-control" for="hide-poi">Hide</label>
+        <input name="show-audio"  class="selector-control" type="radio" id="show-poi" (click)="checkedMaker(1)">
+        <label  class="selector-control" for="show-poi">Show</label>
+    </div>
+    <div class="map-select"  *ngIf="permissions['dashboard'].key_tools != null && permissions['dashboard'].key_tools.includes('view_advanced')">
+      <div class="col-lg-12">
+        <div class="form-group">
+            <select [(ngModel)]="selectedRouteId" (change)="getDataRouteBusStation()" id="routeId" name="routeId" class="form-control">
+              <option value="">{{ 'LBL_DASHBOARD_ROUTE_CHOOSE' | translate }}</option>
+              <option value="0">{{ 'LBL_DASHBOARD_ROUTE_ALL' | translate }}</option>
+              <option *ngFor="let route of routes" value="{{route.id}}">{{route.name}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="map-search"  *ngIf="permissions['dashboard'].key_tools != null && permissions['dashboard'].key_tools.includes('view_advanced')">
+      <div class="form-group">
+          <ng-select
+            [allowClear]="true"
+            [items]="vehicleItems"
+            (data)="refreshValueVehicle($event)"
+            (selected)="selectedVehicle($event)"
+            (removed)="removedVehicle($event)"
+            placeholder="--- Chọn phương tiện ---" >
+          </ng-select>
+      </div>
+    </div>
+    <agm-map class="ht-700 wd-100p"
+      [latitude]="latitude"
+      [longitude]="lngitude"
+      [zoom]="zoom"
+      [disableDefaultUI]="false"
+      [zoomControl]="true"
+      [styles]="mapStyles"
+      >
+
+      <!-- vehicle running -->
+      <!-- <agm-marker
+          *ngFor="let vehicle of vehicles_is_running; let i = index;"
+          [latitude]="vehicle.lat"
+          [longitude]="vehicle.lng"
+          [label]=""
+          [markerDraggable]=""
+          (markerClick)="clickedMarker(infoWindow)"
+          iconUrl="assets/img/bus.png">
+        <agm-info-window [disableAutoPan]="true" #infoWindow>
+          <strong>{{checkMarker}}</strong>
+          <table>
+            <tr>
+              <td>{{ 'LBL_LP_VHC' | translate }}:</td>
+              <td *ngIf="vehicle['data'] !== null">
+                <span *ngIf="vehicle['data'].license_plates !== null">
+                    {{ vehicle['data'].license_plates }}
+                </span>
+               </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_DRIVER_NAME' | translate }}:</td>
+              <td *ngIf="vehicle['data'] !== null">
+                <span *ngIf="vehicle['data'].driver_name !== null">
+                    {{ vehicle['data'].driver_name }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_SUB_DRIVER_NAME' | translate }}:</td>
+              <td *ngIf="vehicle['data'] !== null">
+                <span  *ngIf="vehicle['data'].subdriver_name !== null">
+                    {{ vehicle['data'].subdriver_name }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_DASH_DIRECTION' | translate }}:</td>
+              <td *ngIf="vehicle['data'] !== null">
+                <span *ngIf="vehicle['data'].direction_name !== null">
+                    {{'LBL_DASH_DIRECTION_FORM_TO' | translate}} {{ vehicle['data'] ? vehicle['data'].direction_name : '' }}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </agm-info-window>
+      </agm-marker> -->
+      <!-- end vehicle running -->
+
+      <!-- vehicle stop -->
+      <!-- <agm-marker
+        *ngFor="let vehicle of vehicles_not_running; let i = index;"
+        [latitude]="vehicle.lat"
+        [longitude]="vehicle.lng"
+        [label]=""
+        [markerDraggable]=""
+        (markerClick)="clickedMarker(infoWindow)"
+        iconUrl="assets/img/bus_stop.png">
+        <agm-info-window [disableAutoPan]="true" #infoWindow>
+          <strong>{{checkMarker}}</strong>
+          <table>
+            <tr>
+              <td>{{ 'LBL_LP_VHC' | translate }}:</td>
+              <td *ngIf="vehicle['data'] !== null">
+                <span *ngIf="vehicle['data'].license_plates !== null">
+                    {{ vehicle['data'].license_plates }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_DRIVER_NAME' | translate }}:</td>
+              <td *ngIf="vehicle['data'] !== null">
+                <span *ngIf="vehicle['data'].driver_name !== null">
+                    {{ vehicle['data'].driver_name }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_SUB_DRIVER_NAME' | translate }}:</td>
+              <td *ngIf="vehicle['data'] !== null">
+                <span  *ngIf="vehicle['data'].subdriver_name !== null">
+                    {{ vehicle['data'].subdriver_name }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_DASH_DIRECTION' | translate }}:</td>
+              <td *ngIf="vehicle['data'] !== null">
+                <span *ngIf="vehicle['data'].direction_name !== null">
+                    {{'LBL_DASH_DIRECTION_FORM_TO' | translate}} {{ vehicle['data'] ? vehicle['data'].direction_name : '' }}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </agm-info-window>
+      </agm-marker> -->
+      <!-- end vehicle stop -->
+
+      <!-- bus station  -->
+      <agm-marker
+      *ngFor="let busStation of busStations; let i = index;"
+      [latitude]="busStation.lat"
+      [longitude]="busStation.lng"
+      [label]=""
+      [markerDraggable]=""
+      (markerClick)="clickedMarkerBusStation(infoWindowStation)"
+      iconUrl="assets/img/bus_station.png">
+        <agm-info-window [disableAutoPan]="true" #infoWindowStation>
+          <table>
+            <tr>
+              <td class="tx-bold">{{ 'LBL_DB_ROUTE_NAME' | translate }}: </td>
+              <td>
+                <span>
+                    {{ busStation.route_name }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td class="tx-bold">{{ 'LBL_DB_STATION_NAME' | translate }}: </td>
+              <td>
+                <span>
+                    {{ busStation.station_order }} - {{ busStation.name }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td class="tx-bold">{{ 'LBL_DB_STATION_DISTANCE' | translate }}: </td>
+              <td>
+                <span>
+                    {{ (busStation.distance) ? (busStation.distance/1000) : '' }} (Km)
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td class="tx-bold">{{ 'LBL_DB_STATION_ADDRESS' | translate }}: </td>
+              <td>
+                <span>
+                    {{ busStation.address }}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </agm-info-window>
+      </agm-marker>
+      <!-- end bus station  -->
+
+      <!-- vehicles -->
+
+      <!-- iconAnchor="[50,50]" -->
+      <agm-marker
+      *ngFor="let vehicle of vehicles_direction_from; let i = index;"
+      [latitude]="vehicle.location.coordinates[1]"
+      [longitude]="vehicle.location.coordinates[0]"
+      [label]=""
+      [markerDraggable]=""
+      (markerClick)="clickedMarker(infoWindow)"
+      iconUrl="assets/img/bus_direction_from.png">
+        <agm-info-window [disableAutoPan]="true" #infoWindow>
+          <strong>{{checkMarker}}</strong>
+          <table>
+            <tr>
+              <td>{{ 'LBL_ROUTE_VHC' | translate }}:</td>
+              <td>
+                <span *ngIf="vehicle.route_number !== null">
+                    {{ vehicle.route_number }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_LP_VHC' | translate }}:</td>
+              <td>
+                <span *ngIf="vehicle.license_plates !== null">
+                    {{ vehicle.license_plates }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_DRIVER_NAME' | translate }}:</td>
+              <td>
+                <span *ngIf="vehicle.user !== null">
+                    {{ vehicle.user }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_SUB_DRIVER_NAME' | translate }}:</td>
+              <td>
+                <span  *ngIf="vehicle.sub_user !== null">
+                    {{ vehicle.sub_user }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_DASH_DIRECTION' | translate }}:</td>
+              <td>
+                <span *ngIf="vehicle.direction_name !== null">
+                    {{'LBL_DASH_DIRECTION_FORM_TO' | translate}} {{ vehicle.direction_name }}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </agm-info-window>
+      </agm-marker>
+
+      <agm-marker
+      *ngFor="let vehicle of vehicles_direction_to; let i = index;"
+      [latitude]="vehicle.location.coordinates[1]"
+      [longitude]="vehicle.location.coordinates[0]"
+      [label]=""
+      [markerDraggable]=""
+      (markerClick)="clickedMarker(infoWindow)"
+      iconUrl="assets/img/bus_direction_to.png">
+        <agm-info-window [disableAutoPan]="true" #infoWindow>
+          <strong>{{checkMarker}}</strong>
+          <table>
+            <tr>
+              <td>{{ 'LBL_ROUTE_VHC' | translate }}:</td>
+              <td>
+                <span *ngIf="vehicle.route_number !== null">
+                    {{ vehicle.route_number }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_LP_VHC' | translate }}:</td>
+              <td>
+                <span *ngIf="vehicle.license_plates !== null">
+                    {{ vehicle.license_plates }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_DRIVER_NAME' | translate }}:</td>
+              <td>
+                <span *ngIf="vehicle.user !== null">
+                    {{ vehicle.user }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_SUB_DRIVER_NAME' | translate }}:</td>
+              <td>
+                <span  *ngIf="vehicle.sub_user !== null">
+                    {{ vehicle.sub_user }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ 'LBL_DASH_DIRECTION' | translate }}:</td>
+              <td>
+                <span *ngIf="vehicle.direction_name !== null">
+                    {{'LBL_DASH_DIRECTION_FORM_TO' | translate}} {{ vehicle.direction_name }}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </agm-info-window>
+      </agm-marker>
+      <!-- end vehicles -->
+
+    </agm-map>
+  </div>
+</div>

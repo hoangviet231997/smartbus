@@ -1,0 +1,675 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- manager routes report -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper" style="padding: 60px 12px">
+        <div class="row">
+            <div class="col-md-12 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-print" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'MENU_DAILIES' | translate }}</span>
+                </h2>
+            </div>
+        </div>
+        <div class="form-layout form-layout-1 pd-x-0">
+            <div class="row mg-b-25">
+                <!-- <div class="col-md-4">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'LBL_ROUTE_TYPE_DATE_SEARCH' | translate }}</label>
+                    <select [(ngModel)]="selectedDateSearch" (change)="getDataDaily()" id="dateSearchId" name="dateSearchId" class="form-control">
+                        <option value="0">{{ 'LBL_ROUTE_DATE_SEARCH_NORMAL' | translate }}</option>
+                        <option value="1">{{ 'LBL_ROUTE_DATE_SEARCH_COLLECTED' | translate }}</option>
+                    </select>
+                </div>
+            </div> -->
+                <div class="col-lg-3 col-md-6"></div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="form-group">
+                        <!-- <label *ngIf="selectedDateSearch == null" class="form-control-label tx-bold">&nbsp;</label> -->
+                        <label
+                            class="form-control-label tx-bold">{{ 'LBL_ROUTE_DATE_CHOOSE_NORMAL' | translate }}</label>
+                        <!-- <label *ngIf="selectedDateSearch == 1" class="form-control-label tx-bold">{{ 'LBL_ROUTE_DATE_CHOOSE_COLLECTED' | translate }}</label> -->
+                        <div class="input-group">
+                            <!-- <input class="form-control"
+                            [disabled]="isInputDate"
+                            #drp="bsDaterangepicker"
+                            bsDaterangepicker
+                            [(ngModel)]="bsRangeValue"
+                            [bsConfig]="{ rangeInputFormat: 'DD-MM-YYYY' }"
+                            [maxDate]="maxDate"
+                            (ngModelChange)="getDataDaily()"
+                        > -->
+                            <input class="form-control" [maxDate]="maxDate" #dp="bsDatepicker" bsDatepicker
+                                [(ngModel)]="bsRangeValue" [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                (ngModelChange)="getDataDaily()">
+
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="dp.toggle()" type="button">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RP_STAFF_ROUTE' | translate }}</label>
+                        <select [(ngModel)]="selectedRouteId" (change)="getDataDaily()" id="routeId" name="routeId"
+                            class="form-control">
+                            <option value="0">{{ 'BTN_VIEW_RECEIPT' | translate }}</option>
+                            <option *ngFor="let route of routes" value="{{route.id}}">{{route.name}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- Show is alert -->
+            <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+                <div *ngIf="route_detail.length == 0 && route_group_debt_any.length == 0 && shift_now_yesterday_result.length == 0"
+                    class="alert alert-warning mg-b-0" role="alert">
+                    <div class="d-flex align-items-center justify-content-start">
+                        <i
+                            class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+                    </div>
+                </div>
+            </div>
+            <!-- End is alert -->
+
+            <!-- button export file exel -->
+            <div class="form-layout-footer tx-center" *ngIf="(permissions['report_daily'].key_tools != null && permissions['report_daily'].key_tools.includes('view_advanced'))">
+                <button (click)="showPrintPreview()" [ladda]="isCollected" class="btn btn-dark pd-r-20">
+                    <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+                </button>
+                &nbsp;
+                <button (click)="exportFile()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+                    <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+                </button>
+            </div>
+            <!-- end button export file exel -->
+            <!-- show list route -->
+            <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+                <div *ngIf="isCheckModuleApp">
+                    <table
+                        *ngIf="route_detail.length > 0 || route_group_debt_any.length > 0 || shift_now_yesterday_result.length > 0"
+                        style="width: 100%" class="table table-bordered table-hover table-striped">
+                        <thead class="thead-colored thead-primary">
+                            <tr>
+                                <th style="text-transform: uppercase" rowspan="3" class="tx-center tx-middle">
+                                    {{ 'TABLE_STT_NO' | translate }}</th>
+                                <th style="text-transform: uppercase" colspan="4" class="tx-center tx-border-butom">
+                                    {{ 'LBL_ROUTE_INFO' | translate }}</th>
+                                <th style="text-transform: uppercase" rowspan="3" class="tx-center tx-middle">
+                                    {{ 'LBL_ROUTE_DEBT_YESTERDAY' | translate }}</th>
+                                <th style="text-transform: uppercase" colspan="9" class="tx-center tx-border-butom">
+                                    {{ 'LBL_ROUTE_REVENUE' | translate }}</th>
+                                <th style="text-transform: uppercase" colspan="3" class="tx-center tx-border-butom">
+                                    {{ 'LBL_ROUTE_TOTAL_ALL' | translate }}</th>
+                                <th style="text-transform: uppercase" rowspan="3" class="tx-center tx-middle">
+                                    {{ 'LBL_ROUTE_TOTAL_DEPOSIT' | translate }}</th>
+                                <th rowspan="3" class="tx-center tx-middle">
+                                    {{ 'LBL_ROUTE_TOTAL_COLLECTED_SHIFT' | translate }}</th>
+                                <th rowspan="3" class="tx-center tx-middle">
+                                    {{ 'LBL_ROUTE_TOTAL_NOT_COLLECTED_SHIFT' | translate }}</th>
+                                <th rowspan="3" class="tx-center tx-middle">
+                                    {{ 'LBL_ROUTE_STAFF_COLLECTED_SHIFT' | translate }}</th>
+                                <th rowspan="3" class="tx-center tx-middle">
+                                    {{ 'LBL_ROUTE_DATE_COLLECTED_SHIFT' | translate }}</th>
+                            </tr>
+                            <tr>
+                                <th rowspan="2" class="tx-center tx-middle tx-border-left">
+                                    {{ 'LBL_ROUTE_LICENSE_PLATE' | translate }}</th>
+                                <th rowspan="2" class="tx-center tx-middle">{{ 'LBL_ROUTE_DRIVER_NAME' | translate }}
+                                </th>
+                                <th rowspan="2" class="tx-center tx-middle">{{ 'LBL_ROUTE_SUBDRIVER_NAME' | translate }}
+                                </th>
+                                <th rowspan="2" class="tx-center tx-middle">{{ 'LBL_ROUTE_NAME_NUM' | translate }}</th>
+                                <th colspan="2" class="tx-center tx-border-butom tx-middle">
+                                    {{ 'LBL_ROUTE_POS' | translate }}</th>
+                                <th colspan="4" class="tx-center tx-border-butom tx-middle">
+                                    {{ 'LBL_ROUTE_CHARGE' | translate }}</th>
+                                <th colspan="2" class="tx-center tx-border-butom tx-middle">
+                                    {{'LBL_ROUTE_MOMO' | translate}}</th>
+                                <th class="tx-center tx-border-butom tx-middle">{{'LBL_ROUTE_POS_MONTH' | translate}}
+                                </th>
+
+                                <th rowspan="2" class="tx-center tx-middle">
+                                    {{ 'LBL_ROUTE_TOTAL_REVENUE_ALL' | translate }}</th>
+                                <th rowspan="2" class="tx-center tx-middle">
+                                    {{ 'LBL_ROUTE_TOTAL_DISCOUNT_ALL' | translate }}</th>
+                                <th rowspan="2" class="tx-center tx-middle">
+                                    {{ 'LBL_ROUTE_TOTAL_COLLECTED_ALL' | translate }}</th>
+                            </tr>
+                            <tr>
+                                <th class="tx-center tx-middle tx-border-left">
+                                    {{ 'LBL_ROUTE_TOTAL_POS_TKT_ORTHER' | translate }}</th>
+                                <th class="tx-center tx-middle">{{ 'LBL_ROUTE_TOTAL_POS_REVENUE' | translate }}</th>
+                                <th class="tx-center tx-middle">{{ 'LBL_ROUTE_TOTAL_CHARGE_TKT_ORTHER' | translate }}
+                                </th>
+                                <th class="tx-center tx-middle">{{ 'LBL_ROUTE_TOTAL_POS_REVENUE' | translate }}</th>
+                                <th class="tx-center tx-middle">{{ 'LBL_ROUTE_TOTAL_DISCOUNT' | translate }}</th>
+                                <th class="tx-center tx-middle">{{ 'LBL_ROUTE_TOTAL_COLLECTED' | translate }}</th>
+                                <th class="tx-center tx-middle">{{ 'LBL_ROUTE_TOTAL_CHARGE_TKT_ORTHER' | translate }}
+                                </th>
+                                <th class="tx-center tx-middle">{{ 'LBL_ROUTE_TOTAL_POS_REVENUE' | translate }}</th>
+                                <th class="tx-center tx-middle">{{ 'LBL_ROUTE_TOTAL_MONTH_NUM_TURN_ON' | translate }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" class="tx-center tx-bold">{{'LBL_ROUTE_TOTAL_ALL_DEBT' | translate}}
+                                </td>
+                                <td class="tx-right tx-bold"> {{ route_group_debt_all.total_debt | currency:'VND':''}}
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr *ngFor="let route of route_detail; let i = index">
+                                <td *ngIf="route.license_plate && !route.total_debt " class="tx-center">{{i + 1}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-center">
+                                    {{ route.license_plate }}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt">{{ route.driver_name }}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt">{{ route.subdriver_name }}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-center">
+                                    {{ route.route_number }}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt"></td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-center">
+                                    {{ route.count_ticket_pos | number}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_price_pos | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-center">
+                                    {{ route.count_ticket_charge | number}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_price_charge | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_price_discount | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_price_collected | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-center">
+                                    {{ route.count_ticket_online | number}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_price_online | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.count_ticket_month | number}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.count_revenue_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.count_discount_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.count_collected_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_price_deposit | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_collected | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_not_collected | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.staff_collected }}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.date_collected.date | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+
+                                <td *ngIf="route.license_plate && route.total_debt " class="tx-center">{{i + 1}}</td>
+                                <td *ngIf="route.license_plate && route.total_debt" class="tx-center">
+                                    {{ route.license_plate }}</td>
+                                <td *ngIf="route.license_plate && route.total_debt">{{ route.driver_name }}</td>
+                                <td *ngIf="route.license_plate && route.total_debt">{{ route.subdriver_name }}</td>
+                                <td *ngIf="route.license_plate && route.total_debt" class="tx-center">
+                                    {{ route.route_number }}</td>
+                                <td *ngIf="route.license_plate && route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_debt | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_collected | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt" class="tx-right">
+                                    {{ route.staff_collected }}</td>
+                                <td *ngIf="route.license_plate && route.total_debt" class="tx-right">
+                                    {{ route.date_collected.date | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+
+                                <td *ngIf="!route.license_plate && !route.total_debt" colspan="3"
+                                    class="tx-center tx-bold">Tổng tuyến {{route.route_number }}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-center tx-bold">
+                                    {{route.title_debt_any}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{route.total_debt_any | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_debt_route | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-center tx-bold">
+                                    {{ route.count_ticket_pos | number}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_price_pos | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-center tx-bold">
+                                    {{ route.count_ticket_charge | number}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_price_charge | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_price_discount | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_price_collected | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-center tx-bold">
+                                    {{ route.count_ticket_online | number}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_price_online | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.count_ticket_month | number}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.count_revenue_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.count_discount_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.count_collected_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_price_deposit | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_collected | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_not_collected | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt"></td>
+                                <td *ngIf="!route.license_plate && !route.total_debt"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" class="tx-center tx-bold">{{'LBL_ROUTE_TOTAL_ALL_RESULT' | translate}}
+                                </td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_debt | currency:'VND':''}}</td>
+                                <td class="tx-center tx-bold">{{route_group_colected_all.count_ticket_pos | number}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_price_pos | currency:'VND':''}}</td>
+                                <td class="tx-center tx-bold">{{ route_group_colected_all.count_ticket_charge | number}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_price_charge | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_price_discount | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_price_collected | currency:'VND':''}}</td>
+                                <td class="tx-center tx-bold">{{ route_group_colected_all.count_ticket_online | number}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_price_online | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">{{ route_group_colected_all.count_ticket_month | number}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.count_revenue_ticket | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.count_discount_ticket | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.count_collected_ticket | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_price_deposit | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_collected | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_not_collected | currency:'VND':''}}</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div *ngIf="!isCheckModuleApp">
+                  <!--  -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end manager routes report-->
+
+<div id="print-section" class="d-none" *ngIf="company">
+    <div *ngIf="isCheckModuleApp" style="width:100%">
+        <table style="width:100%">
+            <tr>
+                <td class="tx-center w-10 pt-0">
+                    <div class="tx-11"> <strong> {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+                </td>
+                <td class="tx-center w-10">
+                    <div class="tx-11">
+                        <strong> {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                        ({{ 'LBL_PRINT_BH' | translate }} <br />
+                        {{ 'LBL_PRINT_BTC' | translate }})
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width:21cm;">
+                    <div class="tx-center">
+                        <strong class="tx-12" style="text-transform: uppercase">
+                            {{ 'MENU_DAILIES' | translate }}</strong><br>
+                        <i class="tx-11">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}}
+                            {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}}
+                            {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }}
+                            {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}}
+                            {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i><br>
+                        <i class="tx-10" *ngIf="routeName">{{ 'LBL_ROUTE_NAME' | translate }} {{routeName[0].name}}</i>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="tx-center w-10 pt-0"></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%; font-size: 11px;"
+                        *ngIf="route_detail.length > 0 || route_group_debt_any.length > 0 || shift_now_yesterday_result.length > 0">
+                        <thead>
+                            <tr>
+                                <th style="text-transform: uppercase" rowspan="3" class="tx-center">
+                                    {{ 'TABLE_STT_NO' | translate }}</th>
+                                <th style="text-transform: uppercase" colspan="3" class="tx-center">
+                                    {{ 'LBL_ROUTE_INFO' | translate }}</th>
+                                <th rowspan="3" class="tx-center">{{ 'LBL_ROUTE_DEBT_YESTERDAY' | translate }}</th>
+                                <th style="text-transform: uppercase" colspan="9" class="tx-center">
+                                    {{ 'LBL_ROUTE_REVENUE' | translate }}</th>
+                                <th style="text-transform: uppercase" colspan="2" class="tx-center">
+                                    {{ 'LBL_ROUTE_TOTAL_ALL' | translate }}</th>
+                                <th style="text-transform: uppercase" rowspan="3" class="tx-center">
+                                    {{ 'LBL_ROUTE_TOTAL_DEPOSIT' | translate }}</th>
+                                <th rowspan="3" class="tx-center">{{ 'LBL_ROUTE_TOTAL_COLLECTED_SHIFT' | translate }}
+                                </th>
+                                <th rowspan="3" class="tx-center">
+                                    {{ 'LBL_ROUTE_TOTAL_NOT_COLLECTED_SHIFT' | translate }}</th>
+                                <th rowspan="3" class="tx-center">{{ 'LBL_ROUTE_STAFF_COLLECTED_SHIFT' | translate }}
+                                </th>
+                                <!-- <th rowspan="3" class="tx-center">{{ 'LBL_ROUTE_DATE_COLLECTED_SHIFT' | translate }}</th> -->
+                            </tr>
+                            <tr>
+                                <th rowspan="2" class="tx-center">{{ 'LBL_ROUTE_LICENSE_PLATE' | translate }}</th>
+                                <!-- <th rowspan="2" class="tx-center">{{ 'LBL_ROUTE_DRIVER_NAME' | translate }}</th> -->
+                                <th rowspan="2" class="tx-center">{{ 'LBL_ROUTE_SUBDRIVER_NAME' | translate }}</th>
+                                <th rowspan="2" class="tx-center">{{ 'LBL_ROUTE_NAME_NUM' | translate }}</th>
+                                <th colspan="2" class="tx-center">{{ 'LBL_ROUTE_POS' | translate }}</th>
+                                <th colspan="4" class="tx-center">{{ 'LBL_ROUTE_CHARGE' | translate }}</th>
+                                <th colspan="2" class="tx-cent">{{ 'LBL_ROUTE_MOMO' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_ROUTE_POS_MONTH' | translate }}</th>
+                                <th rowspan="2" class="tx-center">{{ 'LBL_ROUTE_TOTAL_REVENUE_ALL' | translate }}</th>
+                                <!-- <th rowspan="2" class="tx-center">{{ 'LBL_ROUTE_TOTAL_DISCOUNT_ALL' | translate }}</th> -->
+                                <th rowspan="2" class="tx-center">{{ 'LBL_ROUTE_TOTAL_COLLECTED_ALL' | translate }}</th>
+                            </tr>
+                            <tr>
+                                <th class="tx-center">{{ 'LBL_ROUTE_TOTAL_POS_TKT_ORTHER' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_ROUTE_TOTAL_POS_REVENUE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_ROUTE_TOTAL_CHARGE_TKT_ORTHER' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_ROUTE_TOTAL_POS_REVENUE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_ROUTE_TOTAL_DISCOUNT' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_ROUTE_TOTAL_COLLECTED' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_ROUTE_TOTAL_CHARGE_TKT_ORTHER' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_ROUTE_TOTAL_POS_REVENUE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_ROUTE_TOTAL_MONTH_NUM_TURN_ON' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="tx-center tx-bold">{{'LBL_ROUTE_TOTAL_ALL_DEBT' | translate}}
+                                </td>
+                                <td class="tx-right tx-bold"> {{ route_group_debt_all.total_debt | currency:'VND':''}}
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <!-- <td></td> -->
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <!-- <td></td> -->
+                            </tr>
+                            <tr *ngFor="let route of route_detail; let i = index">
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-center">{{i + 1}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-center">
+                                    {{ route.license_plate }}</td>
+                                <!-- <td *ngIf="route.driver_name && route.subdriver_name && route.route_number && route.count_ticket_pos && route.total_price_pos">{{ route.driver_name }}</td> -->
+                                <td *ngIf="route.license_plate && !route.total_debt">{{ route.subdriver_name }}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-center">
+                                    {{ route.route_number }}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt"></td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-center">
+                                    {{ route.count_ticket_pos | number}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_price_pos | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-center">
+                                    {{ route.count_ticket_charge | number}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_price_charge | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_price_discount | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_price_collected | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-center">
+                                    {{ route.count_ticket_online | number}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_price_online | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.count_ticket_month | number}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.count_revenue_ticket | currency:'VND':''}}</td>
+                                <!-- <td *ngIf="route.driver_name && route.subdriver_name && route.route_number && route.count_ticket_pos && route.total_price_pos" class="tx-right">{{ route.count_discount_ticket | currency:'VND':''}}</td> -->
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.count_collected_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_price_deposit | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_collected | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.total_not_collected | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && !route.total_debt" class="tx-right">
+                                    {{ route.staff_collected }}</td>
+                                <!-- <td *ngIf="route.driver_name && route.subdriver_name && route.route_number && route.count_ticket_pos && route.total_price_pos" class="tx-right">{{ route.date_collected.date | date: 'dd/MM/yyyy HH:mm:ss'}}</td> -->
+
+                                <td *ngIf="route.license_plate && route.total_debt" class="tx-center">{{i + 1}}</td>
+                                <td *ngIf="route.license_plate && route.total_debt" class="tx-center">
+                                    {{ route.license_plate }}</td>
+                                <!-- <td *ngIf="route.total_debt && route.driver_name && route.subdriver_name">{{ route.driver_name }}</td> -->
+                                <td *ngIf="route.license_plate && route.total_debt">{{ route.subdriver_name }}</td>
+                                <td *ngIf="route.license_plate && route.total_debt" class="tx-center">
+                                    {{ route.route_number }}</td>
+                                <td *ngIf="route.license_plate && route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_debt | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <!-- <td *ngIf="route.total_debt && route.driver_name && route.subdriver_name"></td> -->
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_collected | currency:'VND':''}}</td>
+                                <td *ngIf="route.license_plate && route.total_debt"></td>
+                                <td *ngIf="route.license_plate && route.total_debt" class="tx-right">
+                                    {{ route.staff_collected }}</td>
+                                <!-- <td *ngIf="route.total_debt && route.driver_name && route.subdriver_name" class="tx-right">{{ route.date_collected.date | date: 'dd/MM/yyyy HH:mm:ss'}}</td> -->
+
+                                <td *ngIf="!route.license_plate && !route.total_debt" colspan="2"
+                                    class="tx-center tx-bold">Tổng tuyến {{route.route_number }}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-center tx-bold">
+                                    {{route.title_debt_any}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{route.total_debt_any | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_debt_route | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-center tx-bold">
+                                    {{ route.count_ticket_pos | number}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_price_pos | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-center tx-bold">
+                                    {{ route.count_ticket_charge | number}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_price_charge | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_price_discount | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_price_collected | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-center tx-bold">
+                                    {{ route.count_ticket_online | number}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_price_online | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.count_ticket_month | number}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.count_revenue_ticket | currency:'VND':''}}</td>
+                                <!-- <td *ngIf="route.total_debt_route" class="tx-right tx-bold">{{ route.count_discount_ticket | currency:'VND':''}}</td> -->
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.count_collected_ticket | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_price_deposit | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_collected | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt" class="tx-right tx-bold">
+                                    {{ route.total_not_collected | currency:'VND':''}}</td>
+                                <td *ngIf="!route.license_plate && !route.total_debt"></td>
+                                <!-- <td *ngIf="route.total_debt_route"></td> -->
+                            </tr>
+
+                            <tr>
+                                <td colspan="4" class="tx-center tx-bold">{{'LBL_ROUTE_TOTAL_ALL_RESULT' | translate}}
+                                </td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_debt | currency:'VND':''}}</td>
+                                <td class="tx-center tx-bold">{{route_group_colected_all.count_ticket_pos | number}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_price_pos | currency:'VND':''}}</td>
+                                <td class="tx-center tx-bold">{{ route_group_colected_all.count_ticket_charge | number}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_price_charge | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_price_discount | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_price_collected | currency:'VND':''}}</td>
+                                <td class="tx-center tx-bold">{{ route_group_colected_all.count_ticket_online | number}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_price_online | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">{{ route_group_colected_all.count_ticket_month | number}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.count_revenue_ticket | currency:'VND':''}}</td>
+                                <!-- <td class="tx-right tx-bold">{{ route_group_colected_all.count_discount_ticket | currency:'VND':''}}</td> -->
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.count_collected_ticket | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_price_deposit | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_collected | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ route_group_colected_all.total_not_collected | currency:'VND':''}}</td>
+                                <td></td>
+                                <!-- <td></td> -->
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                </td>
+            </tr>
+            <table border="1" style="border-collapse: collapse; width:30%; font-size: 11px;">
+                <thead>
+                    <tr>
+                        <td style="text-transform: uppercase" class="tx-center tx-bold">{{ 'TABLE_STT_NO' | translate }}
+                        </td>
+                        <td style="text-transform: uppercase" class="tx-center tx-bold">
+                            {{ 'LBL_ROUTE_FULL_NAME' | translate }}</td>
+                        <td style="text-transform: uppercase" class="tx-center tx-bold">
+                            {{ 'LBL_ROUTE_PROCEEDS' | translate }}</td>
+                        <td style="text-transform: uppercase" class="tx-center tx-bold">
+                            {{ 'LBL_ROUTE_SIGN' | translate }}</td>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let collecter of total_collecter; let i = index">
+                        <td class="tx-center">{{i + 1}}</td>
+                        <td class="tx-center">{{collecter.fullname}}</td>
+                        <td class="tx-right tx-bold">{{collecter.total_amount | currency:'VND':''}}</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+            <tr>
+                <td colspan="2">
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} ....
+                        {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="table-striped" style="width:100%">
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="tx-center fl">
+                                    <strong
+                                        style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_NLB' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i class="tx-11">({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                                </td>
+                                <td colspan="3" class="tx-center fr">
+                                    <strong
+                                        style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_TBDH' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i class="tx-11">({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div *ngIf="!isCheckModuleApp">
+        <!--  -->
+    </div>
+</div>

@@ -1,0 +1,163 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+<h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list group company -->
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+      <div class="row">
+          <div class="col-md-6 tx-left">
+              <h2 class="tx-gray-800 tx-bold mg-b-10">
+                  <i class="fa fa-users" aria-hidden="true"></i>
+                  <span class="menu-item-label">{{ 'LBL_LIST_GROUP_COM' | translate }}</span>
+              </h2>
+          </div>
+          <div class="col-md-6 tx-right">
+              <button (click)="showAddGroupCompaniesModal()" class="btn btn-teal mg-b-20 pd-r-20">
+                  <i class="fa fa-plus mg-r-5"></i> {{ 'LBL_ADD_GROUP_COM' | translate }}
+              </button>
+          </div>
+      </div>
+      <div class="table-responsive">
+          <table class="table table-bordered table-hover table-striped ">
+              <thead class="thead-colored thead-primary">
+                  <tr>
+                      <th>{{ 'TABLE_STT' | translate }}</th>
+                      <th>{{ 'TABLE_NAME' | translate }}</th>
+                      <th>{{ 'TABLE_TYPE_GROUP' | translate }}</th>
+                      <th>{{ 'TABLE_KEY' | translate }}</th>
+                      <th>{{ 'TABLE_CRE' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr *ngFor="let groupKey of groupKeys; let i = index ">
+                      <th class="tx-right" scope="row">{{i + 1}}</th>
+                      <td>{{groupKey.name}}</td>
+                      <td>{{groupKey.type === 'group_company_ally' ? 'Nhóm cho phép giao dịch thẻ trả trước' : 'Nhóm sử dụng đăng ký thẻ qua ứng dụng điện thoại'}}</td>
+                      <td>{{groupKey.key}}</td>
+                      <td>{{groupKey.created_at}}</td>
+                      <td class="tx-18 tx-center">
+                          <a href="javascript:void(0)" class="btn btn-primary" (click)="showEditGroupCompaniesModal(groupKey.id)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_EDIT_COM' | translate }}">
+                              <i class="fa fa-pencil" aria-hidden="true"></i>
+                          </a>
+                          &nbsp;
+                          <a href="javascript:void(0)" class="btn btn-danger" (click)="deleteGroupCompanies(groupKey.id)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_DEL_COM' | translate }}">
+                              <i class="fa fa-times" aria-hidden="true"></i>
+                          </a>
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
+      </div>
+  </div>
+  <footer class="br-footer"></footer>
+</div>
+<!-- end table list group company -->
+
+<!-- form add group company -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_ADD_GROUP_COM' | translate }}</h6>
+                <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_NAME_GROUP' | translate }}</label>
+                            <input type="text" [(ngModel)]="groupCompanyCreate.name" class="form-control" >
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_TYPE_GROUP' | translate }}</label>
+                            <select name="" id="" [(ngModel)]="groupCompanyCreate.type" class="form-control">
+                                <option value="group_company_ally">{{'LBL_GROUP_KEY_ALLY' | translate}}</option>
+                                <option value="group_company_mbs_register">{{'LBL_GROUP_KEY_MBS_REGISTER' | translate}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_CHOOSE_COMPANY' | translate }}</label>
+                            <div class="col-12 row mg-t-5 mg-l-0 mg-r-0 pd-l-0 pd-r-0">
+                                <div class="col-lg-3 col-md-4 mg-t-5" *ngFor="let company of companiesNotArr; let i = index">
+                                    <label class="ckbox">
+                                        <input type="checkbox" class="model-features" (change)="changeCheckCompanyCreate($event,company.id)"><span>{{ company.name}}</span>
+                                    </label>
+                                </div>                                                                 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="addGroupCompanies()" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_CREATE' | translate }}</button>
+                <button (click)="addModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end form add group company -->
+
+<!-- form edit group company -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_EDIT_GROUP_COM' | translate }}</h6>
+                <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_NAME_GROUP' | translate }}</label>
+                            <input type="text" [(ngModel)]="groupCompanyUpdate.name" class="form-control" >
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_TYPE_GROUP' | translate }}</label>
+                            <select name="" id="" [(ngModel)]="groupCompanyUpdate.type" class="form-control" disabled>
+                                <option value="group_company_ally">{{'LBL_GROUP_KEY_ALLY' | translate}}</option>
+                                <option value="group_company_mbs_register">{{'LBL_GROUP_KEY_MBS_REGISTER' | translate}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_KEY_GROUP' | translate }}</label>
+                            <input type="text" [(ngModel)]="groupCompanyUpdate.key" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_CHOOSE_COMPANY' | translate }}</label>
+                            <div class="col-12 row mg-t-5 mg-l-0 mg-r-0 pd-l-0 pd-r-0">
+                                <div class="col-lg-3 col-md-4 mg-t-5" *ngFor="let company of companies; let i = index">
+                                    <label class="ckbox">
+                                        <input type="checkbox"  [checked]="arrCompanyIdUpdate.includes(company.id)" class="model-features" (change)="changeCheckCompanyUpdate($event,company.id)"><span>{{ company.name}}</span>
+                                    </label>
+                                </div>                                                                 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="editGroupCompanies()" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+                <button (click)="editModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end form edit group company -->

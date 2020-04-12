@@ -1,0 +1,78 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+    <div class="row">
+      <div class="col-md-8 tx-left">
+        <h2 class="tx-gray-800 tx-bold mg-b-10">
+          <i class="fa fa-tablet" aria-hidden="true"></i>
+          <span class="menu-item-label">{{ 'MENU_MANAGER_DEVICE_STATUS' | translate }}</span>
+        </h2>
+      </div>
+    </div>
+    <div class="br-section-wrapper">
+      <div class="row">
+        <div class="offset-md-4 col-md-4">
+          <div class="input-group mg-b-20">
+            <input class="form-control py-2 border-right-0 border" (ngModelChange)="getDeviceByIdentitySearch()"
+              type="search" id="example-search-input" [(ngModel)]="txtIdentity"
+              placeholder="{{'SEARCH_IDENTITY' | translate}}">
+            <span class="input-group-append">
+              <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div *ngFor="let device of devices" class="col-xs-6 col-md-3 pd-t-20">
+          <div class="border border-danger rounded">
+            <div class="thumbnail">
+              <div *ngIf="device.is_running == 1" class="tx-success" style="margin-right: 3px">
+                <p class="float-right">
+                  <i class="fa fa-circle" aria-hidden="true"></i>
+                </p>
+              </div>
+              <div *ngIf="device.is_running == 0" class="tx-gray-500" style="margin-right: 3px">
+                <p class="float-right">
+                  <i class="fa fa-circle" aria-hidden="true"></i>
+                </p>
+              </div>
+              <!-- <div>&nbsp;</div> -->
+              <div class="tx-center tx-bold tx-gray-800">
+                <h4><b>{{device.identity}}</b></h4>
+              </div>
+              <hr style="margin-bottom: 0px;">
+              <div *ngIf="device.status_device != null" class="tx-center status-warning">
+                <i *ngIf="device.status_device == 1" class="fa fa-map-marker tx-danger" aria-hidden="true"></i>
+                <i *ngIf="device.status_device == 2" class="fa fa-plane tx-danger" aria-hidden="true"></i>
+                <i *ngIf="device.status_device == 3" class="fa fa-battery-empty tx-danger" aria-hidden="true"></i>
+              </div>
+              <div *ngIf="device.status_device != null">
+                <div style="width: 100%;height: 63px; padding: 16px;" class="tx-center tx-secondary">
+                  <div class="row">
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-10">
+                      <span>
+                        <li style="display: block;float: left;" *ngFor='let deviceinfo of device.device_info'>
+                          <i title="{{deviceinfo.description}}" class="{{deviceinfo.class}}"></i>&nbsp;&nbsp;&nbsp;
+                        </li>
+                      </span>
+                    </div>
+                    <div class="col-lg-1"></div>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="device.status_device == null" style="width: 100%;height: 63px;padding: 16px;"
+                class="tx-center tx-secondary">
+                <b aria-hidden="true">Bình thường</b>
+              </div>
+              <!-- <div>&nbsp;</div> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

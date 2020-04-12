@@ -1,0 +1,225 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+    <div class="row">
+      <div class="col-md-8 tx-left">
+        <h2 class="tx-gray-800 tx-bold mg-b-10">
+          <i class="fa fa-bell" aria-hidden="true"></i>
+          <span class="menu-item-label">{{ 'MENU_APP_NOTIFY' | translate }}</span>
+        </h2>
+      </div>
+      <div class="col-md-4 tx-right" *ngIf="permissions['app_notifies'].key_tools != null && permissions['app_notifies'].key_tools.includes('edit')">
+        <button class="btn btn-teal mg-b-20 pd-r-20" (click)="showModalAddAppNotify()">
+          <i class="fa fa-plus mg-r-5"></i> {{ 'LBL_ADD_APP_NOTIFY' | translate }}
+        </button>
+      </div>
+    </div>
+    <div class="row">
+        <div class="offset-md-4 col-md-4">
+            <div class="input-group mg-b-20">
+                <input class="form-control py-2 border-right-0 border" value="search" id="example-search-input"
+                    [(ngModel)]="key_input" (ngModelChange)="getDataAppNotifyByInput()" type="search"
+                    placeholder="{{ 'LBL_SEARCH_APP_NOTIFY' | translate }}">
+                <span class="input-group-append">
+                    <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover table-striped">
+        <thead class="thead-colored thead-primary">
+          <tr>
+            <th class="tx-center">{{ 'LBL_APP_NOTIFY_STT' | translate }}</th>
+            <th class="tx-center">{{ 'LBL_APP_NOTIFY_AVATAR' | translate }}</th>
+            <th class="tx-center">{{ 'LBL_APP_NOTIFY_NAME' | translate }}</th>
+            <!-- <th class="tx-center">{{ 'LBL_APP_NOTIFY_WIEGHT' | translate }}</th> -->
+            <th class="tx-center">{{ 'LBL_APP_NOTIFY_DESCRIPTION' | translate }}</th>
+            <!-- <th class="tx-center">{{ 'LBL_APP_NOTIFY_CONTENT' | translate }}</th> -->
+            <th class="tx-center">{{ 'LBL_APP_NOTIFY_CREATED_AT' | translate }}</th>
+            <th class="tx-center" *ngIf="permissions['app_notifies'].key_tools != null && permissions['app_notifies'].key_tools.includes('edit')">{{ 'LBL_APP_NOTIFY_ACTION' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let notify of app_notifies; let i = index">
+            <td class="tx-center">{{ i + 1 }}</td>
+            <td class="tx-center">
+              <img src="../img/notifies/app-notify/{{notify.url_img}}" width="40px" height="40px">
+            </td>
+            <td class="tx-center">{{notify.name}}</td>
+            <!-- <td class="tx-center">{{notify.weigth}}</td> -->
+            <td class="tx-center">{{notify.description}}</td>
+            <!-- <td class="tx-center">{{notify.content}}</td> -->
+            <td class="tx-center">{{notify.updated_at}}</td>
+            <td class="tx-center" *ngIf="permissions['app_notifies'].key_tools != null && permissions['app_notifies'].key_tools.includes('edit')">
+              <button title="Cập nhật" type="button" class="btn btn-primary btn-width" data-toggle="modal"
+                (click)="showModalEditAppNotify(notify.id)">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+              </button>
+              <button title="Xóa" type="button" class="btn btn-danger btn-width" data-toggle="modal"
+                (click)="deleteAppNotify(notify.id)">
+                <i class="fa fa-times" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="this.key_input === ''">
+        <div class="row" *ngIf="paginationTotal > 0">
+            <div class="d-flex align-items-center justify-content-center col-md-12">
+                <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
+                    [totalItems]="paginationTotal" [itemsPerPage]="limitPage" [maxSize]="7" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div bsModal #modalAddAppNotify='bs-modal' class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document" style="max-width: 600px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'LBL_ADD_APP_NOTIFY' | translate }}</h5>
+        <button (click)="modalAddAppNotify.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body pd-25 form-layout form-layout-1">
+        <div class="row mg-b-25">
+          <div class="col-md-8">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="form-control-label tx-bold">{{ 'LBL_APP_NOTIFY_NAME' | translate }}:<span
+                    class="text-danger">*</span></label>
+                <input type="text" class="form-control" [(ngModel)]="createAppNotify.name">
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="tx-bold">{{ 'LBL_APP_NOTIFY_WIEGHT' | translate }}:<span class="text-danger">*</span></label>
+                       <input class="form-control" min="1" type="number" [(ngModel)]="createAppNotify.weigth">
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4" style="position: relative; right: 1px; top: 5px;">
+            <div class="form-group">
+              <div class="row">
+                <label class="tx-bold">{{ 'LBL_APP_NOTIFY_AVATAR' | translate }}</label>
+              </div>
+
+              <div class="row">
+                <label class="profile" for="img_input">
+                  <!-- <img *ngIf="!strImageBase64" alt="avatar" src="assets/img/icon_notify.png" width="100px"
+                    height="100px"> -->
+                  <img alt="avatar" [src]="(strImageBase64) ? strImageBase64 : defaulIcon" width="100px" height="100px">
+                </label>
+                <input style="display: none;" id="img_input" class="form-control" (change)="onFileImageChange($event)"
+                  type="file" accept="image/jpeg,image/png,image/jpg">
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="tx-bold">{{ 'LBL_APP_NOTIFY_DESCRIPTION' | translate }}:<span
+                    class="text-danger">*</span></label>
+                       <textarea class="form-control" rows="3" [(ngModel)]="createAppNotify.description"></textarea>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="tx-bold">{{ 'LBL_APP_NOTIFY_CONTENT' | translate }}:</label>
+                <textarea class="form-control" rows="10" [(ngModel)]="createAppNotify.content"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="addAppNotify()" type="button" class="btn btn-primary">Thêm</button>
+        <button (click)="modalAddAppNotify.hide()" type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div bsModal #modalEditAppNotify='bs-modal' class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document" style="max-width: 600px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'LBL_EDIT_APP_NOTIFY' | translate }}</h5>
+        <button (click)="modalEditAppNotify.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body pd-25 form-layout form-layout-1">
+        <div class="row mg-b-25">
+          <div class="col-md-8">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="form-control-label tx-bold">{{ 'LBL_APP_NOTIFY_NAME' | translate }}:<span
+                    class="text-danger">*</span></label>
+                <input type="text" class="form-control" [(ngModel)]="updateAppNotify.name">
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="tx-bold">{{ 'LBL_APP_NOTIFY_WIEGHT' | translate }}:<span class="text-danger">*</span></label>
+                       <input class="form-control" min="1" type="number" [(ngModel)]="updateAppNotify.weigth">
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4" style="position: relative; right: 1px; top: 5px;">
+            <div class="form-group">
+              <div class="row">
+                <label class="tx-bold">{{ 'LBL_APP_NOTIFY_AVATAR' | translate }}</label>
+              </div>
+
+              <div class="row">
+                <label class="profile" for="img_input">
+                  <img *ngIf="!strImageBase64" alt="avatar" src="../img/notifies/app-notify/{{this.updateAppNotify.url_img}}" width="100px" height="100px">
+                  <img *ngIf="strImageBase64" alt="avatar" [src]="strImageBase64" width="100px" height="100px">
+                </label>
+                <input style="display: none;" id="img_input" class="form-control" (change)="onFileImageChange($event)"
+                  type="file" accept="image/jpeg,image/png,image/jpg">
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="tx-bold">{{ 'LBL_APP_NOTIFY_DESCRIPTION' | translate }}:<span
+                    class="text-danger">*</span></label>
+                       <textarea class="form-control" rows="3" [(ngModel)]="updateAppNotify.description"></textarea>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="tx-bold">{{ 'LBL_APP_NOTIFY_CONTENT' | translate }}:</label>
+                <textarea class="form-control" rows="10" [(ngModel)]="updateAppNotify.content"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="editAppNotify()" type="button" class="btn btn-primary">Câp nhật</button>
+        <button (click)="modalEditAppNotify.hide()" type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>

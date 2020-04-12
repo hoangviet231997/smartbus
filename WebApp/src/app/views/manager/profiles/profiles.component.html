@@ -1,0 +1,104 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- manager profile company -->
+<div class="br-pagebody">
+<div class="br-section-wrapper">
+    <div class="row">
+        <div class="col-md-6 tx-left">
+            <h2 class="tx-gray-800 tx-bold mg-b-10">
+              <i class="fa fa-briefcase" aria-hidden="true"></i>
+              <span class="menu-item-label">{{ 'LBL_INF_PRO' | translate }}</span>
+            </h2>
+        </div>
+
+        <div class="col-md-6 tx-right">
+            <button *ngIf="permissions['company_info'].key_tools != null && permissions['company_info'].key_tools.includes('edit')" (click)="showEditCompanyModal()" class="btn btn-teal mg-b-20 pd-r-20">
+                <i class="fa fa-pencil mg-r-5"></i> {{ 'LBL_EDIT_COM' | translate }}
+            </button>
+        </div>
+    </div>
+
+    <div class="mg-t-30">
+        <div class="row">
+            <div class="col-md-2 col-sm-3 tx-center pd-30 pd-r-50">
+              <img *ngIf="companyUpdate.logo" class="wd-100 rounded-circle" src="../img/logo-companies/{{companyUpdate.logo}}" alt="{{companyUpdate.name}}">
+              <img *ngIf="!companyUpdate.logo" class="wd-100 rounded-circle" src="assets/img/img11.jpg" alt="{{companyUpdate.name}}">
+            </div>
+
+            <div class="col-md-10 col-sm-9 pd-30 pd-l-50 shadow-base">
+                <h4 class="tx-roboto mg-b-20">{{ companyUpdate.name }}</h4>
+                <p class="mg-b-20"><span class="tx-bold">{{ 'TABLE_EMAIL' | translate }}:</span> {{ companyUpdate.email }}</p>
+                <p class="mg-b-20"><span class="tx-bold">{{ 'TABLE_PHONE' | translate }}:</span> {{ companyUpdate.phone }}</p>
+                <p class="mg-b-20"><span class="tx-bold">{{ 'TABLE_TAX' | translate }}:</span> {{ companyUpdate.tax_code }}</p>
+                <p class="mg-b-20"><span class="tx-bold">{{ 'TABLE_ADDRESS' | translate }}:</span> {{ companyUpdate.address }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<!-- end manager profile company -->
+
+<!-- form edit company -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_EDIT_COM' | translate }}</h6>
+            <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="row mg-b-25">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_EMAIL' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="companyUpdate.email">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_PHONE' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="companyUpdate.phone">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_TAX' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="companyUpdate.tax_code">
+                    </div>
+                </div>
+                <!-- <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_LOGO_COM' | translate }}</label>
+                        <label class="custom-file">
+                            <input type="file" id="file" class="custom-file-input" (change)="onFileImageChange($event)"  type="file" accept="image/jpeg,image/png,image/jpg">
+                            <span class="custom-file-control"></span>
+                        </label>
+                    </div>
+                </div> -->
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label  class="form-control-label tx-bold">{{ 'LBL_LOGO_COM' | translate }}:</label>
+                        <input class="form-control" (change)="onFileImageChange($event)"  type="file" accept="image/jpeg,image/png,image/jpg">
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_ADDRESS' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="companyUpdate.address">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button (click)="editCompany()" [ladda]="isUpdated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+            <button (click)="editModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+    </div>
+    </div>
+</div>
+<!-- end form edit company -->

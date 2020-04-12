@@ -1,0 +1,57 @@
+.form-layout-1 {
+    border: none;
+}
+
+.input-group-btn button {
+    border-left: 0px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.ckbox input[type='checkbox'], .rdiobox input[type='radio'] {
+    margin: 0px;
+    display: none;
+}
+
+.rdiobox span {
+    padding-left: 0px;
+}
+
+.checkedrow {
+    background-color: #f5f5f5;
+}
+.test-center{
+    text-align: center;
+}
+
+.option-permitsion span {
+    position: relative;
+    left: 5px;
+    bottom: 2px;
+}
+.btn-width{
+    width: 40px;
+    margin-right: 5px;
+}
+
+.open > .dropdown-menu {
+    display: block;
+}
+
+.btn-default {
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.btn-default:hover, .btn-defaultt:focus {
+    color: #333;
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}
+
+.btn-default:not([disabled]):not(.disabled):active, .btn-default:not([disabled]):not(.disabled).active, .show > .btn-default.dropdown-toggle {
+    color: #333;
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}

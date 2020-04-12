@@ -1,0 +1,247 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-8 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="ion-ios-world-outline" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'LBL_NEWS' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-4 tx-right">
+                <button class="btn btn-teal mg-b-20 pd-r-20" (click)="showModalAddNews()">
+                    <i class="fa fa-plus mg-r-5"></i> {{ 'LBL_ADD_NEWS' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">{{ 'LBL_NEWS_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_NEWS_IMAGE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_NEWS_TITLE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_NEWS_TYPE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_NEWS_DESCRIPTION' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_NEWS_CREATED_AT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_NEWS_ACTION' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let data of news; let i = index">
+                        <td class="tx-center">{{ i + 1 }}</td>
+                        <td class="tx-center">
+                            <img src="../img/news/{{data.url_img}}" width="40px" height="40px">
+                        </td>
+                        <td class="tx-center">{{data.name}}</td>
+                        <td class="tx-center">{{data.category_news_name}}</td>
+                        <td class="tx-left">{{data.description}}</td>
+                        <td class="tx-center">{{data.updated_at}}</td>
+                        <td class="tx-center">
+                            <button title="Cập nhật" type="button" class="btn btn-primary btn-width" data-toggle="modal"
+                                (click)="showModalEditNews(data.id)">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </button>
+                            <button title="Xóa" type="button" class="btn btn-danger btn-width" data-toggle="modal"
+                                (click)="deleteNews(data.id)">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div bsModal #modalAddNews='bs-modal' class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 1000px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ 'LBL_ADD_NEWS' | translate }}</h5>
+                <button (click)="modalAddNews.hide()" type="button" class="close" data-dismiss="modal"
+                    aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-md-8">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label tx-bold">{{ 'LBL_NEWS_ADD_TYPE' | translate }}<span class="text-danger">*</span></label>
+                                <ng-select
+                                    [allowClear]="true"
+                                    [items]="items"
+                                    [active] ="valueActive"
+                                    (data)="refreshValueNews($event)"
+                                    (selected)="selectedNews($event)"
+                                    (removed)="removedNews($event)"
+                                    (typed)="typedNews($event)"
+                                    placeholder="---- Chọn loại tin tức ----">
+                                </ng-select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label tx-bold">{{ 'LBL_NEWS_ADD_NAME' | translate }}<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" [(ngModel)]="create_news.name">
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="tx-bold">{{ 'LBL_NEWS_ADD_STT' | translate }}<span class="text-danger">*</span></label>
+                                       <input class="form-control" min="1" type="number"
+                                    [(ngModel)]="create_news.weigth">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4" style="position: relative;left: 15px;top: 60px;">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="tx-bold">{{ 'LBL_NEWS_ADD_AVATAR' | translate }}<span class="text-danger">*</span></label>
+                            </div>
+
+                            <div class="row">
+                                <label class="profile" for="img_input">
+                                    <img *ngIf="!strImageBase64" alt="avatar" src="../img/news/news-icon-png.png"
+                                        width="100px" height="100px">
+                                    <img *ngIf="strImageBase64" alt="avatar" [src]="strImageBase64" width="100px"
+                                        height="100px">
+                                </label>
+                                <input style="display: none;" id="img_input" class="form-control"
+                                    (change)="onFileImageChange($event)" type="file"
+                                    accept="image/jpeg,image/png,image/jpg">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="tx-bold">{{ 'LBL_NEWS_ADD_DESCRIPTION' | translate }}<span class="text-danger">*</span></label>
+                                       <textarea class="form-control" rows="3"
+                                    [(ngModel)]="create_news.description"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="tx-bold">{{ 'LBL_NEWS_ADD_CONTENT' | translate }}</label>
+                                <!-- <ckeditor [editor]="Editor" data="" [(ngModel)]="content"></ckeditor> -->
+                                <textarea class="form-control" rows="10" [(ngModel)]="create_news.content"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="createNews($event)" type="button" class="btn btn-primary">Thêm</button>
+                <button (click)="modalAddNews.hide()" type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #modalEditNews='bs-modal' class="modal fade" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 1000px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ 'LBL_EDIT_NEWS' | translate }}</h5>
+                <button (click)="modalEditNews.hide()" type="button" class="close" data-dismiss="modal"
+                    aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-md-8">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label tx-bold">{{ 'LBL_NEWS_ADD_TYPE' | translate }}<span class="text-danger">*</span></label>
+                                <ng-select
+                                    [allowClear]="true"
+                                    [items]="items"
+                                    [active]="valueActive"
+                                    (data)="refreshValueNews($event)"
+                                    (selected)="selectedNews($event)"
+                                    (removed)="removedNews($event)"
+                                    placeholder="---- Chọn loại tin tức ----">
+                            </ng-select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label tx-bold">{{ 'LBL_NEWS_ADD_NAME' | translate }}<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" [(ngModel)]="update_news.name">
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="tx-bold">{{ 'LBL_NEWS_ADD_STT' | translate }}<span class="text-danger">*</span></label>
+                                       <input class="form-control" min="1" type="number"
+                                    [(ngModel)]="update_news.weigth">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4" style="position: relative;left: 15px;top: 60px;">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="tx-bold">{{ 'LBL_NEWS_ADD_AVATAR' | translate }}<span class="text-danger">*</span></label>
+                            </div>
+
+                            <div class="row">
+                                <label class="profile" for="img_input">
+                                    <img *ngIf="!strImageBase64" alt="avatar" src="../img/news/{{update_news.url_img}}"
+                                        width="100px" height="100px">
+
+                                    <img *ngIf="strImageBase64" alt="avatar"
+                                        [src]="strImageBase64 ? strImageBase64 : update_news.url_img" width="100px" height="100px">
+                                </label>
+                                <input style="display: none;" id="img_input" class="form-control"
+                                    (change)="onFileImageChange($event)" type="file"
+                                    accept="image/jpeg,image/png,image/jpg">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="tx-bold">{{ 'LBL_NEWS_ADD_DESCRIPTION' | translate }}<span class="text-danger">*</span></label>
+                                       <textarea class="form-control" rows="3"
+                                    [(ngModel)]="update_news.description"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="tx-bold">{{ 'LBL_NEWS_ADD_CONTENT' | translate }}</label>
+                                <!-- <ckeditor [editor]="Editor" data="" [(ngModel)]="content"></ckeditor> -->
+                                       <textarea class="form-control" rows="10"
+                                    [(ngModel)]="update_news.content"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="updateNews($event)" type="button" class="btn btn-primary">Cập nhật</button>
+                <button (click)="modalEditNews.hide()" type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+            </div>
+        </div>
+    </div>
+</div>

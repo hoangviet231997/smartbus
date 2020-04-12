@@ -1,0 +1,296 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+  <!-- table list ticket -->
+  <div class="br-pagebody">
+      <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-6 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-print" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'MENU_TICKETS_DESTROY' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-6 tx-right">
+                <button *ngIf="(permissions['report_ticket_destroy'].key_tools != null && permissions['report_ticket_destroy'].key_tools.includes('view_advanced'))" (click)="callBack()" class="btn">
+                    <i class="fa fa-undo mg-r-5"></i> {{ 'LBL_RCT_BACK' | translate }}
+                </button>&nbsp;
+                <button *ngIf="(permissions['report_ticket_destroy'].key_tools != null && permissions['report_ticket_destroy'].key_tools.includes('view_advanced'))" (click)="showViewHistoryTicketDestroy(1)" class="btn btn-info">
+                    <i class="fa fa-eye mg-r-5"></i> {{ 'BTN_TICKET_DESTROY_HISTRORY' | translate }}
+                </button>
+            </div>
+        </div>
+        <div  class="form-layout form-layout-1 pd-x-0 ">
+            <div *ngIf="isViewHistoryTicketDestroy == 0" class="row mg-b-25">
+                <div class="offset-md-4 col-md-4 ">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                        <div class="input-group">
+                            <input class="form-control"
+                                #drp="bsDaterangepicker"
+                                bsDaterangepicker
+                                [(ngModel)]="bsRangeValue"
+                                [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                                [maxDate]="maxDate"
+                                (ngModelChange)="getDataTicketsDestroy()"
+                            >
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="drp.toggle()" [attr.aria-expanded]="drp.isOpen">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div><!-- col-6 -->
+            </div>
+            <div *ngIf="isViewHistoryTicketDestroy == 1" class="row mg-b-25">
+                <div class="offset-md-3 col-md-3">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                        <div class="input-group">
+                            <input class="form-control"
+                                #drp="bsDaterangepicker"
+                                bsDaterangepicker
+                                [(ngModel)]="bsRangeValue"
+                                [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                                [maxDate]="maxDate"
+                                (ngModelChange)="getDataTicketsDestroy()"
+                            >
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="drp.toggle()" [attr.aria-expanded]="drp.isOpen">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_TICKET_DESTROY_TYPE_ACCEPT' | translate }}</label>
+                        <select id="typeId" name="typeId" class="form-control" (change)="getDataTicketsDestroy()" [(ngModel)]="selectedTypeAccept">
+                            <option value="0">{{ 'LBL_TICKET_DESTROY_TYPE_ACCEPT_ALL' | translate }}</option>
+                            <option value="-1">{{ 'LBL_TICKET_DESTROY_TYPE_ACCEPT_YES' | translate }}</option>
+                            <option value="1">{{ 'LBL_TICKET_DESTROY_TYPE_ACCEPT_NO' | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- Show is alert -->
+            <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+                <div *ngIf="ticket_destroys.length == 0" class="alert alert-warning mg-b-0" role="alert">
+                    <div class="d-flex align-items-center justify-content-start">
+                        <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+                    </div>
+                </div>
+            </div>
+            <!-- End is alert -->
+
+            <!-- button export file exel -->
+            <div class="form-layout-footer tx-center" *ngIf="(permissions['report_ticket_destroy'].key_tools != null && permissions['report_ticket_destroy'].key_tools.includes('view_advanced'))">
+                <button (click)="showPrintPreview()" class="btn btn-dark pd-r-20" >
+                    <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+                </button>
+            </div>
+            <!-- end button export file exel -->
+
+            <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+                <table *ngIf="ticket_destroys.length > 0" class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                          <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                          <th class="tx-center">{{ 'LBL_TICKET_DESTROY_SUBSUER' | translate }}</th>
+                          <th class="tx-center">{{ 'LBL_TICKET_DESTROY_TYPE' | translate }}</th>
+                          <th class="tx-center">{{ 'LBL_TICKET_DESTROY_TIK_NUMBER' | translate }}</th>
+                          <th class="tx-center">{{ 'LBL_TICKET_DESTROY_DESCRIPTION' | translate }}</th>
+                          <th class="tx-center">{{ 'LBL_TICKET_DESTROY_USER' | translate }}</th>
+                          <th class="tx-center">{{ 'LBL_TICKET_DESTROY_AMOUNT' | translate }}</th>
+                          <th class="tx-center">{{ 'LBL_TICKET_DESTROY_DELETE_DATE' | translate }}</th>
+                          <!-- <th class="tx-center">{{ 'LBL_TICKET_DESTROY_IMAGE' | translate }}</th> -->
+                          <th *ngIf="isViewHistoryTicketDestroy == 1 && (permissions['report_ticket_destroy'].key_tools != null && permissions['report_ticket_destroy'].key_tools.includes('edit'))" class="tx-center">{{ 'LBL_TICKET_DESTROY_TYPE_ACCEPT' | translate }}</th>
+                          <th *ngIf="isViewHistoryTicketDestroy == 0 && (permissions['report_ticket_destroy'].key_tools != null && permissions['report_ticket_destroy'].key_tools.includes('edit'))" class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let ticket_destroy of ticket_destroys; let i = index">
+                            <td class="tx-center">{{ i + 1 }}</td>
+                            <td class="tx-center">{{ ticket_destroy.subuser ? ticket_destroy.subuser.fullname : ''  }}</td>
+                            <td class="tx-center">
+                                <span *ngIf="ticket_destroy.type == 'pos'">{{ 'LBL_TRANSACTION_DETAIL_POS' | translate}}</span>
+                                <span *ngIf="ticket_destroy.type == 'charge'">{{ 'LBL_TRANSACTION_DETAIL_CHARGE' | translate}}</span>
+                                <span *ngIf="ticket_destroy.type == 'deposit'">{{ 'LBL_TRANSACTION_DETAIL_DEPOSIT' | translate}}</span>
+                                <span *ngIf="ticket_destroy.type == 'deposit_month'">{{ 'LBL_TRANSACTION_DETAIL_DEPOSIT_MONTH' | translate}}</span>
+                                <span *ngIf="ticket_destroy.type == 'charge_month'">{{ 'LBL_TRANSACTION_DETAIL_CHARGE_MONTH' | translate}}</span>
+                                <span *ngIf="ticket_destroy.type == 'app:1'">{{ 'LBL_TRANSACTION_DETAIL_ONLINE' | translate}}</span>
+                            </td>
+                            <td class="tx-center">{{ ticket_destroy.ticket_number }}</td>
+                            <td class="tx-center">{{ ticket_destroy.description }}</td>
+                            <td class="tx-center">{{ ticket_destroy.user ? ticket_destroy.user.fullname : '' }}</td>
+                            <td class="tx-center">{{ ticket_destroy.amount | currency:'VND':''}}</td>
+                            <td class="tx-center">{{ ticket_destroy.printed_at }}</td>
+                            <!-- <td class="tx-center" >
+                                    <a  (click)="clickShowImageTicketDestroy(ticket_destroy.image)" title="{{ticket_destroy.image}}">
+                                        <img height="30" class="img-responsive" alt=""  src="../img/ticket-error/{{ticket_destroy.image}}">
+                                    </a>
+                            </td> -->
+                            <td *ngIf="isViewHistoryTicketDestroy == 1 && (permissions['report_ticket_destroy'].key_tools != null && permissions['report_ticket_destroy'].key_tools.includes('edit'))"  class="tx-center">
+                                <span *ngIf="ticket_destroy.accept == 1">{{ 'LBL_TICKET_DESTROY_TYPE_ACCEPT_NO' | translate }}</span>
+                                <span *ngIf="ticket_destroy.accept == -1">{{ 'LBL_TICKET_DESTROY_TYPE_ACCEPT_YES' | translate }}</span>
+                            </td>
+                            <td *ngIf="isViewHistoryTicketDestroy == 0 && (permissions['report_ticket_destroy'].key_tools != null && permissions['report_ticket_destroy'].key_tools.includes('edit'))" class="tx-center">
+                                <a  (click)="acceptTicketDestroy(ticket_destroy.id,'accept')"   href="javascript:void(0)"   class="btn btn-primary"    data-toggle="tooltip"    data-placement="top" >
+                                    <i aria-hidden="true"></i>{{'FORM_ACCEPT_FISNICH' | translate}}
+                                </a>
+                                &nbsp;
+                                <a  (click)="acceptTicketDestroy(ticket_destroy.id,'refuse')"   href="javascript:void(0)"   class="btn btn-danger"    data-toggle="tooltip"    data-placement="top" >
+                                    <i aria-hidden="true"></i>{{'FORM_ACCEPT_CANCLE' | translate}}
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+      </div>
+    </div>
+  <!-- end table list ticket -->
+
+  <div bsModal #showImageTicketDestroy="bs-modal" class="modal fade">
+        <div class="modal-dialog modal-lg wd-100p" role="document">
+            <div class="modal-content bd-0 tx-14">
+                <div class="modal-header">
+                    <button (click)="showImageTicketDestroy.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body pd-25 form-layout form-layout-1">
+                    <div class="table-responsive tx-center" >
+                        <!-- <img class="img-responsive"  src="../img/ticket-error/{{showImage }}"> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div id="print-section" class="d-none" *ngIf="company">
+        <table style="width:100%">
+            <tr>
+                <td class="tx-center w-10 pt-0">
+                    <div class="tx-11"> <strong > {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+                </td>
+                <td class="tx-center w-10">
+                    <div class="tx-11">
+                        <strong > {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                        ({{ 'LBL_PRINT_BH' | translate }} <br />
+                        {{ 'LBL_PRINT_BTC' | translate }})
+                    </div>
+                </td>
+            </tr>
+            <tr><td colspan="2">&nbsp;</td></tr>
+            <tr>
+                <td colspan="2" style="width:21cm;">
+                    <div class="tx-center">
+                        <strong class="tx-12" style="text-transform: uppercase"> {{ 'PRINT_TICKET_ERROR' | translate }}</strong><br>
+                        <i class="tx-11">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }} {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="tx-center w-10 pt-0"></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%; font-size: 11px;"  *ngIf="ticket_destroys.length > 0">
+                        <thead>
+                            <tr>
+                                <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_TICKET_DESTROY_SUBSUER' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_TICKET_DESTROY_TYPE' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_TICKET_DESTROY_TIK_NUMBER' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_TICKET_DESTROY_DESCRIPTION' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_TICKET_DESTROY_USER' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_TICKET_DESTROY_AMOUNT' | translate }}</th>
+                                <th class="tx-center">{{ 'LBL_TICKET_DESTROY_DELETE_DATE' | translate }}</th>
+                                <!-- <th class="tx-center">{{ 'LBL_TICKET_DESTROY_IMAGE' | translate }}</th> -->
+                                <th *ngIf="isViewHistoryTicketDestroy == 1" class="tx-center">{{ 'LBL_TICKET_DESTROY_TYPE_ACCEPT' | translate }}</th>
+                                <th *ngIf="isViewHistoryTicketDestroy == 0" class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                              </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let ticket_destroy of ticket_destroys; let i = index">
+                                <td class="tx-center">{{ i + 1 }}</td>
+                                <td class="tx-center">{{ ticket_destroy.subuser ? ticket_destroy.subuser.fullname : ''  }}</td>
+                                <td class="tx-center">
+                                    <span *ngIf="ticket_destroy.type == 'pos'">{{ 'LBL_TRANSACTION_DETAIL_POS' | translate}}</span>
+                                    <span *ngIf="ticket_destroy.type == 'charge'">{{ 'LBL_TRANSACTION_DETAIL_CHARGE' | translate}}</span>
+                                    <span *ngIf="ticket_destroy.type == 'deposit'">{{ 'LBL_TRANSACTION_DETAIL_DEPOSIT' | translate}}</span>
+                                    <span *ngIf="ticket_destroy.type == 'deposit_month'">{{ 'LBL_TRANSACTION_DETAIL_DEPOSIT_MONTH' | translate}}</span>
+                                    <span *ngIf="ticket_destroy.type == 'charge_month'">{{ 'LBL_TRANSACTION_DETAIL_CHARGE_MONTH' | translate}}</span>
+                                    <span *ngIf="ticket_destroy.type == 'app:1'">{{ 'LBL_TRANSACTION_DETAIL_ONLINE' | translate}}</span>
+                                </td>
+                                <td class="tx-center">{{ ticket_destroy.ticket_number }}</td>
+                                <td class="tx-center">{{ ticket_destroy.description }}</td>
+                                <td class="tx-center">{{ ticket_destroy.user ? ticket_destroy.user.fullname : '' }}</td>
+                                <td class="tx-center">{{ ticket_destroy.amount | currency:'VND':''}}</td>
+                                <td class="tx-center">{{ ticket_destroy.printed_at }}</td>
+                                <!-- <td class="tx-center" >
+                                        <a  (click)="clickShowImageTicketDestroy(ticket_destroy.image)" title="{{ticket_destroy.image}}">
+                                            <img height="30" class="img-responsive" alt=""  src="../img/ticket-error/{{ticket_destroy.image}}">
+                                        </a>
+                                </td> -->
+                                <td *ngIf="isViewHistoryTicketDestroy == 1 && (permissions['report_ticket_destroy'].key_tools != null && permissions['report_ticket_destroy'].key_tools.includes('edit'))"  class="tx-center">
+                                    <span *ngIf="ticket_destroy.accept == 1">{{ 'LBL_TICKET_DESTROY_TYPE_ACCEPT_NO' | translate }}</span>
+                                    <span *ngIf="ticket_destroy.accept == -1">{{ 'LBL_TICKET_DESTROY_TYPE_ACCEPT_YES' | translate }}</span>
+                                </td>
+                                <td *ngIf="isViewHistoryTicketDestroy == 0 && (permissions['report_ticket_destroy'].key_tools != null && permissions['report_ticket_destroy'].key_tools.includes('edit'))" class="tx-center">
+                                    <a (click)="acceptTicketDestroy(ticket_destroy.id,'accept')"   href="javascript:void(0)"   class="btn btn-primary"    data-toggle="tooltip"    data-placement="top" >
+                                        <i aria-hidden="true"></i>{{'FORM_ACCEPT_FISNICH' | translate}}
+                                    </a>
+                                    &nbsp;
+                                    <a (click)="acceptTicketDestroy(ticket_destroy.id,'refuse')"   href="javascript:void(0)"   class="btn btn-danger"    data-toggle="tooltip"    data-placement="top" >
+                                        <i aria-hidden="true"></i>{{'FORM_ACCEPT_CANCLE' | translate}}
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} .... {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table  class="table-striped"  style="width:100%">
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="tx-center fl" >
+                                    <strong style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_NLB' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i class="tx-11">({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                                </td>
+                                <td colspan="3" class="tx-center fr" >
+                                    <strong style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_TBDH' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i class="tx-11">({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
+</div>

@@ -1,0 +1,290 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+    <div class="row">
+      <div class="col-md-12 tx-left">
+        <h2 class="tx-gray-800 tx-bold mg-b-10">
+          <i class="fa fa-print" aria-hidden="true"></i>
+          <span class="menu-item-label">{{ 'MENU_DICTATES_TRANSPORTS' | translate }}</span>
+        </h2>
+      </div>
+    </div>
+
+    <div class="row mg-b-25">
+      <div class="col-md">
+        <div class="form-group">
+          <label class="form-control-label tx-bold">{{ 'LBL_DICTATES_TRANSPORTS_CHOOSE_DATE' | translate }}</label>
+          <div class="input-group">
+            <input class="form-control" [maxDate]="maxDate" #dp="bsDatepicker" bsDatepicker [(ngModel)]="bsRangeValue"
+              [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }" (ngModelChange)="getData()">
+
+            <span class="input-group-btn">
+              <button class="btn btn-info pd-x-15" (click)="dp.toggle()" type="button">
+                <i class="fa fa-calendar"></i>
+              </button>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md">
+        <div class="form-group">
+          <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_USER' | translate }}</label>
+          <div class="input-group">
+            <input class="form-control" type="text" value="{{searchDriverName}}  {{searchSubDriverName}}" disabled>
+            <input type="hidden" [(ngModel)]="user_id">
+            <span class="input-group-btn">
+              <button (click)="showListUserModal()" class="btn btn-info pd-x-15" type="button">
+                <i class="fa fa-user"></i>
+              </button>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md">
+        <div class="form-group">
+          <label class="form-control-label tx-bold">{{ 'LBL_DICTATES_TRANSPORTS_LICENSE_PLATE' | translate }}</label>
+          <div class="input-group">
+            <input class="form-control" type="text" [(ngModel)]="licensePlatesInput" disabled>
+            <span class="input-group-btn">
+              <button (click)="showListVehicleModal()" class="btn btn-info pd-x-15" type="button">
+                <i class="ion ion-android-bus"></i>
+              </button>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md">
+        <div class="form-group">
+          <label class="form-control-label tx-bold">{{ 'LBL_RP_STAFF_ROUTE' | translate }}</label>
+          <select class="form-control" name="route_id" id="route_id" [(ngModel)]="route_id" (click) ="changeSelectRoute()">
+            <option *ngFor="let route of routes" value="{{route.id}}">{{route.name}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- button print  -->
+    <div class="form-layout form-layout-1 pd-x-0">
+      <div class="form-layout-footer tx-center">
+        <button *ngIf="permissions['dictates_transports'].key_tools != null && permissions['dictates_transports'].key_tools.includes('view_advanced')" (click)="showPrintPreview()" class="btn btn-dark pd-r-20">
+          <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+        </button>
+      </div>
+    </div>
+    <!-- end button print -->
+  </div>
+</div>
+
+<!-- print -->
+<div id="print-section" class="d-none" *ngIf="company">
+  <div class="row">
+    <div class="col-md-5">
+      <img src="../img/logo-companies/{{company.logo}}" alt="" height="50" width="207">
+      <p><b>Công ty Cổ phần Hoàng Hà</b><br>
+        Điện thoại: {{company.phone}} <br> Mã số thuế: {{company.tax_code}} </p>
+    </div>
+    <div class="col-md-7 tx-center">
+      <strong>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM <br>
+        <u>Độc lập - Tự do - Hạnh phúc</u> </strong> <br>
+      <p class="tx-right">Thái Bình, ngày {{daysForm}} tháng {{monthForm}} năm {{yearsForm}} </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-2">
+    </div>
+    <div class="col-md-7 tx-center">
+      <strong>LỆNH VẬN CHUYỂN</strong><br>
+      <span>Dùng cho xe ô tô vận chuyển hành khách tuyến cố định</span><br>
+      <span><i>Có giá trị từ ngày................. đến ngày.................</i></span>
+    </div>
+    <div class="col-md-3 tx-center">
+      <i>Số:..............</i>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%;font-size: 23px;">
+      <tbody>
+        <tr class="d-flex">
+          <td class="col-8">
+            <p><span>Cấp cho: Lái xe: {{searchDriverName}}</span> &nbsp; <span>hạng GPLX:...................</span> </p>
+            <p><span>Nhân viên phục vụ: {{searchSubDriverName}}</span></p>
+            <p><span>Biển số đăng ký: {{ licensePlatesInput }}</span> &nbsp;&nbsp; <span>Số ghế:.................;</span>&nbsp;&nbsp;<span>Loại xe:..........</span></p>
+            <p><span>Tuyến: {{route_name}}</span></p>
+            <p><span>Mã số tuyến:.......................</span></p>
+            <p>Hành trình chạy xe: <span *ngFor="let bus_station of bus_stations">{{bus_station.name}}  -  </span>và ngược lại</p><br>
+            <p><span>Km nhận xe:.............;</span> &nbsp; <span>Km giao xe:.............;</span> &nbsp;<span>Km sử dụng:.............</span></p>
+            <p>Nhiên liệu:................<span>lít;</span> &nbsp;&nbsp; <span>Người cung cấp nhiên liệu:......................</span>
+          </td>
+          <td class="col-4 tx-center">
+            <b>Thủ trưởng đơn vị</b><br>(Ký tên và đóng dấu) <br> <br> <br> <br>
+            <b>T.P ĐIỀU HÀNH TUYẾN CỐ ĐỊNH</b> <br> Cán bộ kiểm tra xe <br> (Ký và ghi rõ họ tên)
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%;height: 27%;font-size: 23px;">
+      <thead>
+        <tr>
+          <th style="width: 10%;" class="tx-center">Lượt xe thực hiện</th>
+          <th style="width: 30%;" class="tx-center">Bến xe đi, đến</th>
+          <th style="width: 30%;" class="tx-center">Giờ xe chạy</th>
+          <th style="width: 10%;" class="tx-center">Số khách</th>
+          <th style="width: 20%;" class="tx-center">Bến xe (ký tên và đóng dấu)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="tx-center" rowspan="2">Lượt đi</td>
+          <td class="tx-left">Bến xe đi:......................................</td>
+          <td class="tx-center">Xuất bến<br>...............giờ ngày:...............</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="tx-left">Bến xe nơi đến:.............................</td>
+          <td class="tx-center">Đến bến<br>...............giờ ngày:...............</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="tx-center" rowspan="2">Lượt về</td>
+          <td class="tx-left">Bến xe đi:......................................</td>
+          <td class="tx-center">Xuất bến<br>...............giờ ngày:...............</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="tx-left">Bến xe nơi đến:.............................</td>
+          <td class="tx-center">Đến bến<br>...............giờ ngày:...............</td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <div class="row">
+    <div class="col-6 tx-center">
+      <b>Lái xe</b><br>(Ký và ghi rõ họ tên)
+    </div>
+    <div class="col-6 tx-center">
+      <b>Nhân viên phục vụ</b><br>(Ký và ghi rõ họ tên)
+    </div>
+  </div>
+</div>
+<!-- end print -->
+
+<!-- show list vehicle -->
+<div bsModal #listVehical="bs-modal" class="modal fade">
+  <div class="modal-dialog modal-lg wd-100p" role="document">
+    <div class="modal-content bd-0 tx-14">
+      <div class="modal-header pd-y-20 pd-x-25">
+        <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_LIST_VHC' | translate }}</h6>
+        <button (click)="listVehical.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body pd-25 form-layout form-layout-1">
+        <!-- <div class="input-group mg-b-20">
+          <input class="form-control py-2 border-right-0 border" type="search" value="search" id="vehicle_id"
+            name="search" [(ngModel)]="inputLicensePlates" placeholder="Tìm kiếm...">
+          <span class="input-group-append">
+            <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+          </span>
+        </div> -->
+
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover table-striped">
+            <thead class="thead-colored thead-primary">
+              <tr>
+                <th>{{ 'TABLE_STT_NO' | translate }}</th>
+                <th>{{ 'LBL_VEHICLE_RFID' | translate }}</th>
+                <th>{{ 'LBL_VEHICLE_LICENSE_PLATE' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor = "let vehicle of vehicles; let i = index;">
+                <td>{{ i + 1 }}</td>
+                <td>{{vehicle.rfidcard.rfid}}</td>
+                <td>{{vehicle.license_plates}}</td>
+                <th class="tx-center" scope="row">
+                  <button (click) = "chooseVehicle(vehicle.id)" class="btn btn-info">
+                    {{ 'LBL_VEHICLE_PICK' | translate }}
+                  </button>
+                </th>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="listVehical.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25"
+          data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end list vehicle -->
+
+<!-- show list user -->
+<div bsModal #listUserModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_LIST_USR' | translate }}</h6>
+            <button (click)="listUserModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="input-group mg-b-20">
+                <input class="form-control py-2 border-right-0 border" type="search" value="search" id="example-search-input" name="search" [(ngModel)]="inputUserName" placeholder="Tìm kiếm...">
+                <span class="input-group-append">
+                    <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_NAME_USR' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_RCT_PST' | translate }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let user of (users | filterUser:inputUserName); let i = index">
+                            <td>{{ i + 1 }}</td>
+                            <td>{{ user.fullname }}</td>
+                            <td>{{ 'LBL_RCT_' + user.role.name | translate }}</td>
+                            <th class="tx-center" scope="row">
+                                <button (click)="chooseUser(user.id)" class="btn btn-info">
+                                    {{ 'LBL_USER_PICK' | translate }}
+                                </button>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button (click)="listUserModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+        </div>
+    </div>
+</div>
+<!-- end show list user -->

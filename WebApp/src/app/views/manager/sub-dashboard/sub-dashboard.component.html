@@ -1,0 +1,59 @@
+
+<div class="br-pagebody mg-t-5 pd-30">
+
+  <div class="row row-sm">
+    <div class="col-sm-12">
+      <div class="rounded overflow-hidden custom-lass">
+        <div class="pd-25 d-flex align-items-center">
+          <div class="mg-l-20">
+            <p class="tx-24 tx-white tx-lato tx-bold mg-b-2 lh-1 tx-center tx-custom">
+              {{ 'Xin chào '+fullname }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="br-section mg-t-30">
+    <agm-map class="ht-700 wd-100p"
+      [latitude]="latitude"
+      [longitude]="lngitude"
+      [zoom]="zoom"
+      [zoomControl]="true"
+      [styles]="mapStyles"
+      >
+      <agm-marker
+        [latitude]="latitude"
+        [longitude]="lngitude"
+        iconUrl="assets/img/icon-company.png"
+        (markerClick)="clickedMarkerCompany(infoWindowCompany)"
+        >
+        <agm-info-window [disableAutoPan]="true" #infoWindowCompany>
+          <table>
+            <tr>
+              <td>
+                <span>
+                    <strong>{{ company.fullname }}</strong>
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span>
+                    <strong>Đ/c: </strong>{{ company.address }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span>
+                    <strong>SĐT: </strong>{{ company.phone }}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </agm-info-window>
+      </agm-marker>
+    </agm-map>
+  </div>
+</div>

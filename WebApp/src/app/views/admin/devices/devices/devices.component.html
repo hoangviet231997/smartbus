@@ -1,0 +1,238 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list device -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+          <div class="col-md-6 tx-left">
+              <h2 class="tx-gray-800 tx-bold mg-b-10">
+                  <i class="fa fa-tablet" aria-hidden="true"></i>
+                  <span class="menu-item-label">{{ 'LBL_LIST_DEV' | translate }}</span>
+              </h2>
+          </div>
+          <div class="col-md-6 tx-right">
+              <button (click)="showAddModal()" class="btn btn-teal mg-b-20 pd-r-20">
+                  <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_DEV' | translate }}
+              </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="offset-md-4 col-md-4">
+            <div class="input-group mg-b-20">
+                <input class="form-control py-2 border-right-0 border" (ngModelChange)="getDeviceByIdentitySearch()" type="search" id="example-search-input"  [(ngModel)]="txtIdentity" placeholder="{{'SEARCH_IDENTITY' | translate}}">
+                <span class="input-group-append">
+                    <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                </span>
+            </div>
+          </div>  
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_IDE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_VER' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_MDL' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_RUN' | translate }}</th>
+                        <th class="tx-center">{{ 'MENU_COMPANY' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_CRE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_UPD' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let device of devices; let i = index">
+                        <th  class="tx-center" scope="row">{{((this.currentPage - 1) * this.limitPage) + (i + 1)}}</th>
+                        <td>{{device.identity}}</td>
+                        <td  class="tx-center">{{device.version}}</td>
+                        <td> 
+                          <span *ngIf="device.device_model != null">
+                            <a class="link-underline" [routerLink]="['/admin/devices/devices']">
+                                {{device.device_model.model}}
+                            </a>
+                          </span>
+                        </td>
+                        <td class="tx-center">
+                          <div *ngIf="device.is_running == 1" class="btn-icon rounded-circle">
+                            <div class="icon-color-green">
+                            <i class="fa fa-circle" aria-hidden="true"></i>
+                            </div>
+                          </div>
+                          <div *ngIf="device.is_running == 0" class="btn-icon rounded-circle">
+                            <div class="icon-color-gray">
+                              <i class="fa fa-circle" aria-hidden="true"></i>
+                            </div>
+                          </div>
+                        </td>
+                        <td>    
+                        <div *ngIf="device.company">
+                            {{device.company.name}}
+                        </div>
+                        </td>
+                        <td>{{device.created_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                        <td>{{device.updated_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                        <td class="tx-18 tx-center">
+                            <a *ngIf="device.company && device.is_running == 0" href="javascript:void(0)" class="btn btn-success btn-width" (click)="showAssignModal(device.id, device.company.id, device.company.name)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_SIGN_COM_DEV' | translate }}">
+                              <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                            <a *ngIf="!device.company" href="javascript:void(0)" class="btn btn-success btn-width" (click)="showAssignModal(device.id, 0, 0)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_SIGN_COM_DEV' | translate }}">
+                                <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                            <a *ngIf="device.is_running == 0" href="javascript:void(0)" class="btn btn-primary btn-width" (click)="showEditModal(device.id, device.device_model.id, device.device_model.model)" data-toggle="tooltip" data-placement="top" title="{{ 'FORM_EDIT' | translate }}">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </a>
+                            <a *ngIf="device.is_running == 0" href="javascript:void(0)" class="btn btn-danger btn-width" (click)="delDevice(device.id)" data-toggle="tooltip" data-placement="top" title="{{ 'FORM_DEL' | translate }}">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table> 
+        </div>
+        <div *ngIf="this.txtIdentity === ''">
+          <div class="row" *ngIf="paginationTotal > 0">
+            <div class="d-flex align-items-center justify-content-center col-md-12">
+                <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;" 
+                    [totalItems]="paginationTotal" [maxSize]="7" [itemsPerPage]="limitPage" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+            </div>
+          </div>      
+        </div> 
+    </div>
+    <footer class="br-footer"></footer>
+</div>
+<!-- end table list device -->
+
+<!-- form add device -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_ADD_DEV' | translate }}</h6>
+            <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body pd-25 form-layout form-layout-1 wd-400">
+          <div class="row mg-b-25">
+            <div class="col-lg-12">
+              <div class="form-group">
+                <label class="form-control-label">{{ 'TABLE_IDE' | translate }}</label>
+                <input type="text" class="form-control" [(ngModel)]="device.identity">
+              </div>
+            </div>
+            <div class="col-lg-12">
+              <div class="form-group" *ngIf="modelItems.length > 0">
+                <label class="form-control-label">{{ 'TABLE_MDL' | translate }}</label>
+                  <ng-select [allowClear]="true"
+                    [items]="modelItems"
+                    [active]="devModelSelected"
+                    [disabled]="disabled"
+                    (data)="refreshValue($event)"
+                    (selected)="selected($event)"
+                    (removed)="removed($event)"
+                    (typed)="typed($event)"
+                    placeholder="No model selected">
+                  </ng-select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>  
+          <div class="modal-footer">
+              <button (click)="addDevice()" [ladda]="isCreated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_CREATE' | translate }}</button>
+              <button (click)="addModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+<!-- end form add device -->
+
+<!-- form edit device -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_EDIT_DEV' | translate }}</h6>
+            <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1 wd-400">
+          <div class="row mg-b-25">
+              <div class="col-lg-12">
+                <div class="form-group">
+                  <label class="form-control-label">{{ 'TABLE_IDE' | translate }}</label>
+                  <input type="text" class="form-control" [(ngModel)]="deviceForm.identity">
+                </div>
+              </div>
+              <div class="col-lg-12">
+                <div class="form-group" *ngIf="modelItems.length > 0 && devModelSelected.length > 0">
+                  <label class="form-control-label">{{ 'TABLE_MDL' | translate }}</label>
+                  <ng-select [allowClear]="true"
+                    [items]="modelItems"
+                    [active]="devModelSelected"
+                    [disabled]="disabled"
+                    (data)="refreshValue($event)"
+                    (selected)="selected($event)"
+                    (removed)="removed($event)"
+                    (typed)="typed($event)"
+                    placeholder="No model selected">
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button (click)="editDevice()" type="button" [ladda]="isUpdated" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+          <button (click)="editModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+      </div>
+    </div>
+</div>
+<!-- form from edit device -->
+
+<!-- form assign device -->
+<div bsModal #assignModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_SIGN_COM_DEV' | translate }}</h6>
+            <button (click)="assignModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1 wd-600">
+          <div class="row mg-b-25">
+              <div class="col-md-12">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'MENU_COMPANY' | translate }}</label>
+                    <ng-select *ngIf="companyItems.length > 0 && companySelected.length <= 0" [allowClear]="true"
+                        [items]="companyItems"
+                        [active]="companySelected"
+                        [disabled]="disabled"
+                        (data)="refreshValueCompany($event)"
+                        (selected)="selected($event)"
+                        (removed)="removed($event)"
+                        (typed)="typed($event)"
+                        placeholder="No model selected">
+                    </ng-select>
+                    <input *ngIf="companySelected.length > 0" class="form-control" type="text" disabled name="" value="{{companySelected[0]['text']}}">
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button *ngIf="companySelected.length <= 0" (click)="saveAssignDevice()" type="button" [ladda]="isAssigned" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_ASN' | translate }}</button>
+          <button *ngIf="companySelected.length > 0" (click)="deleteAssignDevice()" type="button" [ladda]="isDeleted" class="btn btn-danger tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_RTN' | translate }}</button>
+          <button (click)="assignModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+      </div>
+    </div>
+</div>
+<!-- end form assign company -->

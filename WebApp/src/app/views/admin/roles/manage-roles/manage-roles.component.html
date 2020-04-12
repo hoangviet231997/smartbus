@@ -1,0 +1,186 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list role -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-6 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-inbox" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'LBL_LIST_ROL' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-6 tx-right">
+                <button (click)="showAddRoleModal()" class="btn btn-teal mg-b-20 pd-r-20">
+                <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_ROL' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th>{{ 'TABLE_STT' | translate }}</th>
+                        <th>{{ 'TABLE_NAME' | translate }}</th>
+                        <th>{{ 'TABLE_DIS_NAME' | translate }}</th>
+                        <th>{{ 'TABLE_CRE' | translate }}</th>
+                        <th>{{ 'TABLE_UPD' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let role of roles; let i = index">
+                        <th class="tx-right" scope="row">{{ i + 1 }}</th>
+                        <td>{{role.name}}</td>
+                        <td>{{role.display_name}}</td>
+                        <td>{{role.created_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                        <td>{{role.updated_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                        <td class="tx-center">
+                            <a href="javascript:void(0)" class="btn btn-primary btn-width" (click)="showEditRoleModal(role.id)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_EDIT_ROL' | translate }}">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </a>
+                            <a href="javascript:void(0)" class="btn btn-danger btn-width" (click)="deleteRole(role.id)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_DEL_ROL' | translate }}">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <footer class="br-footer"></footer>
+</div>
+<!-- end table list role -->
+
+<!-- from add role -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_ADD_ROL' | translate }}</h6>
+                <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_NAME' | translate }}</label>
+                            <!-- <input type="text" class="form-control" name="name" [(ngModel)]="role.name"> -->
+                            <select class="form-control" id="key" [(ngModel)]="role.name">
+                                <option value="admin">Administrator (Admin DFM)</option>
+                                <option value="manager">Manager (Quản lý Cty)</option>
+                                <option value="executive">Executive (Ban điều hành Cty)</option>
+                                <option value="staff">Staff supervisory (Giám sát Cty)</option>
+                                <option value="accountant">Accountant (Kế toán Cty)</option>
+                                <option value="driver">Driver (Tài xế Cty)</option>
+                                <option value="subdriver">Subdriver (Phụ xe Cty)</option>
+                                <option value="teller">Teller (Quản lý thẻ Cty)</option>
+                                <option value="collecter">Collecter (Người thu tiền Cty)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_DIS_NAME' | translate }}</label>
+                            <input type="text" class="form-control" name="display_name" [(ngModel)]="role.display_name">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="addRole()" [ladda]="isCreated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_CREATE' | translate }}</button>
+                <button (click)="addModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end from add role -->
+
+<!-- from edit role -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_EDIT_ROL' | translate }}</h6>
+                <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_NAME' | translate }}</label>
+                            <!-- <input type="text" class="form-control" name="name" [(ngModel)]="roleForm.name"> -->
+                            <select class="form-control" id="key" [(ngModel)]="role.name" [disabled]="true">
+                                <option value="admin">Administrator (Admin DFM)</option>
+                                <option value="manager">Manager (Quản lý Cty)</option>
+                                <option value="executive">Executive (Ban điều hành Cty)</option>
+                                <option value="staff">Staff supervisory (Giám sát Cty)</option>
+                                <option value="accountant">Accountant (Kế toán Cty)</option>
+                                <option value="driver">Driver (Tài xế Cty)</option>
+                                <option value="subdriver">Subdriver (Phụ xe Cty)</option>
+                                <option value="teller">Teller (Quản lý thẻ Cty)</option>
+                                <option value="collecter">Collecter (Người thu tiền Cty)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_DIS_NAME' | translate }}</label>
+                            <input type="text" class="form-control" name="display_name" [(ngModel)]="role.display_name">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="editRole()" [ladda]="isUpdated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+                <button (click)="editModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end from edit role -->
+
+<!-- from choose permission -->
+<div bsModal #PermissionModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14 wd-800">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_CHS_PER_ROL' | translate }}</h6>
+                <button (click)="PermissionModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-t-25">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="search" [(ngModel)]="searchText" >
+                        </div>
+                    </div>
+                    <div class="col-12 row mg-t-5 mg-l-0 mg-r-0 pd-l-0 pd-r-0">
+                        <div class="col-lg-4 col-md-3 mg-t-5" *ngFor="let permission of (permissions| filter: searchText)">
+                            <label class="ckbox">
+                                <input type="checkbox" name="permission[]" [value]="permission.id" [checked]="selectedPermissions.indexOf(permission.id) > -1" (change)="onPermissionChanged($event, permission.id)">
+                                <span>{{permission.display_name}}</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="checkAllPermission()" type="button" class="btn-flex-right btn btn-success tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'BTN_CHEK_ALL_ROL' | translate }}</button>
+                <button (click)="savePermission()" [ladda]="isUpdatePers" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+                <button (click)="PermissionModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end choose permission -->

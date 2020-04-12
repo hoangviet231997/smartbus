@@ -1,0 +1,1433 @@
+<app-header #appHeaderComponent ></app-header>
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- end manager membership rfid card -->
+<div class="br-pagebody" >
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-8 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-credit-card" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{'MENU_RFID_CARD' | translate}}</span>
+                </h2>
+            </div>
+        </div>
+        <div class="bd rounded table-responsive">
+            <ngb-tabset (tabChange)="onTabChange($event)" activeId="{{activeTab}}">
+                <ngb-tab  title="{{ 'LBL_MEM_CARD_MANAGER' | translate }}" id="tab-card-act">
+                    <ng-template ngbTabContent>
+                        <table class="table mg-b-0">
+                            <tr>
+                                <td style="width:30%">
+                                    <select class="form-control py-2 border-right-0 border" [(ngModel)]="search_activated" (change)="changeSelectTypeSearchMemberhsip(1)">
+                                        <option value="">---- {{ 'LBL_MEM_CARD_SEARCH_BY' | translate }} ----</option>
+                                        <option value="seri">{{ 'LBL_MEM_CARD_VALUE_SERI_CARD' | translate }}</option>
+                                        <option value="name_card">{{ 'LBL_MEM_CARD_VALUE_NAME_CARD' | translate }}</option>
+                                        <option value="phone">{{ 'LBL_MEM_CARD_VALUE_PHONE' | translate }}</option>
+                                        <option value="barcode">{{ 'LBL_MEM_CARD_VALUE_BARCODE' | translate }}</option>
+                                        <option value="type">{{ 'LBL_MEM_CARD_VALUE_TYPE' | translate }}</option>
+                                        <option value="expiration">{{ 'LBL_MEM_CARD_VALUE_EXPIRATION' | translate }}</option>
+                                    </select>
+                                </td>
+                                <td style="width:70%">
+                                    <div class="input-group"  *ngIf="search_activated != 'barcode' && search_activated != 'expiration'">
+                                        <input class="form-control py-2 border-right-0 border"
+                                        [(ngModel)]="input_activated"
+                                        (ngModelChange)="getMembershipCardByInput('activated')"
+                                        type="search" id="example-search-input" placeholder="Tìm kiếm...">
+                                        <span class="input-group-append">
+                                            <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                                        </span>
+                                    </div>
+                                    <div class="input-group" *ngIf="search_activated == 'barcode'">
+                                        <input class="form-control py-2 border-right-0 border"
+                                        [(ngModel)]="input_activated"
+                                        type="search" id="example-search-input" placeholder="Tìm kiếm...">
+                                        <span class="input-group-append">
+                                            <a class="input-group-text bg-transparent" (click)="getMembershipCardByInput('activated')">
+                                                <i class="fa fa-search"></i>
+                                            </a>
+                                        </span>
+                                    </div>
+                                    <div class="input-group" *ngIf="search_activated == 'expiration'">
+                                        <select class="form-control py-2 border-right-0 border"
+                                            [(ngModel)]="input_activated" (change)="getMembershipCardByInput('activated')">
+                                            <option value="prepaid">{{ 'LBL_MEM_CARD_VALUE_PREPAID' | translate }}</option>
+                                            <option value="month">{{ 'LBL_MEM_CARD_VALUE_MONTH' | translate }}</option>
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="table table-bordered table-hover table-striped mg-b-0">
+                            <thead class="thead-colored thead-primary">
+                                <tr>
+                                    <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                                    <!-- <th class="tx-center">{{ 'TABLE_CARDRFID' | translate }}</th> -->
+                                    <th class="tx-center">{{ 'TABLE_CARD_BARCODE' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARD_TYPE' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARD_NAME' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARD_CMND' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARD_GENDER' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARD_PHONE' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARD_BALANCE' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARD_EXPIRATION' | translate }}</th>
+                                    <th class="tx-center">{{ 'LBL_STATUS_WARNING_DURATION_MBS' | translate }}</th>
+                                    <th> </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let membershipAct of membershipActs; let i = index">
+                                    <th class="tx-center" scope="row">{{((this.currentPageAct - 1) * this.limitPageAct) + (i + 1)}}</th>
+                                    <!-- <td>{{membershipAct.rfidcard.rfid}}</td> -->
+                                    <td>{{membershipAct.rfidcard.barcode ? membershipAct.rfidcard.barcode : ''}}</td>
+                                    <td>{{membershipAct.membership_type.name ? membershipAct.membership_type.name : ''}}</td>
+                                    <td>{{membershipAct.fullname ? membershipAct.fullname : ''}}</td>
+                                    <td>{{membershipAct.cmnd }}</td>
+                                    <td>
+                                        <span *ngIf="membershipAct.gender == 0">{{ 'LBL_MEM_CARD_VALUE_GENDER_MALE' | translate }}</span>
+                                        <span *ngIf="membershipAct.gender == 1">{{ 'LBL_MEM_CARD_VALUE_GENDER_FEMALE' | translate }}</span>
+                                    </td>
+                                    <td>{{membershipAct.phone ? membershipAct.phone : ''}}</td>
+                                    <td>{{membershipAct.balance | currency:'VND':''}}</td>
+                                    <td>
+                                        <span *ngIf="membershipAct.membership_type.code == 0"> {{ membershipAct.expiration_date | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
+                                        <span *ngIf="membershipAct.membership_type.code == 1"> {{ membershipAct.expiration_date }}</span>
+                                    </td>
+                                    <td class="tx-center">
+                                        <span *ngIf="((membershipAct.membership_type.code == 0 && membershipAct.duration_date <= 7) || (membershipAct.membership_type.code == 1 && membershipAct.duration_date < 0))"
+                                            class="status-warning"
+                                            data-toggle="tooltip"
+                                            data-placement="left"
+                                            title="{{ 'SWAL_ERROR_DURATION_MEMBERSHIP' | translate }}">
+                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Cảnh báo
+                                        </span>
+                                        <span *ngIf="((membershipAct.membership_type.code == 0 && membershipAct.duration_date > 7) || (membershipAct.membership_type.code == 1 && membershipAct.duration_date >= 0))">--:--</span>
+                                    </td>
+                                    <td class="tx-center">
+                                        <a href="javascript:void(0)"  class="btn btn-info btn-width" (click)="showDetailMembershipModal(membershipAct.rfidcard.rfid)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_CARD_VIEW_DETAIL' | translate }}">
+                                            <i class="fa fa-eye pd-r-5"  aria-hidden="true"></i>
+                                        </a>
+                                        <a href="javascript:void(0)" *ngIf="permissions['card_membership_card'].key_tools != null && permissions['card_membership_card'].key_tools.includes('edit')"  class="btn btn-primary btn-width" (click)="showExtendCard(membershipAct.id)"  data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_CARD_TERM_PRICE' | translate }}">
+                                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                                        </a>
+                                        <a href="javascript:void(0)" *ngIf="permissions['card_membership_card'].key_tools != null && permissions['card_membership_card'].key_tools.includes('edit') && membershipAct.membership_type.code == 0" class="btn btn-dark btn-width" (click)="showPrintCard(membershipAct)"  data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_CARD_PRINT' | translate }}">
+                                            <i class="fa fa-print" aria-hidden="true"></i>
+                                        </a>
+                                        <a href="javascript:void(0)" *ngIf="permissions['card_membership_card'].key_tools != null && permissions['card_membership_card'].key_tools.includes('edit') && membershipAct.membership_type.code == 1" class="btn btn-dark btn-print" (click)="showPrintBackGround(membershipAct)"  data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_CARD_PRINT' | translate }}">
+                                            <i class="fa fa-print" aria-hidden="true"></i>
+                                        </a>
+                                        <a href="javascript:void(0)" *ngIf="permissions['card_membership_card'].key_tools != null && permissions['card_membership_card'].key_tools.includes('edit')"  class="btn btn-custom btn-width" (click)="showChangeCard(membershipAct.id)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_CARD_CANCEL' | translate }}">
+                                            <i class="fa fa-exchange" aria-hidden="true"></i>
+                                        </a>
+                                        <a href="javascript:void(0)" *ngIf="permissions['card_membership_card'].key_tools != null && permissions['card_membership_card'].key_tools.includes('edit') && user_down !== null && membershipAct.actived == -1" class="btn btn-warning btn-width" (click)="showDisableCard(membershipAct)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_CARD_ENABLE' | translate }}">
+                                            <i class="fa fa-undo" aria-hidden="true"></i>
+                                        </a>
+                                        <a href="javascript:void(0)" *ngIf="permissions['card_membership_card'].key_tools != null && permissions['card_membership_card'].key_tools.includes('edit') && user_down !== null && membershipAct.actived == 1" class="btn btn-danger btn-width" (click)="showDisableCard(membershipAct)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_CARD_DISABLE' | translate }}">
+                                            <i class="fa fa-ban" aria-hidden="true"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br>
+                        <div *ngIf="this.input_activated === ''">
+                            <div *ngIf="membershipId === 0">
+                                <div *ngIf="paginationTotalAct > 0">
+                                    <div class="d-flex align-items-center justify-content-center col-md-12">
+                                        <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
+                                            [totalItems]="paginationTotalAct" [maxSize]="7" [itemsPerPage]="limitPageAct" [(ngModel)]="currentPageAct" (pageChanged)="pageChangedAct($event)"></pagination>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </ngb-tab>
+                <ngb-tab title="{{ 'LBL_MEM_CARD_NEW_ADD' | translate }}" id="tab-card-new">
+                    <ng-template ngbTabContent>
+                        <table class="table mg-b-0">
+                            <tr>
+                                <td style="width:30%">
+                                    <select class="form-control py-2 border-right-0 border" [(ngModel)]="search_not_activated" (change)="changeSelectTypeSearchMemberhsip(1)">
+                                        <option value="">---- {{ 'LBL_MEM_CARD_SEARCH_BY' | translate }} ----</option>
+                                        <!-- <option value="seri">{{ 'LBL_MEM_CARD_VALUE_SERI_CARD' | translate }}</option> -->
+                                        <!-- <option value="name_card">{{ 'LBL_MEM_CARD_VALUE_NAME_CARD' | translate }}</option> -->
+                                        <!-- <option value="phone">{{ 'LBL_MEM_CARD_VALUE_PHONE' | translate }}</option> -->
+                                        <!-- <option value="barcode">{{ 'LBL_MEM_CARD_VALUE_BARCODE' | translate }}</option> -->
+                                        <option value="rfid">{{ 'LBL_MEM_CARD_VALUE_RFID' | translate }}</option>
+                                    </select>
+                                </td>
+                                <td style="width:70%">
+                                    <div class="input-group" *ngIf="search_not_activated != 'barcode'">
+                                        <input class="form-control py-2 border-right-0 border"  [(ngModel)]="input_not_activated" (ngModelChange)="getMembershipCardByInput('not_activated')" type="search" id="example-search-input" placeholder="Tìm kiếm...">
+                                        <span class="input-group-append">
+                                            <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                                        </span>
+                                    </div>
+                                    <div class="input-group" *ngIf="search_not_activated == 'barcode'">
+                                        <input class="form-control py-2 border-right-0 border"  [(ngModel)]="input_not_activated"  type="search" id="example-search-input" placeholder="Tìm kiếm...">
+                                        <span class="input-group-append">
+                                            <a class="input-group-text bg-transparent" (click)="getMembershipCardByInput('not_activated')">
+                                                <i class="fa fa-search"></i>
+                                            </a>
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="table table-bordered table-hover table-striped mg-b-0">
+                            <thead class="thead-colored thead-primary">
+                                <tr>
+                                    <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARDRFID' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARD_BARCODE' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARD_TYPE' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARD_NAME' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARD_PHONE' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARD_BALANCE' | translate }}</th>
+                                    <th class="tx-center">{{ 'TABLE_CARD_CREATE' | translate }}</th>
+                                    <th *ngIf="permissions['card_membership_card'].key_tools != null && permissions['card_membership_card'].key_tools.includes('edit')"> </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let membership of memberships; let i = index">
+                                    <th class="tx-center" scope="row">{{((this.currentPage - 1) * this.limitPage) + (i + 1)}}</th>
+                                    <td>{{membership.rfidcard.rfid}}</td>
+                                    <td>{{membership.rfidcard.barcode ? membership.rfidcard.barcode : ''}}</td>
+                                    <td>{{membership.membership_type ? membership.membership_type.name : ''}}</td>
+                                    <td>{{membership.fullname ? membership.fullname : ''}}</td>
+                                    <td>{{membership.phone ? membership.phone : ''}}</td>
+                                    <td>{{membership.balance | currency:'VND':''}}</td>
+                                    <td>{{ membership.created_at | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+                                    <td class="tx-center" *ngIf="permissions['card_membership_card'].key_tools != null && permissions['card_membership_card'].key_tools.includes('edit')">
+                                        <a href="javascript:void(0)" (click)="showActiveMembershipCardModalById(membership.id)" class="btn btn-success" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_CARD_ACTIVE' | translate }}">
+                                            <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br>
+                        <div *ngIf="this.input_not_activated === ''">
+                            <div *ngIf="paginationTotal > 0">
+                                <div class="d-flex align-items-center justify-content-center col-md-12">
+                                    <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
+                                        [totalItems]="paginationTotal" [maxSize]="7" [itemsPerPage]="limitPage" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </ngb-tab>
+            </ngb-tabset>
+            <div id="print-section" class="d-none">
+                <div style="width:100%; height: auto;">
+                    <table>
+                        <tbody>
+                            <tr><div style="height:24.5px">&nbsp;</div></tr>
+                            <tr>
+                                <td><div style="width: 17.5px">&nbsp;</div></td>
+                                <td>
+                                    <qrcode [qrdata]="qrcode" [size]="82" [level]="'L'"></qrcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table>
+                        <tbody>
+                            <tr><div style="height:4px">&nbsp;</div></tr>
+                        </tbody>
+                    </table>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td><div style="width: 12px"></div></td>
+                                <td>
+                                    <div class="seri-card">
+                                        <span>{{ seriCard }} </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="print-before" class="d-none" *ngIf="opt_background">
+                <div [ngStyle]="{'background-image': 'url(../img/layout-card-comapies/'+ opt_background +')'}" style="width:330px; height: 210px;background-repeat: no-repeat;background-size: 100% 100%;">
+                    <table style="width: 100%" >
+                        <tbody>
+                            <tr>
+                                <td colspan="4" style="height: 50px">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 13px;">&nbsp;</td>
+                                <td style="height: 118px;width: 74px;vertical-align: middle; text-align: center; ">
+                                    <img *ngIf="data_obj && !data_obj.avatar"  src="../img/avatar-membership/profile-default.png" style="width: 77px; height: 117px">
+                                    <img *ngIf="data_obj && data_obj.avatar" src="../img/avatar-membership/{{data_obj.avatar}}" style="width: 77px; height: 117px">
+                                </td>
+                                <td style="width: 53px"></td>
+                                <td style="width: 162px; font-size: 10px; font-family: Arial, Helvetica, sans-serif">
+                                    <div style="height: 36px; ">
+                                        &nbsp;
+                                    </div>
+                                    <div style="font-weight: bold; font-size: 14px; height: 22px;">
+                                        {{data_obj.fullname}}
+                                    </div>
+                                    <div style="height: 19px; font-weight: bold">
+                                        {{data_obj.birthday | date: 'yyyy' }}
+                                    </div>
+                                    <div style="height: 21px; font-weight: bold">
+                                        {{data_obj.cmnd}}
+                                    </div>
+                                    <div style="height: 17px; padding-left: 5px; font-weight: bold">
+                                        {{group_station_way}}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="height: 31px">&nbsp;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="print-after" class="d-none" *ngIf="opt_background">
+                <div [ngStyle]="{'background-image': 'url(../img/layout-card-comapies/'+ opt_background +')'}" style="width:330px; height: 210px;background-repeat: no-repeat;background-size: 100% 100%;">
+                    <table>
+                        <tbody>
+                            <tr><div style="height:33px">&nbsp;</div></tr>
+                            <tr>
+                                <td><div style="width: 25px">&nbsp;</div></td>
+                                <td>
+                                    <qrcode [qrdata]="qrcode" [size]="82" [level]="'L'"></qrcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table>
+                        <tbody>
+                            <tr><div style="height:8px">&nbsp;</div></tr>
+                        </tbody>
+                    </table>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td><div style="width: 20px"></div></td>
+                                <td>
+                                    <div class="seri-card">
+                                        <span>{{ qrcode }} </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- show detail card -->
+<div bsModal #detailMembershipModel="bs-modal" class="modal fade">
+        <div class="modal-dialog modal-lg wd-100p" role="document">
+            <div class="modal-content bd-0 tx-14">
+                <div class="modal-header pd-y-20 pd-x-25">
+                    <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RFID_DETAIL' | translate }}</h6>
+                    <button (click)="detailMembershipModel.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body pd-25 form-layout form-layout-1">
+                    <div class="bd rounded table-responsive">
+                        <ngb-tabset (tabChange)="detailOnTabChange($event)">
+                            <ngb-tab title="{{ 'LBL_MEM_CARD_DETAIL_CHARGE' | translate }}" id="tab-charge">
+                                <ng-template ngbTabContent>
+                                    <table class="table mg-b-0">
+                                        <tr>
+                                            <td style="width:30%">
+                                                <select class="form-control py-2 border-right-0 border" [(ngModel)]="membershipDetailSearch.search_opt" (change)="changeSearchOpt()">
+                                                    <option value="0">---- {{ 'LBL_MEM_CARD_SEARCH_BY' | translate }} ----</option>
+                                                    <option value="1">{{ 'TABLE_MEMBER_DETAIL_STATION' | translate }}</option>
+                                                    <option value="2">{{ 'TABLE_MEMBER_DETAIL_SELER' | translate }}</option>
+                                                </select>
+                                            </td>
+                                            <td style="width:35%">
+                                                <div class="input-group">
+                                                    <input class="form-control py-2 border-right-0 border"  [(ngModel)]="membershipDetailSearch.search_key" (ngModelChange)="searchMembershipDetail()" type="search" id="example-search-input" placeholder="{{membershipDetailSearchPlaceholder}}">
+                                                    <!-- <span class="input-group-append">
+                                                        <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                                                    </span> -->
+                                                </div>
+                                            </td>
+                                            <td style="width:35%">
+                                                <div class="input-group">
+                                                    <input  type="text"
+                                                        class="form-control"
+                                                        [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                                        [(ngModel)]="membershipDetailSearch.search_date"
+                                                        (ngModelChange)="searchDateMembershipDetail()"
+                                                        name="searchDate"
+                                                        placeholder="{{ 'TABLE_MEMBER_DETAIL_DATE_SELE' | translate }}"
+                                                        type="text"
+                                                        class="form-control"
+                                                        #dp="bsDatepicker"
+                                                        bsDatepicker
+                                                        required
+                                                        >
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                    </table>
+                                    <table class="table table-bordered table-hover table-striped mg-b-0">
+                                        <thead class="thead-colored thead-primary">
+                                            <tr>
+                                                <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_TYPE' | translate }}</th>
+                                                <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_STATION' | translate }}</th>
+                                                <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_SELER' | translate }}</th>
+                                                <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_DATE_SELE' | translate }}</th>
+                                                <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_AMOUNT' | translate }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let membershipsCharge of membershipsCharges; let i = index">
+                                                <td class="tx-center">
+                                                    <span *ngIf="membershipsCharge.type == 'charge'">{{ 'LBL_RCT_DETAIL_SWIPE' | translate }}</span>
+                                                    <span *ngIf="membershipsCharge.type == 'charge_free'">{{ 'LBL_RCT_DETAIL_FREE' | translate }}</span>
+                                                    <span *ngIf="membershipsCharge.type == 'charge_month'">{{ 'LBL_RCT_DETAIL_CHARGE_MONTH' | translate }}</span>
+                                                    <span *ngIf="membershipsCharge.type == 'charge_taxi'">{{ 'LBL_RCT_DETAIL_CHARGE_TAXI' | translate }}</span>
+                                                </td>
+                                                <td>{{membershipsCharge.name}}</td>
+                                                <td>{{membershipsCharge.fullname}}</td>
+                                                <td>{{membershipsCharge.activated | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+                                                <td class="tx-right" >{{ membershipsCharge.amount | currency:'VND':'' }}</td>
+                                            </tr>
+                                            <!-- <tr>
+                                                    <td class="tx-center" colspan="3">
+                                                        <strong>{{ 'TABLE_MEMBER_DETAIL_TOTAL' | translate }}</strong>
+                                                    </td>
+                                                    <td class="tx-right"  >
+                                                        <strong>
+                                                            {{membershipsChargetotal | currency:'VND':''}}
+                                                        </strong>
+                                                    </td>
+                                                </tr> -->
+                                        </tbody>
+                                    </table>
+                                    <br>
+                                    <div *ngIf="paginationTotalCharges > 0">
+                                        <div class="d-flex align-items-center justify-content-center col-md-12">
+                                            <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
+                                                [totalItems]="paginationTotalCharges" [maxSize]="7" [itemsPerPage]="limitPageCharges" [(ngModel)]="currentPageCharges" (pageChanged)="pageChargesChanged($event)"></pagination>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </ngb-tab>
+                            <ngb-tab  title="{{ 'LBL_MEM_CARD_DETAIL_DEPOSIT' | translate }}" id="tab-deposit">
+                                <ng-template ngbTabContent>
+                                    <table class="table mg-b-0">
+                                        <tr>
+                                            <td style="width:30%">
+                                                <select class="form-control py-2 border-right-0 border" [(ngModel)]="membershipDetailSearch.search_opt" (change)="changeSearchOpt()">
+                                                    <option value="0">---- {{ 'LBL_MEM_CARD_SEARCH_BY' | translate }} ----</option>
+                                                    <option value="1">{{ 'TABLE_MEMBER_DETAIL_STATION' | translate }}</option>
+                                                    <option value="2">{{ 'TABLE_MEMBER_DETAIL_PERSON' | translate }}</option>
+                                                </select>
+                                            </td>
+                                            <td style="width:35%">
+                                                <div class="input-group">
+                                                    <input class="form-control py-2 border-right-0 border"  [(ngModel)]="membershipDetailSearch.search_key" (ngModelChange)="searchMembershipDetail()" type="search" id="example-search-input" placeholder="{{membershipDetailSearchPlaceholder}}">
+                                                    <!-- <span class="input-group-append">
+                                                        <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                                                    </span> -->
+                                                </div>
+                                            </td>
+                                            <td style="width:35%">
+                                                <div class="input-group">
+                                                    <input  type="text"
+                                                        class="form-control"
+                                                        [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                                        [(ngModel)]="membershipDetailSearch.search_date"
+                                                        (ngModelChange)="searchDateMembershipDetail()"
+                                                        name="searchDate2"
+                                                        placeholder="{{ 'TABLE_MEMBER_DETAIL_DATE_SELE' | translate }}"
+                                                        type="text"
+                                                        class="form-control"
+                                                        #dp="bsDatepicker"
+                                                        bsDatepicker
+                                                        required
+                                                        >
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table class="table table-bordered table-hover table-striped mg-b-0">
+                                        <thead class="thead-colored thead-primary">
+                                            <tr>
+                                                <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_TYPE' | translate }}</th>
+                                                <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_STATION' | translate }}</th>
+                                                <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_PERSON' | translate }}</th>
+                                                <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_DATE_SELE' | translate }}</th>
+                                                <th class="tx-center">{{ 'TABLE_MEMBER_DETAIL_AMOUNT_RECHARGE' | translate }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let membershipsDeposit of membershipsDeposits; let i = index">
+                                                <td class="tx-center" >
+                                                    <span *ngIf="membershipsDeposit.type == 'deposit'">{{ 'LBL_RCT_DETAIL_RECHARGE' | translate }}</span>
+                                                    <span *ngIf="membershipsDeposit.type == 'deposit_month'">{{ 'LBL_RCT_DETAIL_DEPOSIT_MONTH' | translate }}</span>
+                                                    <span *ngIf="membershipsDeposit.type == 'topup_momo'">{{ 'LBL_RCT_DETAIL_DEPOSIT_ONLINE' | translate }}</span>
+                                                </td>
+                                                <td>{{membershipsDeposit.name}}</td>
+                                                <td>{{membershipsDeposit.fullname}}</td>
+                                                <td>{{membershipsDeposit.activated | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+                                                <td class="tx-right" >{{membershipsDeposit.amount | currency:'VND':''}}</td>
+                                            </tr>
+                                            <!-- <tr>
+                                                    <td class="tx-center" colspan="3">
+                                                        <strong>{{ 'TABLE_MEMBER_DETAIL_TOTAL' | translate }}</strong>
+                                                    </td>
+                                                    <td class="tx-right" >
+                                                        <strong>
+                                                            {{membershipsDepositTotal | currency:'VND':''}}
+                                                        </strong>
+                                                    </td>
+                                                </tr> -->
+                                        </tbody>
+                                    </table>
+                                    <br>
+                                    <div *ngIf="paginationTotalDeposits > 0">
+                                        <div class="d-flex align-items-center justify-content-center col-md-12">
+                                            <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
+                                                [totalItems]="paginationTotalDeposits" [itemsPerPage]="limitPageDeposits" [maxSize]="7" [(ngModel)]="currentPageDeposits" (pageChanged)="pageDepositsChanged($event)"></pagination>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </ngb-tab>
+                        </ngb-tabset>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button (click)="detailMembershipModel.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'LBL_RCT_CLOSE' | translate }}</button>
+                </div>
+            </div>
+        </div>
+</div>
+<!-- end show detail card -->
+
+<!-- manager activated card -->
+<div bsModal #activedMembershipModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_ADD_MEM_RFIDCARD' | translate }}</h6>
+                <button (click)="activedMembershipModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body pd-25 form-layout form-layout-1">
+
+                <div class="row mg-b-25">
+                    <!-- Infor NFC -->
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_RFID' | translate }}</label>
+                            <input type="text"  class="form-control" disabled [(ngModel)]="membershipFormActived.rfid">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_BALANCE' | translate }}</label>
+                            <input type="text" class="form-control" min="0" value="0" [(ngModel)]="membershipFormActived.balance" disabled>
+                        </div>
+                    </div>
+                    <!-- end  Infor NFC -->
+
+                    <!-- type MBS -->
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_TYPE' | translate }}:  <span class="tx-danger">*</span></label>
+                            <select class="form-control" (change)="changeSelectedMembershipTypeCard()" [(ngModel)]="typeCard" required tabindex="-1" aria-hidden="true">
+                                <option  value="0">{{ 'LBL_MEM_TYPE_CODE_PREPAIDCARD' | translate }}</option>
+                                <option *ngIf="isModuleCardMonth" value="1">{{ 'LBL_MEM_TYPE_CODE_MONTHCARD' | translate }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group" *ngIf="typeCard == 0">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_TYPE_DEDUCTION' | translate }}:  <span class="tx-danger">*</span></label>
+                            <select class="form-control" [(ngModel)]="membershiptypeIdPrepaid" required>
+                                <option *ngFor="let membershipType of membershipTypesPrepaid" value="{{membershipType.id}}">
+                                    {{ membershipType.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group" *ngIf="typeCard == 1">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_TYPE_DEDUCTION' | translate }}:  <span class="tx-danger">*</span></label>
+                            <select class="form-control" [(ngModel)]="membershiptypeIdMonth" required>
+                                <option *ngFor="let membershipType of membershipTypesMonth" value="{{membershipType.id}}">
+                                    {{ membershipType.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <!-- <div class="form-group" *ngIf="typeCard == 1 && isModuleCardMonthChargeLimit">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_CHARGE_LIMIT' | translate }}:</label>
+                            <input type="text" name="charge_limit" class="form-control" [(ngModel)]="membershipFormActived.charge_limit" disabled>
+                        </div> -->
+                    </div>
+                    <!-- end  type MBS-->
+
+                    <!-- choose charge limit card prepaid -->
+                    <div  class="col-lg-6" *ngIf="typeCard == 0 && isModuleCardPrepaidChargeLimit">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_CHARGE_LIMIT_PREPAID' | translate }}:</label>
+                            <input type="text" name="charge_limit_prepaid" class="form-control" [(ngModel)]="membershipFormActived.charge_limit_prepaid">
+                        </div>
+                    </div>
+                    <div class="col-lg-6" *ngIf="typeCard == 0 && isModuleCardPrepaidChargeLimit && !isModuleCardPrepaidKm" ></div>
+                    <!-- end choose charge limit card prepaid -->
+
+                    <!-- choose group bus station card prepaid -->
+                    <div  class="col-lg-6" *ngIf="typeCard == 0 && isModuleCardPrepaidKm">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_MONTH_VALUE_CHOOSE_WAY' | translate }}:</label>
+                            <ng-select
+                                [items]="groupBusStationCardPrepaids"
+                                [allowClear]="true"
+                                [active] = "selectedGroupBusStationID_1"
+                                (data)="refreshValueGroupBusStation($event, 0, 'prepaid')"
+                                (selected)="selectedGroupBusStation($event, 0, 'prepaid')"
+                                (removed)="removedGroupBusStation($event, 0, 'prepaid')"
+                                placeholder="">
+                            </ng-select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6" *ngIf="typeCard == 0 && !isModuleCardPrepaidChargeLimit && isModuleCardPrepaidKm" ></div>
+                    <!-- end group bus station card prepaid -->
+
+                    <!-- expiration date-->
+
+                        <!-- choose type expiration date -->
+                        <div class="col-lg-6">
+                            <div class="form-group" *ngIf="typeCard == 0" >
+                                <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION' | translate }}: <span class="tx-danger">*</span></label>
+                                <select class="form-control" name="chooseTypeExpiration" required [(ngModel)]="chooseTypeExpiration" (ngChange)="changeSelectExpirationDate(0)" tabindex="-1" aria-hidden="true">
+                                    <option value="0">{{ 'LBL_MEM_CARD_EXPIRATION_NUMBER_DATE' | translate }}</option>
+                                    <option value="1">{{ 'LBL_MEM_CARD_EXPIRATION_DATE' | translate }}</option>
+                                </select>
+                            </div>
+                            <!-- <div class="form-group" *ngIf="typeCard == 1" >
+                                <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION' | translate }}: <span class="tx-danger">*</span></label>
+                                <select class="form-control" name="chooseTypeExpiration" required [(ngModel)]="chooseTypeExpiration" (ngChange)="changeSelectExpirationDate(0)" tabindex="-1" aria-hidden="true">
+                                    <option value="2">{{ 'LBL_MEM_CARD_EXPIRATION_MONTH' | translate }}</option>
+                                </select>
+                            </div> -->
+                        </div>
+                        <div class="col-lg-6" >
+                            <div class="form-group" *ngIf="typeCard == 0 && chooseTypeExpiration == 0">
+                                <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_NUMBER_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                <input type="number" name="expiration_num" class="form-control" required min="0" value="0" [(ngModel)]="membershipFormActived.duration" (change)="changeInputNumberExpirationDate(0)">
+                            </div>
+                            <!-- <div class="form-group" *ngIf="typeCard == 1 && chooseTypeExpiration == 2">
+                                <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_IN_MONTH' | translate }}:  <span class="tx-danger">*</span></label>
+                                <input
+                                    autocomplete="off"
+                                    class="form-control"
+                                    placeholder="{{'LBL_MEM_CARD_EXPIRATION_INPUT_IN_MONTH' | translate}} ..."
+                                    bsDatepicker
+                                    [minDate]="maxDate"
+                                    [bsConfig]="{dateInputFormat: 'YYYY-MM'}"
+                                    (onShown)="onOpenCalendar($event, 0)"
+                                    >
+                            </div> -->
+                        </div>
+                        <!-- end choose type expiration date -->
+                        <div class="col-lg-6" *ngIf="typeCard == 0 && chooseTypeExpiration == 0">
+                            <div class="form-group" >
+                                <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_TO_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                <input  type="text"
+                                        class="form-control"
+                                        [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                        [(ngModel)]="membershipFormActived.start_expiration_date"
+                                        name="start_expiration_date"
+                                        placeholder="..."
+                                        [minDate]="maxDate"
+                                        type="text"
+                                        #dp="bsDatepicker"
+                                        bsDatepicker
+                                        required
+                                        disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-6" *ngIf="typeCard == 0 && chooseTypeExpiration == 0">
+                            <div class="form-group" >
+                                <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_FROM_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                <input  type="text"
+                                        class="form-control"
+                                        [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                        [(ngModel)]="membershipFormActived.expiration_date"
+                                        name="expiration_date"
+                                        placeholder="..."
+                                        [minDate]="maxDate"
+                                        type="text"
+                                        #dp="bsDatepicker"
+                                        bsDatepicker
+                                        required
+                                        disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-6" *ngIf="typeCard == 0 && chooseTypeExpiration == 1">
+                            <div class="form-group" >
+                                <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_TO_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                <input  type="text"
+                                        class="form-control"
+                                        [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                        [(ngModel)]="membershipFormActived.start_expiration_date"
+                                        name="start_expiration_date"
+                                        placeholder="Chọn ngày bắt đầu ..."
+                                        [minDate]="maxDate"
+                                        type="text"
+                                        #dp="bsDatepicker"
+                                        bsDatepicker
+                                        required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6" *ngIf="typeCard == 0 && chooseTypeExpiration == 1">
+                            <div class="form-group" >
+                                <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_FROM_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                <input  type="text"
+                                        class="form-control"
+                                        [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                        [(ngModel)]="membershipFormActived.expiration_date"
+                                        name="expiration_date"
+                                        placeholder="Chọn ngày kết thúc ..."
+                                        [minDate]="maxDate"
+                                        type="text"
+                                        #dp="bsDatepicker"
+                                        bsDatepicker
+                                        required>
+                            </div>
+                        </div>
+                    <!-- end expiration date -->
+
+                    <!-- routes  -->
+                    <div class="col-lg-6" *ngIf="typeCard == 1 && isModuleCardMonthKm">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_MONTH_ROUTE_LK_WAY' | translate }}:</label>
+                            <select class="form-control" [(ngModel)]="chooseSelectedRouteWay" >
+                                <option  value="-1"> --- {{'LBL_MEM_CARD_MONTH_CHOOSE_ROUTE_ALL' | translate}} ---  </option>
+                                <option  value="0"> --- {{'LBL_MEM_CARD_MONTH_CHOOSE_ROUTE_DEFAULT' | translate}} ---  </option>
+                                <option  value="1"> --- {{'LBL_MEM_CARD_MONTH_CHOOSE_ROUTE_WAY_DEFAULT' | translate}} ---  </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6" *ngIf="typeCard == 1 && isModuleCardMonthKm">
+                        <div class="form-group"  *ngIf="chooseSelectedRouteWay == 1">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_MONTH_VALUE_CHOOSE_WAY' | translate }}:</label>
+                            <ng-select
+                                [items]="groupBusStationCardMonths"
+                                [allowClear]="true"
+                                (data)="refreshValueGroupBusStation($event, 0, 'month')"
+                                (selected)="selectedGroupBusStation($event, 0, 'month')"
+                                (removed)="removedGroupBusStation($event, 0, 'month')"
+                                placeholder="">
+                            </ng-select>
+                            <!-- <select class="form-control" [(ngModel)]="selectedGroupBusStationID" (change)="changeSelectGroupBusStation(0)">
+                                <option *ngFor="let item of groupBusStationCardMonths" value="{{item.id}}">
+                                    {{item.name}}
+                                </option>
+                            </select> -->
+                        </div>
+                        <div class="form-group" *ngIf="chooseSelectedRouteWay == 0">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_MONTH_VALUE_CHOOSE_ROUTE' | translate }}:</label>
+                            <select class="form-control" [(ngModel)]="selectedRouteID" (change)="changeSelectedRoute(0)">
+                                <option *ngFor="let route of routes" value="{{route.id}}">
+                                    {{ route.name }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12" *ngIf="(typeCard == 1 && isModuleCardMonthKm && chooseSelectedRouteWay == 0 && selectedRouteID > 0)">
+                        <div class="form-group">
+                            <div class="form-custom">
+                                <div class="row">
+                                    <div class="col-lg-6 tx-left">
+                                        <label class="tx-bold">{{ 'LBL_MEM_CARD_VALUE_STATION_FIRST_LAST' | translate }}:</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3" *ngFor="let busStation of tmpBusStation; let i = index">
+                                        <th class="tx-center">
+                                            <label class="ckbox">
+                                                <input *ngIf="busStation.direction == 0" type="checkbox" [disabled]="busStation.disable"  (change)="changeCheckedBusStation($event, busStation, 0)">
+                                                <span></span>
+                                            </label>
+                                        </th>
+                                        <td class="tx-left">
+                                            <span  *ngIf="busStation.direction == 0">{{busStation.station_order}}. {{busStation.name}}(Đi)</span>
+                                            <!-- <span *ngIf="busStation.direction != 0">{{busStation.station_order}}. {{busStation.name}}(Về)</span> -->
+                                        </td>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end routes -->
+
+
+                    <!-- demonination -->
+                    <div class="col-lg-12" *ngIf="(typeCard == 1 && (chooseSelectedRouteWay == -1 || chooseSelectedRouteWay == 0))">
+                        <div class="form-group" >
+                            <label class="card-lable">{{ 'LBL_MEM_CARD_MONTH_DENOMINATION' | translate }} (VNĐ):<span class="tx-danger">*</span></label>
+                            <select class="form-control" [(ngModel)]="membershipFormActived.ticket_price_id"  (ngModelChange)="changeSelectedTicketPrice(0)" required>
+                                <option *ngFor="let ticketType of ticketTypes" value="{{ticketType.ticket_prices[ticketType.ticket_prices.length-1].id}}">
+                                    <span>{{ ticketType.ticket_prices[ticketType.ticket_prices.length-1].price | currency:'VND':''}} ({{ticketType.order_code}})</span>
+                                    <span *ngIf="isModuleCardMonthChargeLimit"> - {{ ticketType.ticket_prices[ticketType.ticket_prices.length-1].charge_limit }}</span>
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12" *ngIf="typeCard == 1 && chooseSelectedRouteWay == 1">
+                        <div class="form-group">
+                            <label class="card-lable">{{ 'LBL_MEM_CARD_MONTH_DENOMINATION' | translate }} (VNĐ):<span class="tx-danger">*</span></label>
+                            <select class="form-control" [(ngModel)]="membershipFormActived.ticket_price_id"  (ngModelChange)="changeSelectedTicketPrice(0)" required disabled>
+                                <option *ngFor="let ticketType of ticketTypes" value="{{ticketType.ticket_prices[ticketType.ticket_prices.length-1].id}}">
+                                    <span>{{ ticketType.ticket_prices[ticketType.ticket_prices.length-1].price | currency:'VND':''}} ({{ticketType.order_code}})</span>
+                                    <span *ngIf="isModuleCardMonthChargeLimit"> - {{ ticketType.ticket_prices[ticketType.ticket_prices.length-1].charge_limit }}</span>
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- end demonination-->
+
+                    <!-- infor people MBS -->
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_FULLNAME' | translate }}:<span class="tx-danger">*</span></label>
+                            <input type="text"  class="form-control" [(ngModel)]="membershipFormActived.fullname">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_BIRTHDAY' | translate }}:</label>
+                            <input type="text" class="form-control" name="birthday"
+                            [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                            [(ngModel)]="membershipFormActived.birthday"
+                            [maxDate]="maxDate"
+                            placeholder="Chọn ngày"
+                            #dp="bsDatepicker"
+                            bsDatepicker required >
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_VALUE_GENDER' | translate }}:</label>
+                            <select class="form-control" [(ngModel)]="membershipFormActived.gender" tabindex="-1" aria-hidden="true">
+                                <option value="0">{{ 'LBL_MEM_CARD_VALUE_GENDER_MALE' | translate }}</option>
+                                <option value="1">{{ 'LBL_MEM_CARD_VALUE_GENDER_FEMALE' | translate }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_VALUE_CMND' | translate }}:<span class="tx-danger">*</span></label>
+                            <input type="text" maxlength="9" minlength="9" class="form-control" [(ngModel)]="membershipFormActived.cmnd">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_PHONE' | translate }}:<span class="tx-danger">*</span></label>
+                            <input type="text"   class="form-control" [(ngModel)]="membershipFormActived.phone" maxlength="11" minlength="10">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_EMAIL' | translate }}:</label>
+                            <input type="text"  class="form-control" [(ngModel)]="membershipFormActived.email">
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_ADDRESS' | translate }}:</label>
+                            <input type="text"  class="form-control" [(ngModel)]="membershipFormActived.address">
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label *ngIf="typeCard == 0" class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_IMAGE' | translate }}:</label>
+                            <label *ngIf="typeCard == 1" class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_IMAGE' | translate }}:<span class="tx-danger">*</span></label>
+                            <input class="form-control" (change)="onFileImageChange($event)"  type="file" accept="image/jpeg,image/png,image/jpg">
+                        </div>
+                    </div>
+                    <!-- end infor people MBS  -->
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button (click)="updateActive()" [ladda]="isUpdate" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_ADD' | translate }}</button>
+                <button (click)="activedMembershipModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end manager activated card -->
+
+<!-- manager extend card -->
+<div bsModal #extendCard="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document" style="width:100%">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_EDIT_MEM_EXTEND_CARD' | translate }}</h6>
+                <button (click)="extendCard.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <!-- infor MBS -->
+                    <div class="col-lg-8">
+                        <span class="card-lable">{{ 'LBL_MEM_CARD_FULLNAME' | translate }}: <span class="tx-danger">*</span></span>
+                        <input type="text"  class="form-control" [(ngModel)]="membershipFormUpdate.fullname">
+                        <span class="card-lable">{{ 'LBL_MEM_CARD_BIRTHDAY' | translate }}: </span>
+                        <input type="text" class="form-control" name="birthday"
+                                [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                [(ngModel)]="membershipFormUpdate.birthday"
+                                [maxDate]="maxDate"
+                                placeholder="Chọn ngày"
+                                #dp="bsDatepicker"
+                                bsDatepicker required >
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <span class="card-lable">{{ 'LBL_MEM_CARD_VALUE_GENDER' | translate }}: </span>
+                                <select class="form-control" [(ngModel)]="membershipFormUpdate.gender" tabindex="-1" aria-hidden="true">
+                                    <option value="0">{{ 'LBL_MEM_CARD_VALUE_GENDER_MALE' | translate }}</option>
+                                    <option value="1">{{ 'LBL_MEM_CARD_VALUE_GENDER_FEMALE' | translate }}</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-6">
+                                <span class="card-lable">{{ 'LBL_MEM_CARD_VALUE_CMND' | translate }}: <span class="tx-danger">*</span></span>
+                                <input type="text" maxlength="9" minlength="9" class="form-control" [(ngModel)]="membershipFormUpdate.cmnd">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <span class="card-lable">&nbsp;</span>
+                        <span class="tx-33">&nbsp;</span>
+                        <div>
+                            <div class="row">
+                                <label class="profile" for="file-input">
+                                    <img *ngIf="membershipFormUpdate.avatar === null"  [src]="strImageBase64" alt="picture" width="113.38582677" height="151.18110236">
+                                    <img *ngIf="membershipFormUpdate.avatar !== null"  [src]="strImageBase64 ? strImageBase64 : urlAvatar" width="113.38582677" height="151.18110236" alt="picture" >
+                                </label>
+                            </div>
+                            <div class="row" style="display:none">
+                                <div>
+                                    <input id="file-input" type="file" (change)="onFileImageChange($event)" accept="image/jpeg,image/png,image/jpg">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <span class="card-lable tx-bold">{{ 'LBL_MEM_CARD_PHONE' | translate }}: <span class="tx-danger">*</span></span>
+                        <input type="text"   class="form-control" [(ngModel)]="membershipFormUpdate.phone" maxlength="11" minlength="10">
+                    </div>
+                    <div class="col-lg-6">
+                        <span class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EMAIL' | translate }}: </span>
+                        <input type="text"  class="form-control" [(ngModel)]="membershipFormUpdate.email">
+                    </div>
+                    <div class="col-lg-12">
+                        <span class="card-lable tx-bold">{{ 'LBL_MEM_CARD_ADDRESS' | translate }}: </span>
+                        <input type="text"  class="form-control" [(ngModel)]="membershipFormUpdate.address">
+                    </div>
+                    <!-- end infor MBS -->
+
+                    <!-- Infor NFC -->
+                        <!-- card prepaid -->
+                    <div class="col-lg-4" *ngIf="typeCardExtend == 0">
+                        <div>
+                            <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_RFID' | translate }}:</label>
+                            <input type="text"  class="form-control" disabled [(ngModel)]="membershipFormUpdate.rfid">
+                        </div>
+                    </div>
+                    <div class="col-lg-4" *ngIf="typeCardExtend == 0">
+                        <div>
+                            <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_BARCODE' | translate }}:  <span class="tx-danger">*</span></label>
+                            <input type="text"  class="form-control" disabled [(ngModel)]="membershipFormUpdate.barcode">
+                        </div>
+                    </div>
+                    <div class="col-lg-4" *ngIf="typeCardExtend == 0">
+                        <div *ngIf="checkedShowExpiration == 0">
+                            <label class="card-lable tx-bold">{{ 'TABLE_CARD_EXPIRATION' | translate }}:</label>
+                            <input type="text" datetime="yyyy-MM-dd HH:mm:ss" class="form-control" disabled  [(ngModel)]="membershipFormUpdate.expiration_date">
+                        </div>
+                    </div>
+                        <!-- card month -->
+                    <div class="col-lg-3" *ngIf="typeCardExtend == 1">
+                        <div>
+                            <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_RFID' | translate }}:</label>
+                            <input type="text"  class="form-control" disabled [(ngModel)]="membershipFormUpdate.rfid">
+                        </div>
+                    </div>
+                    <div class="col-lg-3" *ngIf="typeCardExtend == 1">
+                        <div>
+                            <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_BARCODE' | translate }}:  <span class="tx-danger">*</span></label>
+                            <input type="text"  class="form-control" disabled [(ngModel)]="membershipFormUpdate.barcode">
+                        </div>
+                    </div>
+                    <div class="col-lg-3" *ngIf="typeCardExtend == 1">
+                        <div *ngIf="checkedShowExpiration == 1">
+                            <label class="card-lable tx-bold">{{ 'TABLE_CARD_EXPIRATION_IN_MONTH' | translate }}:</label>
+                            <input type="text" datetime="YYYY-MM" class="form-control" disabled  [(ngModel)]="membershipFormUpdate.expiration_date">
+                        </div>
+                    </div>
+                    <div  class="col-lg-3" *ngIf="typeCardExtend == 1">
+                        <div>
+                            <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_CHARGE_LIMIT' | translate }}:</label>
+                            <input type="text" name="charge_limit" class="form-control" [(ngModel)]="membershipFormUpdate.charge_limit" disabled>
+                        </div>
+                    </div>
+                    <!-- end Infor NFC -->
+
+                    <!-- the -->
+                    <div class="col-lg-6">
+                        <div>
+                            <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_TYPE' | translate }}:  <span class="tx-danger">*</span></label>
+                            <select class="form-control" required tabindex="-1" aria-hidden="true" disabled>
+                                <option *ngIf="typeCardExtend == 0" value="0">{{ 'LBL_MEM_TYPE_CODE_PREPAIDCARD' | translate }}</option>
+                                <option *ngIf="typeCardExtend == 1" value="1">{{ 'LBL_MEM_TYPE_CODE_MONTHCARD' | translate }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <!-- the tra truoc -->
+                        <div *ngIf="typeCardExtend == 0">
+                            <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_TYPE_DEDUCTION' | translate }}:  <span class="tx-danger">*</span></label>
+                            <select class="form-control" [(ngModel)]="membershipFormUpdate.membershiptype_id" required>
+                                <option *ngFor="let membershipType of membershipTypesPrepaid" value="{{membershipType.id}}">
+                                    {{ membershipType.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <div *ngIf="typeCardExtend == 1">
+                            <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_TYPE_DEDUCTION' | translate }}:  <span class="tx-danger">*</span></label>
+                            <select class="form-control" [(ngModel)]="membershipFormUpdate.membershiptype_id" required [disabled]="isCheckExpirationDateExtend">
+                                <option *ngFor="let membershipType of membershipTypesMonth" value="{{membershipType.id}}">
+                                    {{ membershipType.name }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- choose charge limit card prepaid -->
+                    <div  class="col-lg-6" *ngIf="typeCardExtend == 0 && isModuleCardPrepaidChargeLimit">
+                          <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_CHARGE_LIMIT_PREPAID' | translate }}:</label>
+                          <input type="text" name="charge_limit_prepaid" class="form-control" [(ngModel)]="membershipFormUpdate.charge_limit_prepaid">
+                    </div>
+                    <div class="col-lg-6" *ngIf="typeCardExtend == 0 && isModuleCardPrepaidChargeLimit && !isModuleCardPrepaidKm" ></div>
+                    <!-- end choose charge limit card prepaid -->
+
+                    <!-- choose group bus station card prepaid -->
+                    <div  class="col-lg-6" *ngIf="typeCardExtend == 0 && isModuleCardPrepaidKm">
+                          <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_MONTH_VALUE_CHOOSE_WAY' | translate }}:</label>
+                          <ng-select
+                              [items]="groupBusStationCardPrepaids"
+                              [allowClear]="true"
+                              [active]="selectedGroupBusStationIDExtend_active"
+                              (data)="refreshValueGroupBusStation($event, 1, 'prepaid')"
+                              (selected)="selectedGroupBusStation($event, 1, 'prepaid')"
+                              (removed)="removedGroupBusStation($event, 1, 'prepaid')"
+                              placeholder="">
+                          </ng-select>
+                    </div>
+                    <div class="col-lg-6" *ngIf="typeCardExtend == 0 && !isModuleCardPrepaidChargeLimit && isModuleCardPrepaidKm" ></div>
+                    <!-- end group bus station card prepaid -->
+
+                    <!-- expiration date-->
+                        <!-- choose type expiration date -->
+                        <div class="col-lg-6">
+                            <div *ngIf="typeCardExtend == 0" >
+                                <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION' | translate }}: <span class="tx-danger">*</span></label>
+                                <select class="form-control" name="chooseTypeExpirationExtend" required [(ngModel)]="chooseTypeExpirationExtend" (ngChange)="changeSelectExpirationDate(1)" tabindex="-1" aria-hidden="true">
+                                    <option value="0">{{ 'LBL_MEM_CARD_EXPIRATION_NUMBER_DATE' | translate }}</option>
+                                    <option value="1">{{ 'LBL_MEM_CARD_EXPIRATION_DATE' | translate }}</option>
+                                </select>
+                            </div>
+                            <!-- <div  *ngIf="typeCardExtend == 1" >
+                                <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION' | translate }}: <span class="tx-danger">*</span></label>
+                                <select class="form-control" name="chooseTypeExpirationExtend" required [(ngModel)]="chooseTypeExpirationExtend" (ngChange)="changeSelectExpirationDate(1)" tabindex="-1" aria-hidden="true">
+                                    <option value="2">{{ 'LBL_MEM_CARD_EXPIRATION_MONTH' | translate }}</option>
+                                </select>
+                            </div> -->
+                        </div>
+                        <div class="col-lg-6" >
+                            <div *ngIf="typeCardExtend == 0 && chooseTypeExpirationExtend == 0">
+                                <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_NUMBER_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                <input type="number" name="expiration_num" class="form-control" required min="0" value="0" [(ngModel)]="membershipFormUpdate.duration" (change)="changeInputNumberExpirationDate(1)">
+                            </div>
+                            <!-- <div  *ngIf="typeCardExtend == 1 && chooseTypeExpirationExtend == 2">
+                                <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_IN_MONTH' | translate }}:  <span class="tx-danger">*</span></label>
+                                <input
+                                    autocomplete="off"
+                                    class="form-control"
+                                    placeholder="{{'LBL_MEM_CARD_EXPIRATION_INPUT_IN_MONTH' | translate}} ..."
+                                    bsDatepicker
+                                    [minDate]="maxDate"
+                                    [bsConfig]="{dateInputFormat: 'YYYY-MM'}"
+                                    (onShown)="onOpenCalendar($event, 1)"
+                                    >
+                            </div> -->
+                        </div>
+
+                            <!-- end choose type expiration date -->
+                            <div class="col-lg-6" *ngIf="typeCardExtend == 0 && chooseTypeExpirationExtend == 0">
+                                <div >
+                                    <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_TO_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                    <input  type="text"
+                                            class="form-control"
+                                            [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                            [(ngModel)]="membershipFormUpdate.start_expiration_date"
+                                            name="start_expiration_date"
+                                            placeholder="..."
+                                            [minDate]="maxDate"
+                                            type="text"
+                                            #dp="bsDatepicker"
+                                            bsDatepicker
+                                            required
+                                            disabled>
+                                </div>
+                            </div>
+                            <div class="col-lg-6" *ngIf="typeCardExtend == 0 && chooseTypeExpirationExtend == 0">
+                                <div >
+                                    <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_FROM_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                    <input  type="text"
+                                            class="form-control"
+                                            [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                            [(ngModel)]="membershipFormUpdate.expiration_date"
+                                            name="expiration_date"
+                                            placeholder="..."
+                                            [minDate]="maxDate"
+                                            type="text"
+                                            #dp="bsDatepicker"
+                                            bsDatepicker
+                                            required
+                                            disabled>
+                                </div>
+                            </div>
+                            <div class="col-lg-6" *ngIf="typeCardExtend == 0 && chooseTypeExpirationExtend == 1">
+                                <div  >
+                                    <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_TO_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                    <input  type="text"
+                                            class="form-control"
+                                            [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                            [(ngModel)]="membershipFormUpdate.start_expiration_date"
+                                            name="start_expiration_date"
+                                            placeholder="Chọn ngày bắt đầu ..."
+                                            [minDate]="maxDate"
+                                            type="text"
+                                            #dp="bsDatepicker"
+                                            bsDatepicker
+                                            required>
+                                </div>
+                            </div>
+                            <div class="col-lg-6" *ngIf="typeCardExtend == 0 && chooseTypeExpirationExtend == 1">
+                                <div >
+                                    <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_EXPIRATION_INPUT_FROM_DATE' | translate }}: <span class="tx-danger">*</span></label>
+                                    <input  type="text"
+                                            class="form-control"
+                                            [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+                                            [(ngModel)]="membershipFormUpdate.expiration_date"
+                                            name="expiration_date"
+                                            placeholder="Chọn ngày kết thúc ..."
+                                            [minDate]="maxDate"
+                                            type="text"
+                                            #dp="bsDatepicker"
+                                            bsDatepicker
+                                            required>
+                                </div>
+                            </div>
+                        <!-- end expiration date -->
+
+                    <!-- routes  -->
+                    <!-- <div class="col-lg-12" *ngIf="typeCardExtend == 1">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_MEM_CARD_VALUE_CHOOSE_ROUTE' | translate }}:</label>
+                            <select class="form-control" [(ngModel)]="selectedRouteIDExtend" [disabled]="isCheckExpirationDateExtend" (change)="changeSelectedRoute(1)" id="routeIdExtend" name="routeIdExtend" required>
+                                <option  value="0"> --- {{'ROUTE_ALL' | translate}} ---  </option>
+                                <option *ngFor="let route of routes" value="{{route.id}}">
+                                    {{ route.name }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12" *ngIf="typeCardExtend == 1">
+                        <div class="form-group">
+                            <div class="form-custom">
+                                <div class="row">
+                                    <div class="col-lg-6 tx-left">
+                                        <label class="tx-bold">{{ 'LBL_MEM_CARD_VALUE_STATION_FIRST_LAST' | translate }}:</label>
+                                    </div>
+                                </div>
+                                <div class="row" *ngIf="selectedRouteIDExtend > 0">
+                                    <div class="col-lg-3" *ngFor="let busStation of tmpBusStationExtend; let i = index">
+                                        <th class="tx-center">
+                                            <label class="ckbox">
+                                                <input *ngIf="!isCheckExpirationDateExtend" type="checkbox" [checked]="reponseBusStationExtend.includes(busStation.id)" [disabled]="busStation.disable"  (change)="changeCheckedBusStation($event, busStation, 1)">
+                                                <input *ngIf="isCheckExpirationDateExtend" type="checkbox" [checked]="reponseBusStationExtend.includes(busStation.id)" [disabled]="isCheckExpirationDateExtend"  (change)="changeCheckedBusStation($event, busStation, 1)">
+                                                <span></span>
+                                            </label>
+                                        </th>
+                                        <td class="tx-left">{{busStation.station_order}}. {{busStation.name}}</td>
+                                    </div>
+                                </div>
+                                <div class="row" *ngIf="selectedRouteIDExtend == 0">
+                                    <div class="col-lg-4"></div>
+                                    <div class="col-lg-4 tx-danger"><h6>Áp dụng cho tất cả các tuyến</h6></div>
+                                    <div class="col-lg-4"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+                    <!-- <div class="col-lg-12" *ngIf="typeCardExtend == 1 && isModuleCardMonthKm && selectedRouteIDExtend == 1">
+                        <div class="form-custom" *ngFor="let item of routes">
+                            <div class="row">
+                                <div class="col-lg-6 tx-left">
+                                    <label class="tx-bold">{{ item.route_name }}:</label>
+                                </div>
+                            </div>
+                            <div class="row" *ngIf="selectedRouteIDExtend == 1">
+                                <div class="col-lg-3" *ngFor="let busStation of item.bus_stations; let i = index">
+                                    <th class="tx-center">
+                                        <label class="ckbox">
+                                            <input type="checkbox" *ngIf="!isCheckExpirationDateExtend" [checked]="reponseBusStationExtend.includes(busStation.id)"  (change)="changeCheckedBusStation($event, busStation, item.id, 1)">
+                                            <input type="checkbox" *ngIf="isCheckExpirationDateExtend" [checked]="reponseBusStationExtend.includes(busStation.id)" (change)="changeCheckedBusStation($event, busStation, item.id, 1)">
+                                            <span></span>
+                                        </label>
+                                    </th>
+                                    <td class="tx-left">{{busStation.station_order}}. {{busStation.name}}</td>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+
+                    <div class="col-lg-6" *ngIf="typeCardExtend == 1 && isModuleCardMonthKm">
+                        <div >
+                            <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_MONTH_ROUTE_LK_WAY' | translate }}:</label>
+                            <select class="form-control" [(ngModel)]="chooseSelectedRouteWayExtend" [disabled]="isCheckExpirationDateExtend" >
+                                <option  value="-1"> --- {{'LBL_MEM_CARD_MONTH_CHOOSE_ROUTE_ALL' | translate}} ---  </option>
+                                <option  value="0"> --- {{'LBL_MEM_CARD_MONTH_CHOOSE_ROUTE_DEFAULT' | translate}} ---  </option>
+                                <option  value="1"> --- {{'LBL_MEM_CARD_MONTH_CHOOSE_ROUTE_WAY_DEFAULT' | translate}} ---  </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6" *ngIf="typeCardExtend == 1 && isModuleCardMonthKm">
+                        <div class="form-group" *ngIf="chooseSelectedRouteWayExtend == 1">
+                            <label class="card-lable tx-boldd">{{ 'LBL_MEM_CARD_MONTH_VALUE_CHOOSE_WAY' | translate }}:</label>
+                            <ng-select
+                                [disabled]="isCheckExpirationDateExtend"
+                                [items]="groupBusStationCardMonths"
+                                [allowClear]="true"
+                                [active]="selectedGroupBusStationIDExtend_active"
+                                (data)="refreshValueGroupBusStation($event, 1, 'month')"
+                                (selected)="selectedGroupBusStation($event, 1, 'month')"
+                                (removed)="removedGroupBusStation($event, 1, 'month')"
+                                placeholder="">
+                            </ng-select>
+                            <!-- <select class="form-control" [(ngModel)]="selectedGroupBusStationIDExtend" (change)="changeSelectGroupBusStation(1)" [disabled]="isCheckExpirationDateExtend">
+                                <option *ngFor="let item of groupBusStationCardMonths" value="{{item.id}}">
+                                    {{item.name}}
+                                </option>
+                            </select> -->
+                        </div>
+                        <div class="form-group" *ngIf="chooseSelectedRouteWayExtend == 0">
+                            <label class="card-lable tx-bold">{{ 'LBL_MEM_CARD_MONTH_VALUE_CHOOSE_ROUTE' | translate }}:</label>
+                            <select class="form-control" [(ngModel)]="selectedRouteIDExtend" (change)="changeSelectedRoute(1)" [disabled]="isCheckExpirationDateExtend">
+                                <option *ngFor="let route of routes" value="{{route.id}}">
+                                    {{ route.name }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12" *ngIf="typeCardExtend == 1 && isModuleCardMonthKm && chooseSelectedRouteWayExtend == 0 && selectedRouteIDExtend > 0">
+                        <div class="form-group">
+                            <div class="form-custom">
+                                <div class="row">
+                                    <div class="col-lg-6 tx-left">
+                                        <label class="tx-bold">{{ 'LBL_MEM_CARD_VALUE_STATION_FIRST_LAST' | translate }}:</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3" *ngFor="let busStation of tmpBusStationExtend; let i = index">
+                                        <th class="tx-center">
+                                            <label class="ckbox">
+                                                <input *ngIf="!isCheckExpirationDateExtend && busStation.direction == 0" type="checkbox" [checked]="reponseBusStationExtend.includes(busStation.id)" [disabled]="busStation.disable"  (change)="changeCheckedBusStation($event, busStation, 1)">
+                                                <input *ngIf="isCheckExpirationDateExtend && busStation.direction == 0" type="checkbox" [checked]="reponseBusStationExtend.includes(busStation.id)" [disabled]="isCheckExpirationDateExtend"  (change)="changeCheckedBusStation($event, busStation, 1)">
+                                                <span></span>
+                                            </label>
+                                        </th>
+                                        <td class="tx-left">
+                                            <span *ngIf="busStation.direction == 0">{{busStation.station_order}}. {{busStation.name}}(Đi)</span>
+                                            <!-- <span *ngIf="busStation.direction != 0">{{busStation.station_order}}. {{busStation.name}}(Về)</span> -->
+                                        </td>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- the -->
+
+                    <!-- demonination -->
+                    <div class="col-lg-12" *ngIf="(typeCardExtend == 1 && (chooseSelectedRouteWayExtend == -1 || chooseSelectedRouteWayExtend == 0))">
+                        <div >
+                            <label class="card-lable">{{ 'LBL_MEM_CARD_MONTH_DENOMINATION' | translate }} (VNĐ):<span class="tx-danger">*</span></label>
+                            <select [disabled]="isCheckExpirationDateExtend" class="form-control" [(ngModel)]="membershipFormUpdate.ticket_price_id"  (ngModelChange)="changeSelectedTicketPrice(1)" required>
+                                <option *ngFor="let ticketType of ticketTypes" value="{{ticketType.ticket_prices[ticketType.ticket_prices.length-1].id}}">
+                                    <span>{{ ticketType.ticket_prices[ticketType.ticket_prices.length-1].price | currency:'VND':''}} ({{ticketType.order_code}})</span>
+                                    <span *ngIf="isModuleCardMonthChargeLimit"> - {{ ticketType.ticket_prices[ticketType.ticket_prices.length-1].charge_limit }}</span>
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12" *ngIf="typeCardExtend == 1 && chooseSelectedRouteWayExtend == 1">
+                        <div >
+                            <label class="card-lable">{{ 'LBL_MEM_CARD_MONTH_DENOMINATION' | translate }} (VNĐ):<span class="tx-danger">*</span></label>
+                            <select [disabled]="isCheckExpirationDateExtend" class="form-control" [(ngModel)]="membershipFormUpdate.ticket_price_id"  (ngModelChange)="changeSelectedTicketPrice(1)" required disabled>
+                                <option *ngFor="let ticketType of ticketTypes" value="{{ticketType.ticket_prices[ticketType.ticket_prices.length-1].id}}">
+                                    <span>{{ ticketType.ticket_prices[ticketType.ticket_prices.length-1].price | currency:'VND':''}} ({{ticketType.order_code}})</span>
+                                    <span *ngIf="isModuleCardMonthChargeLimit"> - {{ ticketType.ticket_prices[ticketType.ticket_prices.length-1].charge_limit }}</span>
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- end demonination-->
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="extendCardUp()" [ladda]="isUpdate" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+                <button (click)="extendCard.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end extend card -->
+
+<!-- manager change card -->
+<div bsModal #changeCardModal="bs-modal" class="modal fade">
+    <div class="modal-dialog " role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header custom-modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-bold">{{ 'LBL_MEM_CARD_MANAGER_CHANGE' | translate }}</h6>
+                <button (click)="changeCardModal.hide()" type="button" class="close btn-close-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body custom-modal-body pd-25">
+                <div class="form-layout">
+                    <div class="row">
+                        <!-- <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-control-label text-color">{{ 'LBL_MEM_CARD_BARCODE_OPTION' | translate }}: <span class="tx-danger">*</span></label>
+                                <select class="form-control"  [(ngModel)]="selectedGenerateBarcode" required>
+                                    <option  value="1">{{'LBL_MEM_CARD_BARCODE_OPTION_OLD' | translate}}</option>
+                                    <option  value="2">{{'LBL_MEM_CARD_BARCODE_OPTION_INPUT_NEW' | translate}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group" *ngIf="selectedGenerateBarcode == 1">
+                                <label class="form-control-label text-color">{{ 'LBL_MEM_CARD_BARCODE' | translate }}: <span class="tx-danger">*</span></label>
+                                <input type="text" class="form-control" [(ngModel)]="this.membershipFormChange['barcode']" disabled>
+                            </div>
+                            <div class="form-group" *ngIf="selectedGenerateBarcode == 2">
+                                <label class="form-control-label text-color">{{ 'LBL_MEM_CARD_BARCODE' | translate }}: <span class="tx-danger">*</span></label>
+                                <input type="text" class="form-control" [(ngModel)]="this.membershipFormChange['barcode']">
+                            </div>
+                        </div> -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label text-color">{{ 'LBL_MEM_CARD_SERI' | translate }}: <span class="tx-danger">*</span></label>
+                                <input type="text" class="form-control" disabled  [(ngModel)]="this.membershipFormChange['seri']">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label text-color">{{ 'LBL_MEM_CARD_RFID' | translate }}: <span class="tx-danger">*</span></label>
+                                <input type="text" class="form-control" maxlength="8" minlength="8" required [(ngModel)]="this.membershipFormChange['rfid']">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer custom-modal-footer">
+                        <button type="button" (click)="changeCard()" [ladda]="isCreated" class="btn btn-success tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+                        <button (click)="changeCardModal.hide()" type="button"  class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end change card -->
+<!-- option background card -->
+<div bsModal #backgroundPrintModal="bs-modal" class="modal fade">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content bd-0 tx-14">
+                <div class="modal-header custom-modal-header pd-y-20 pd-x-25">
+                    <h6 class="tx-14 mg-b-0 tx-uppercase tx-bold">{{ 'title_print_card' | translate }}</h6>
+                    <button (click)="backgroundPrintModal.hide()" type="button" class="close btn-close-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body custom-modal-body pd-25">
+                    <div class="form-layout">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-control-label text-color">{{ 'option_print' | translate }}: <span class="tx-danger">*</span></label>
+                                    <select class="form-control"  [(ngModel)]="opt_print" (change)="optTypePrint()" required>
+                                        <option  value="before">{{'before' | translate}}</option>
+                                        <option  value="after">{{'after' | translate}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-12" *ngIf="opt_print">
+                                <div class="form-group">
+                                    <label class="form-control-label text-color">{{ 'option_background' | translate }}: <span class="tx-danger">*</span></label>
+                                    <!-- <select [(ngModel)]="opt_background" class="form-control">
+                                        <option *ngFor="let background of backgrounds" value="{{background}}">{{background}}</option>
+                                    </select> -->
+                                    <div class="row">
+                                        <div class="col-xs-6 col-md-4" *ngFor="let background of backgrounds">
+                                            <label for="{{background}}" class="cus-label">
+                                                <a class="thumbnail">
+                                                    <img src="../img/layout-card-comapies/{{background}}" class="img-thumbnail img-cus">
+                                                </a>
+                                            </label>
+                                            <div class="radio text-center bg-radio-cus">
+                                                <input type="radio" [value]="background" id="{{background}}" name="optradio" class="radio-cus" [(ngModel)]="opt_background">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="row">
+                            <div class="col-md-12">
+                                <label class="checkbox-inline"><input type="checkbox" value="true" [(ngModel)]="opt_name"> {{ 'print_name' | translate }}</label>
+                            </div>
+                        </div> -->
+                            <div class="modal-footer custom-modal-footer">
+                                <button type="button" (click)="printCard()" [ladda]="isCreated" class="btn btn-success tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'SWAL_OK' | translate }}</button>
+                                <button (click)="backgroundPrintModal.hide()" type="button"  class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+                            </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+<!-- end option background -->
+
+

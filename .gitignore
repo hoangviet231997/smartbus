@@ -1,0 +1,22 @@
+/node_modules
+/public/hot
+# /public/file/denomination.json
+/public/storage
+/storage/*.key
+/vendor
+/.idea
+/.vagrant
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+.env
+/WebApp/src/app/api/api-configuration.ts
+/.swagger-codegen*
+/lib/**
+!/lib/app/Http/routes.php
+/public/app/**
+/public/audio/*
+/public/img/*
+/public/file/*
+/config/constants.php

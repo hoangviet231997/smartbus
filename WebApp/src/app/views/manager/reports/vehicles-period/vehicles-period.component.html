@@ -1,0 +1,468 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- manager vehicles report -->
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+    <div class="row">
+        <div class="col-md-12 tx-left">
+            <h2 class="tx-gray-800 tx-bold mg-b-10">
+                <i class="fa fa-print" aria-hidden="true"></i>
+                <span class="menu-item-label">{{ 'MENU_VEHICLES_PERIOD' | translate }}</span>
+            </h2>
+        </div>
+    </div>
+    <div class="form-layout form-layout-1 pd-x-0 ">
+        <div class="row mg-b-25">
+            <div class="offset-md-4 col-md-4 ">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                    <div class="input-group">
+                        <input class="form-control"
+                            #drp="bsDaterangepicker"
+                            bsDaterangepicker
+                            [(ngModel)]="bsRangeValue"
+                            [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                            [maxDate]="maxDate"
+                            (ngModelChange)="getDataVehicle()"
+                        >
+                        <span class="input-group-btn">
+                            <button class="btn btn-info pd-x-15" (click)="drp.toggle()" [attr.aria-expanded]="drp.isOpen">
+                                <i class="fa fa-calendar"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div><!-- col-6 -->
+        </div>
+        <!-- Show is alert -->
+        <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+            <div *ngIf="vehicles.length == 0" class="alert alert-warning mg-b-0" role="alert">
+                <div class="d-flex align-items-center justify-content-start">
+                    <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+                </div>
+            </div>
+        </div>
+        <!-- End is alert -->
+        <!-- button export file exel  -->
+        <div class="form-layout-footer tx-center" *ngIf="(permissions['report_vehicle_period'].key_tools != null && permissions['report_vehicle_period'].key_tools.includes('view_advanced'))">
+            <button (click)="showPrintPreview()" [ladda]="isCollected" class="btn btn-dark pd-r-20" >
+                <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+            </button>
+            &nbsp;
+            <button (click)="exportFile()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+                <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+            </button>
+        </div>
+        <!-- end button export file exel -->
+
+        <!-- show list vehicles -->
+        <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+            <div *ngIf="!isCheckModuleApp">
+                <table *ngIf="vehicles.length > 0" class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th rowspan="2" class="tx-center">Stt</th>
+                            <th rowspan="2" class="tx-center">{{ 'LBL_VEHICLE_LICENSE_PLATE' | translate }}</th>
+                            <th colspan="2" class="tx-center" style="text-transform: uppercase">{{ 'LBL_VEHICLE_PERIOD_NOW' | translate }}</th>
+                            <th colspan="2" class="tx-center" style="text-transform: uppercase">{{ 'LBL_VEHICLE_PERIOD_LAST' | translate }}</th>
+                            <th colspan="2" class="tx-center" style="text-transform: uppercase">{{ 'LBL_VEHICLE_PERIOD_LAST_NOW' | translate }}</th>
+                        </tr>
+                        <tr>
+                            <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_REVENUE' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_REVENUE' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_REVENUE' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let vehicle of vehicles; let i = index">
+                            <td style="text-align: center">{{i + 1}}</td>
+                            <td style="text-align: center">{{ vehicle['license_plates'] }}</td>
+                            <td style="text-align: center">{{ vehicle['count_tickets'] | number}}</td>
+                            <td style="text-align: right">{{ vehicle['total_pos'] | currency:'VND':''}}</td>
+                            <td style="text-align: center">{{ vehicle['count_tickets_last'] | number}}</td>
+                            <td style="text-align: right">{{ vehicle['total_pos_last'] | currency:'VND':''}}</td>
+                            <td *ngIf="vehicle['count_tickets_percent']== '-'" style="text-align: center">-</td>
+                            <td *ngIf="vehicle['count_tickets_percent']!= '-'" style="text-align: center">{{ vehicle['count_tickets_percent'] }}%</td>
+                            <td *ngIf="vehicle['total_pos_percent'] == '-'" style="text-align: center">-</td>
+                            <td *ngIf="vehicle['total_pos_percent'] != '-'" style="text-align: center">{{ vehicle['total_pos_percent'] }}%</td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center" colspan="2">{{ 'LBL_ROUTE_TOTAL_ALL' | translate }}</th>
+                            <th style="text-align: center">{{ this.sum_tickets | number}}</th>
+                            <th style="text-align: right">{{ this.sum_pos | currency:'VND':''}}</th>
+                            <th style="text-align: center">{{ this.sum_tickets_last | number}}</th>
+                            <th style="text-align: right">{{ this.sum_pos_last | currency:'VND':''}}</th>
+                            <th style="text-align: center">{{ this.sum_tickets_percent}}</th>
+                            <th style="text-align: center">{{ this.sum_pos_percent}}</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div *ngIf="isCheckModuleApp">
+                <table *ngIf="vehicles.length > 0" class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th rowspan="3" class="tx-center">Stt</th>
+                            <th rowspan="3" class="tx-center">{{ 'LBL_VEHICLE_LICENSE_PLATE' | translate }}</th>
+                            <th colspan="4" class="tx-center" style="text-transform: uppercase">{{ 'LBL_VEHICLE_PERIOD_NOW' | translate }}</th>
+                            <th colspan="4" class="tx-center" style="text-transform: uppercase">{{ 'LBL_VEHICLE_PERIOD_LAST' | translate }}</th>
+                            <th colspan="4" class="tx-center" style="text-transform: uppercase">{{ 'LBL_VEHICLE_PERIOD_LAST_NOW' | translate }}</th>
+
+                        </tr>
+                        <tr>
+                            <th colspan="3" class="tx-center">{{ 'LBL_PRINT_DTVX' | translate }}</th>
+                            <th rowspan="2" class="tx-center">{{ 'LBL_VEHICLE_TOTAL_REVENUE' | translate }}</th>
+                            <th colspan="3" class="tx-center">{{ 'LBL_PRINT_DTVX' | translate }}</th>
+                            <th rowspan="2" class="tx-center">{{ 'LBL_VEHICLE_TOTAL_REVENUE' | translate }}</th>
+                            <th colspan="3" class="tx-center">{{ 'LBL_PRINT_DTVX' | translate }}</th>
+                            <th rowspan="2" class="tx-center">{{ 'LBL_VEHICLE_TOTAL_REVENUE' | translate }}</th>
+                        </tr>
+                        <tr>
+                            <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_POS' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_CHARGE' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_POS' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_CHARGE' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_POS' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_CHARGE' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let vehicle of vehicles; let i = index">
+                            <td style="text-align: center">{{i + 1}}</td>
+                            <td style="text-align: center">{{ vehicle['license_plates'] }}</td>
+                            <td style="text-align: center">{{ vehicle['count_tickets']  | number}}</td>
+                            <td style="text-align: right">{{ vehicle['total_pos'] | currency:'VND':''}}</td>
+                            <td style="text-align: right">{{ vehicle['total_charge'] | currency:'VND':''}}</td>
+                            <td style="text-align: right">{{ vehicle['total_revenue'] | currency:'VND':''}}</td>
+                            <td style="text-align: center">{{ vehicle['count_tickets_last']  | number}}</td>
+                            <td style="text-align: right">{{ vehicle['total_pos_last'] | currency:'VND':''}}</td>
+                            <td style="text-align: right">{{ vehicle['total_charge_last'] | currency:'VND':''}}</td>
+                            <td style="text-align: right">{{ vehicle['total_revenue_last'] | currency:'VND':''}}</td>
+                            <td *ngIf="vehicle['count_tickets_percent'] == '-'" style="text-align: center">-</td>
+                            <td *ngIf="vehicle['count_tickets_percent'] != '-'" style="text-align: center">{{vehicle['count_tickets_percent']}}%</td>
+
+                            <td *ngIf="vehicle['total_pos_percent'] == '-'" style="text-align: center">-</td>
+                            <td *ngIf="vehicle['total_pos_percent'] != '-'" style="text-align: center">{{ vehicle['total_pos_percent'] }}%</td>
+
+                            <td *ngIf="vehicle['total_charge_percent'] == '-'" style="text-align: center">-</td>
+                            <td *ngIf="vehicle['total_charge_percent'] != '-'" style="text-align: center">{{ vehicle['total_charge_percent'] }}%</td>
+
+                            <td *ngIf="vehicle['total_revenue_percent'] == '-'" style="text-align: center">-</td>
+                            <td *ngIf="vehicle['total_revenue_percent'] != '-'" style="text-align: center">{{ vehicle['total_revenue_percent'] }}%</td>
+
+                        </tr>
+                        <tr>
+                            <th  style="text-align: center" colspan="2">{{ 'LBL_ROUTE_TOTAL_ALL' | translate }}</th>
+                            <th style="text-align: center">{{ this.sum_tickets | number}}</th>
+                            <th style="text-align: right">{{ this.sum_pos | currency:'VND':''}}</th>
+                            <th style="text-align: right">{{ this.sum_charge | currency:'VND':'' }}</th>
+                            <th style="text-align: right">{{ (this.sum_revenue) | currency:'VND':'' }}</th>
+                            <th style="text-align: center">{{ this.sum_tickets_last | number}}</th>
+                            <th style="text-align: right">{{ this.sum_pos_last | currency:'VND':''}}</th>
+                            <th style="text-align: right">{{ this.sum_charge_last | currency:'VND':'' }}</th>
+                            <th style="text-align: right">{{ (this.sum_revenue_last) | currency:'VND':'' }}</th>
+                            <th style="text-align: center">{{ this.sum_tickets_percent}}</th>
+                            <th style="text-align: center">{{ this.sum_pos_percent }}</th>
+                            <th style="text-align: center">{{ this.sum_charge_percent }}</th>
+                            <th style="text-align: center">{{ this.sum_revenue_percent }}</th>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- end show list vehicles -->
+    </div>
+  </div>
+</div>
+<!-- end manager vehicles report-->
+<div id="print-section" class="d-none" *ngIf="company">
+    <div *ngIf="isCheckModuleApp">
+        <table >
+            <tr>
+                <td class="tx-center w-10 pt-0">
+                    <div class="tx-11"> <strong > {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+                </td>
+                <td class="tx-center w-10">
+                    <div class="tx-11">
+                        <strong > {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                        ({{ 'LBL_PRINT_BH' | translate }} <br />
+                        {{ 'LBL_PRINT_BTC' | translate }})
+                    </div>
+                </td>
+            </tr>
+            <tr><td colspan="2">&nbsp;</td></tr>
+            <tr>
+                <td colspan="2" style="width:21cm;">
+                    <div class="tx-center">
+                        <strong class="tx-12" style="text-transform: uppercase"> {{ 'MENU_VEHICLES_PERIOD_PRINT' | translate }}</strong><br>
+                        <i class="tx-10">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }} {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i><br>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="tx-center w-10 pt-0"></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%" *ngIf="vehicles.length > 0">
+                        <tr>
+                            <th rowspan="3" class="tx-center">Stt</th>
+                            <th rowspan="3" class="tx-center">{{ 'LBL_VEHICLE_LICENSE_PLATE' | translate }}</th>
+                            <th colspan="4" class="tx-center" style="text-transform: uppercase">{{ 'LBL_VEHICLE_PERIOD_NOW' | translate }}</th>
+                            <th colspan="4" class="tx-center" style="text-transform: uppercase">{{ 'LBL_VEHICLE_PERIOD_LAST' | translate }}</th>
+                            <th colspan="4" class="tx-center" style="text-transform: uppercase">{{ 'LBL_VEHICLE_PERIOD_LAST_NOW' | translate }}</th>
+                            <th rowspan="3" class="tx-center">{{ 'TABLE_FIRMWARE_NOTE' | translate }}</th>
+                        </tr>
+
+                        <tr>
+                            <th colspan="3" class="tx-center">{{ 'LBL_PRINT_DTVX' | translate }}</th>
+                            <th rowspan="2" class="tx-center">{{ 'LBL_VEHICLE_TOTAL_REVENUE' | translate }}</th>
+                            <th colspan="3" class="tx-center">{{ 'LBL_PRINT_DTVX' | translate }}</th>
+                            <th rowspan="2" class="tx-center">{{ 'LBL_VEHICLE_TOTAL_REVENUE' | translate }}</th>
+                            <th colspan="3" class="tx-center">{{ 'LBL_PRINT_DTVX' | translate }}</th>
+                            <th rowspan="2" class="tx-center">{{ 'LBL_VEHICLE_TOTAL_REVENUE' | translate }}</th>
+                        </tr>
+
+                        <tr>
+                            <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_POS' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_CHARGE' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_POS' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_CHARGE' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_POS' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_CHARGE' | translate }}</th>
+                        </tr>
+                        <tr>
+                            <th class="tx-center">A</th>
+                            <th class="tx-center">B</th>
+                            <th class="tx-center">1</th>
+                            <th class="tx-center">2</th>
+                            <th class="tx-center">3</th>
+                            <th class="tx-center">4</th>
+                            <th class="tx-center">5</th>
+                            <th class="tx-center">6</th>
+                            <th class="tx-center">7</th>
+                            <th class="tx-center">8</th>
+                            <th class="tx-center">9</th>
+                            <th class="tx-center">10</th>
+                            <th class="tx-center">11</th>
+                            <th class="tx-center">12</th>
+                            <th class="tx-center">C</th>
+                        </tr>
+                        <tr *ngFor="let vehicle of vehicles; let i = index">
+                            <td style="text-align: center">{{i + 1}}</td>
+                            <td style="text-align: center">{{ vehicle['license_plates'] }}</td>
+                            <td style="text-align: center">{{ vehicle['count_tickets'] | number }}</td>
+                            <td style="text-align: right">{{ vehicle['total_pos'] | currency:'VND':''}}</td>
+                            <td style="text-align: right">{{ vehicle['total_charge'] | currency:'VND':''}}</td>
+                            <td style="text-align: right">{{ vehicle['total_revenue'] | currency:'VND':''}}</td>
+                            <td style="text-align: center">{{ vehicle['count_tickets_last']  | number}}</td>
+                            <td style="text-align: right">{{ vehicle['total_pos_last'] | currency:'VND':''}}</td>
+                            <td style="text-align: right">{{ vehicle['total_charge_last'] | currency:'VND':''}}</td>
+                            <td style="text-align: right">{{ vehicle['total_revenue_last'] | currency:'VND':''}}</td>
+                            <td *ngIf="vehicle['count_tickets_percent'] == '-'" style="text-align: center">-</td>
+                            <td *ngIf="vehicle['count_tickets_percent'] != '-'" style="text-align: center">{{vehicle['count_tickets_percent']}}%</td>
+
+                            <td *ngIf="vehicle['total_pos_percent'] == '-'" style="text-align: center">-</td>
+                            <td *ngIf="vehicle['total_pos_percent'] != '-'" style="text-align: center">{{ vehicle['total_pos_percent'] }}%</td>
+
+                            <td *ngIf="vehicle['total_charge_percent'] == '-'" style="text-align: center">-</td>
+                            <td *ngIf="vehicle['total_charge_percent'] != '-'" style="text-align: center">{{ vehicle['total_charge_percent'] }}%</td>
+
+                            <td *ngIf="vehicle['total_revenue_percent'] == '-'" style="text-align: center">-</td>
+                            <td *ngIf="vehicle['total_revenue_percent'] != '-'" style="text-align: center">{{ vehicle['total_revenue_percent'] }}%</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th  style="text-align: center" colspan="2">{{ 'LBL_ROUTE_TOTAL_ALL' | translate }}</th>
+                            <th style="text-align: center">{{ this.sum_tickets | number}}</th>
+                            <th style="text-align: right">{{ this.sum_pos | currency:'VND':''}}</th>
+                            <th style="text-align: right">{{ this.sum_charge | currency:'VND':'' }}</th>
+                            <th style="text-align: right">{{ (this.sum_revenue) | currency:'VND':'' }}</th>
+                            <th style="text-align: center">{{ this.sum_tickets_last | number}}</th>
+                            <th style="text-align: right">{{ this.sum_pos_last | currency:'VND':''}}</th>
+                            <th style="text-align: right">{{ this.sum_charge_last | currency:'VND':'' }}</th>
+                            <th style="text-align: right">{{ (this.sum_revenue_last) | currency:'VND':'' }}</th>
+                            <th style="text-align: center">{{ this.sum_tickets_percent}}</th>
+                            <th style="text-align: center">{{ this.sum_pos_percent }}</th>
+                            <th style="text-align: center">{{ this.sum_charge_percent }}</th>
+                            <th style="text-align: center">{{ this.sum_revenue_percent }}</th>
+                            <th></th>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="2">
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} .... {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table  class="table-striped"  style="width:100%">
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="tx-center w-4 fl" >
+                                    <strong style="text-transform: uppercase">{{ 'LBL_PRINT_NLB' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i>({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                                </td>
+                                <td colspan="3" class="tx-center w-4" >
+                                    <strong style="text-transform: uppercase">{{ 'LBL_PRINT_KT' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i>({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                                </td>
+                                <td colspan="3" class="tx-center w-5 fr" >
+                                    <strong style="text-transform: uppercase">{{ 'LBL_PRINT_GD' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i>({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div *ngIf="!isCheckModuleApp">
+        <table>
+            <tr>
+                <td class="tx-center w-10 pt-0">
+                    <div class="tx-11"> <strong > {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+                </td>
+                <td class="tx-center w-10">
+                    <div class="tx-11">
+                        <strong > {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                        ({{ 'LBL_PRINT_BH' | translate }} <br />
+                        {{ 'LBL_PRINT_BTC' | translate }})
+                    </div>
+                </td>
+            </tr>
+            <tr><td colspan="2">&nbsp;</td></tr>
+            <tr>
+                <td colspan="2" style="width:21cm;">
+                    <div class="tx-center">
+                        <strong class="tx-12" style="text-transform: uppercase"> {{ 'MENU_VEHICLES_PERIOD_PRINT' | translate }}</strong><br>
+                        <i class="tx-10">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }} {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i><br>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="tx-center w-10 pt-0"></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%" *ngIf="vehicles.length > 0">
+                        <tr>
+                            <th rowspan="2" class="tx-center">Stt</th>
+                            <th rowspan="2" class="tx-center">{{ 'LBL_VEHICLE_LICENSE_PLATE' | translate }}</th>
+                            <th colspan="2" class="tx-center" style="text-transform: uppercase">{{ 'LBL_VEHICLE_PERIOD_NOW' | translate }}</th>
+                            <th colspan="2" class="tx-center" style="text-transform: uppercase">{{ 'LBL_VEHICLE_PERIOD_LAST' | translate }}</th>
+                            <th colspan="2" class="tx-center" style="text-transform: uppercase">{{ 'LBL_VEHICLE_PERIOD_LAST_NOW' | translate }}</th>
+                            <th rowspan="2" class="tx-center">{{ 'TABLE_FIRMWARE_NOTE' | translate }}</th>
+                        </tr>
+                        <tr>
+                            <th class="tx-center" style="width: 60px">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_REVENUE' | translate }}</th>
+                            <th class="tx-center" style="width: 60px">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                            <th class="tx-center">{{ 'LBL_VEHICLE_TOTAL_REVENUE' | translate }}</th>
+                            <th class="tx-center" style="width: 60px">{{ 'LBL_STAFF_COUNT_TICKET' | translate }}</th>
+                            <th class="tx-center" style="width: 60px">{{ 'LBL_VEHICLE_TOTAL_REVENUE' | translate }}</th>
+                        </tr>
+                        <tr>
+                                <th class="tx-center">A</th>
+                                <th class="tx-center">B</th>
+                                <th class="tx-center">1</th>
+                                <th class="tx-center">2</th>
+                                <th class="tx-center">3</th>
+                                <th class="tx-center">4</th>
+                                <th class="tx-center">5</th>
+                                <th class="tx-center">6</th>
+                                <th class="tx-center">C</th>
+                            </tr>
+                        <tr *ngFor="let vehicle of vehicles; let i = index">
+                            <td style="text-align: center">{{i + 1}}</td>
+                            <td style="text-align: center">{{ vehicle['license_plates'] }}</td>
+                            <td style="text-align: center">{{ vehicle['count_tickets'] }}</td>
+                            <td style="text-align: right">{{ vehicle['total_pos'] | currency:'VND':''}}</td>
+                            <td style="text-align: center">{{ vehicle['count_tickets_last'] }}</td>
+                            <td style="text-align: right">{{ vehicle['total_pos_last'] | currency:'VND':''}}</td>
+                            <td *ngIf="vehicle['count_tickets_percent']== '-'" style="text-align: center">-</td>
+                            <td *ngIf="vehicle['count_tickets_percent']!= '-'" style="text-align: center">{{ vehicle['count_tickets_percent'] }}%</td>
+                            <td *ngIf="vehicle['total_pos_percent'] == '-'" style="text-align: center">-</td>
+                            <td *ngIf="vehicle['total_pos_percent'] != '-'" style="text-align: center">{{ vehicle['total_pos_percent'] }}%</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center" colspan="2">{{ 'LBL_ROUTE_TOTAL_ALL' | translate }}</th>
+                            <th style="text-align: center">{{ this.sum_tickets | number}}</th>
+                            <th style="text-align: right">{{ this.sum_pos | currency:'VND':''}}</th>
+                            <th style="text-align: center">{{ this.sum_tickets_last | number}}</th>
+                            <th style="text-align: right">{{ this.sum_pos_last | currency:'VND':''}}</th>
+                            <th style="text-align: center">{{ this.sum_tickets_percent}}</th>
+                            <th style="text-align: center">{{ this.sum_pos_percent}}</th>
+                            <th></th>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="2">
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fl">&nbsp;</div>
+                    <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} .... {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table  class="table-striped"  style="width:100%">
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="tx-center w-4 fl" >
+                                    <strong style="text-transform: uppercase">{{ 'LBL_PRINT_NLB' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i>({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                                </td>
+                                <td colspan="3" class="tx-center w-4" >
+                                    <strong style="text-transform: uppercase">{{ 'LBL_PRINT_KT' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i>({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                                </td>
+                                <td colspan="3" class="tx-center w-5 fr" >
+                                    <strong style="text-transform: uppercase">{{ 'LBL_PRINT_GD' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i>({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

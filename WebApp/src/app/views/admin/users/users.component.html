@@ -1,0 +1,214 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list user -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-6 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="icon ion-person-stalker" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'LBL_LIST_ADMIN_USR' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-6 tx-right">
+                <button (click)="showAddUserModal()" class="btn btn-teal mg-b-20 pd-r-20" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_ADD_ADMIN_USR' | translate }}">
+                <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_ADMIN_USR' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_NAME_USR' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_USN_USR' | translate }}</th>
+                        <th class="tx-center">{{ 'MENU_COMPANY' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_ROLE_USR' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_EMAIL' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_CRE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_UPD' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let user of users; let i = index">
+                        <th  class="tx-center" scope="row">{{((this.currentPage - 1) * this.limitPage) + (i + 1)}}</th>
+                        <td>{{ user.fullname }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.company.name }}</td>
+                        <td>{{ user.role.name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td class="tx-center">{{ user.created_at | date: 'dd/MM/yyyy' }}</td>
+                        <td class="tx-center">{{ user.updated_at | date: 'dd/MM/yyyy' }}</td>
+                        <td class="tx-18 tx-center">
+                            <a href="javascript:void(0)" class="btn btn-primary btn-width" (click)="showEditUserModal(user.id, user.company.id, user.company.name)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_EDIT_USR' | translate }}">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </a>
+                            <a href="javascript:void(0)" class="btn btn-danger btn-width" (click)="deleteUser(user.id)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_DEL_USR' | translate }}">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row" *ngIf="paginationTotal > 0">
+            <div class="d-flex align-items-center justify-content-center col-md-12">
+                <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
+                    [totalItems]="paginationTotal" [itemsPerPage]="limitPage" [maxSize]="7" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+            </div>
+        </div>
+    </div>
+    <footer class="br-footer"></footer>
+</div>
+<!-- end table list user -->
+
+<!-- from add user -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_ADD_ADMIN_USR' | translate }}</h6>
+            <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="row mg-b-25">
+                <div class="col-lg-12">
+                    <div class="form-group" *ngIf="companyItems.length > 0">
+                        <label class="form-control-label tx-bold">{{ 'MENU_COMPANY' | translate }}:  <span class="tx-danger">*</span></label>
+                        <ng-select [allowClear]="true"
+                            [items]="companyItems"
+                            [active]="devCompanySelected"
+                            (data)="refreshValueCompany($event)">
+                        </ng-select>
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_USN_USR' | translate }}:  <span class="tx-danger">*</span></label>
+                        <input type="text" class="form-control" maxlength="170" [(ngModel)]="userCreate.username" required>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_PWD_USR' | translate }}:  <span class="tx-danger">*</span></label>
+                        <input type="password" class="form-control" [(ngModel)]="userCreate.password" required>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_CFM_PWD_USR' | translate }}:  <span class="tx-danger">*</span></label>
+                        <input type="password" class="form-control" [(ngModel)]="userCreate.confirm_password" required>
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_NAME_USR' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="userCreate.fullname">
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_EMAIL' | translate }}</label>
+                        <input [(ngModel)]="userCreate.email" type="text" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_NUM_PHONE_USR' | translate }}</label>
+                        <input [(ngModel)]="userCreate.phone" type="text" class="form-control">
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RFID_USR' | translate }}</label>
+                        <input [(ngModel)]="userCreate.rfid" type="text" class="form-control">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button (click)="addUser()" [ladda]="isCreated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_CREATE' | translate }}</button>
+            <button (click)="addModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+    </div>
+    </div>
+</div>
+<!-- end from add user -->
+
+<!-- from edit user -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_EDIT_USR' | translate }}</h6>
+            <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="row mg-b-25">
+                <div class="col-lg-12">
+                    <div class="form-group" *ngIf="companyItems.length > 0 && devCompanySelected.length > 0">
+                        <label class="form-control-label tx-bold">{{ 'MENU_COMPANY' | translate }}:  <span class="tx-danger">*</span></label>
+                        <ng-select [allowClear]="true"
+                            [items]="companyItems"
+                            [active]="devCompanySelected"
+                            (data)="refreshValueCompany($event)">
+                        </ng-select>
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_NAME_USR' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="userUpdate.fullname">
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_EMAIL' | translate }}</label>
+                        <input [(ngModel)]="userUpdate.email" type="text" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_NUM_PHONE_USR' | translate }}</label>
+                        <input [(ngModel)]="userUpdate.phone" type="text" class="form-control">
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RFID_USR' | translate }}</label>
+                        <input [(ngModel)]="userUpdate.rfid" type="text" class="form-control" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button (click)="editUser()" [ladda]="isUpdated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+            <button (click)="editModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+    </div>
+    </div>
+</div>
+<!-- end from edit user -->

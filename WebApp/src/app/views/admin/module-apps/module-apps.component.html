@@ -1,0 +1,143 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table  module app -->
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+      <div class="row">
+          <div class="col-md-12 tx-left">
+            <h2 class="tx-gray-800 tx-bold mg-b-10">
+                <i class="ion-social-android" aria-hidden="true"></i>
+                <span class="menu-item-label">{{ 'LBL_LIST_MODULE_APP' | translate }}</span>
+            </h2>
+          </div>
+          <!-- <div class="col-md-4 tx-right">
+            <button class="btn btn-teal mg-b-20 pd-r-20" (click)="ShowModuleAppAddModal()">
+                <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_MODULE_APP' | translate }}
+            </button>
+          </div> -->
+      </div>
+      <div class="table-responsive">
+          <table class="table table-bordered table-hover table-striped">
+              <thead class="thead-colored thead-primary">
+                  <tr>
+                      <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_NAME' | translate }}</th>
+                      <th class="tx-center">{{ 'LBL_DESC_TYPE_TICK' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_CRE' | translate }}</th>
+                      <th class="tx-center">{{ 'TABLE_UPD' | translate }}</th>
+                      <!-- <th class="tx-center">{{ 'TABLE_ACT' | translate }}</th> -->
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr *ngFor="let module_app of module_apps; let i = index">
+                      <th scope="row" class="tx-center">{{i + 1}}</th>
+                      <td>{{ module_app.display_name }}</td>
+                      <td>{{ module_app.description }}</td>
+                      <td class="tx-center">{{module_app.created_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                      <td class="tx-center">{{module_app.updated_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                      <!-- <td>
+                          <div class="tx-18 tx-center">
+                              <a (click)="ShowModuleEditAddModal(module_app.id)" href="javascript:void(0)" class="btn btn-primary btn-icon"  data-toggle="tooltip" data-placement="top" title="{{ 'LBL_EDIT_COM' | translate }}">
+                                  <div>
+                                      <i class="fa fa-pencil" aria-hidden="true"></i>
+                                  </div>
+                              </a>
+                          </div>
+                      </td> -->
+                  </tr>               
+              </tbody>
+          </table>
+      </div>
+  </div>
+</div>
+<!-- end table  module app -->
+
+<!-- Modal add  module app -->
+<!-- <div bsModal #addModal="bs-modal" class="modal fade">
+  <div class="modal-dialog " role="document">
+    <div class="modal-content bd-0 tx-14">
+      <div class="modal-header custom-modal-header pd-y-20 pd-x-25">
+          <h6 class="tx-14 mg-b-0 tx-uppercase tx-bold">{{ 'BTN_ADD_MODULE_APP' | translate }}</h6>
+          <button (click)="addModal.hide()" type="button" class="close btn-close-white" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body custom-modal-body pd-25">
+        <div class="form-layout">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label text-color">{{ 'LBL_MODULE_APP_NAME' | translate }}: <span class="tx-danger">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="moduleAppCreate.name" required  >
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label text-color">{{ 'LBL_MODULE_APP_DISPLAYNAME' | translate }}: <span class="tx-danger">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="moduleAppCreate.display_name" required  >
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label">{{ 'LBL_MODULE_APP_DESCRIPTION' | translate }}: </label>
+                        <textarea class="form-control" rows="5" [(ngModel)]="moduleAppCreate.description" ></textarea>
+                    </div>
+                </div>                                                     
+            </div>
+            <div class="modal-footer custom-modal-footer">
+                <button (click)="createModuleApp()" type="button" [ladda]="isCreated" class="btn btn-success tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_CREATE' | translate }}</button>
+                <button (click)="addModal.hide()" type="button"  class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
+<!-- end Modal add module app -->
+
+
+<!-- Modal edit  module app-->
+<!-- <div bsModal #editModal="bs-modal" class="modal fade">
+  <div class="modal-dialog " role="document">
+    <div class="modal-content bd-0 tx-14">
+      <div class="modal-header custom-modal-header pd-y-20 pd-x-25">
+          <h6 class="tx-14 mg-b-0 tx-uppercase tx-bold">{{ 'BTN_EDIT_MODULE_APP' | translate }}</h6>
+          <button (click)="editModal.hide()" type="button" class="close btn-close-white" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body custom-modal-body pd-25">
+        <div class="form-layout">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label text-color">{{ 'LBL_MODULE_APP_NAME' | translate }}: <span class="tx-danger">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="moduleAppUpdate.name" required >
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label text-color">{{ 'LBL_MODULE_APP_DISPLAYNAME' | translate }}: <span class="tx-danger">*</span></label>
+                        <input type="text" class="form-control"[(ngModel)]="moduleAppUpdate.display_name" required >
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label">{{ 'LBL_MODULE_APP_NAME' | translate }}: </label>
+                        <textarea class="form-control" rows="5" [(ngModel)]="moduleAppUpdate.description"></textarea>
+                    </div>
+                </div>                                                     
+            </div>
+            <div class="modal-footer custom-modal-footer">
+                <button (click)="editModuleApp()" type="button" [ladda]="isUpdated" class="btn btn-success tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+                <button (click)="editModal.hide()" type="button"  class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
+<!-- end Modal edit  module app -->
+

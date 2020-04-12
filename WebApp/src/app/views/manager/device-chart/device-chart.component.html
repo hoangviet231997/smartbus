@@ -1,0 +1,148 @@
+<!-- Ticket Type Chart Modal -->
+<div bsModal #ticketTypeChartModal="bs-modal" class="modal fade">
+  <div class="modal-dialog modal-lg wd-100p" role="document">
+    <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{'LBL_DEV_REVENUE' |  translate}}</h6>
+            <button (click)="ticketTypeChartModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div *ngIf="!isLoadingTypeTicket" class="d-flex ht-300 pos-relative align-items-center">
+                <div class="sk-three-bounce">
+                <div class="sk-child sk-bounce1 bg-gray-800"></div>
+                <div class="sk-child sk-bounce2 bg-gray-800"></div>
+                <div class="sk-child sk-bounce3 bg-gray-800"></div>
+                </div>
+            </div><!-- d-flex -->
+            <div *ngIf="isLoadingTypeTicket" class="row mg-b-25">
+                <div class="wd-100p" [chart]="ticketTypeChart"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button (click)="ticketTypeChartModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'LBL_RCT_CLOSE' | translate }}</button>
+        </div>
+    </div>
+  </div>
+</div>
+<!-- END Ticket Type Chart Modal -->
+
+<!-- Ticket Type goods Chart Modal -->
+<div bsModal #ticketTypeGoodsChartModal="bs-modal" class="modal fade">
+  <div class="modal-dialog modal-lg wd-100p" role="document">
+    <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{'LBL_DEV_REVENUE' |  translate}}</h6>
+            <button (click)="ticketTypeGoodsChartModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div *ngIf="!isLoadingTypeTicket" class="d-flex ht-300 pos-relative align-items-center">
+                <div class="sk-three-bounce">
+                <div class="sk-child sk-bounce1 bg-gray-800"></div>
+                <div class="sk-child sk-bounce2 bg-gray-800"></div>
+                <div class="sk-child sk-bounce3 bg-gray-800"></div>
+                </div>
+            </div><!-- d-flex -->
+            <div *ngIf="isLoadingTypeTicket" class="row mg-b-25">
+                <div class="wd-100p" [chart]="ticketTypeGoodsChart"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button (click)="ticketTypeGoodsChartModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'LBL_RCT_CLOSE' | translate }}</button>
+        </div>
+    </div>
+  </div>
+</div>
+<!-- END Ticket Type goods Chart Modal -->
+
+<!-- Ticket Type other Chart Modal -->
+<div bsModal #ticketTypeOtherChartModal="bs-modal" class="modal fade">
+  <div class="modal-dialog modal-lg wd-100p" role="document">
+    <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{'LBL_DEV_REVENUE' |  translate}}</h6>
+            <button (click)="ticketTypeOtherChartModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div *ngIf="!isLoadingTypeTicket" class="d-flex ht-300 pos-relative align-items-center">
+                <div class="sk-three-bounce">
+                <div class="sk-child sk-bounce1 bg-gray-800"></div>
+                <div class="sk-child sk-bounce2 bg-gray-800"></div>
+                <div class="sk-child sk-bounce3 bg-gray-800"></div>
+                </div>
+            </div><!-- d-flex -->
+            <div *ngIf="isLoadingTypeTicket" class="row mg-b-25">
+                <div class="wd-100p" [chart]="ticketTypeOtherChart"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button (click)="ticketTypeOtherChartModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'LBL_RCT_CLOSE' | translate }}</button>
+        </div>
+    </div>
+  </div>
+</div>
+<!-- END Ticket Type other Chart Modal -->
+
+<!-- Revenue Chart Modal -->
+<div bsModal #revenueChartModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+      <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{'LBL_DEV_REVENUE' |  translate}}</h6>
+                <button (click)="revenueChartModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div *ngIf="!isLoadingRevenue" class="d-flex ht-300 pos-relative align-items-center">
+                    <div class="sk-three-bounce">
+                    <div class="sk-child sk-bounce1 bg-gray-800"></div>
+                    <div class="sk-child sk-bounce2 bg-gray-800"></div>
+                    <div class="sk-child sk-bounce3 bg-gray-800"></div>
+                    </div>
+                </div><!-- d-flex -->
+                <div *ngIf="isLoadingRevenue" class="row mg-b-25">
+                    <div class="wd-100p" [chart]="revenueChart" ></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="revenueChartModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'LBL_RCT_CLOSE' | translate }}</button>
+            </div>
+      </div>
+    </div>
+</div>
+  <!-- END Revenue Chart Modal -->
+<!-- deposit Modal -->
+<div bsModal #depositChartModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+      <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{'LBL_DEV_REVENUE' |  translate}}</h6>
+                <button (click)="depositChartModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div *ngIf="!isLoadingDeposit" class="d-flex ht-300 pos-relative align-items-center">
+                    <div class="sk-three-bounce">
+                    <div class="sk-child sk-bounce1 bg-gray-800"></div>
+                    <div class="sk-child sk-bounce2 bg-gray-800"></div>
+                    <div class="sk-child sk-bounce3 bg-gray-800"></div>
+                    </div>
+                </div><!-- d-flex -->
+                <div *ngIf="isLoadingDeposit" class="row mg-b-25">
+                    <div class="wd-100p" [chart]="depositChart" ></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="depositChartModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'LBL_RCT_CLOSE' | translate }}</button>
+            </div>
+      </div>
+    </div>
+</div>
+  <!-- END Revenue Chart Modal -->

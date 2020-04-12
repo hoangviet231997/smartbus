@@ -1,0 +1,377 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list company -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-6 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-briefcase" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'LBL_LIST_COM' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-6 tx-right">
+                <button (click)="showAddCompanyModal()" class="btn btn-teal mg-b-20 pd-r-20">
+                    <i class="fa fa-plus mg-r-5"></i> {{ 'LBL_ADD_COM' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <table class="table mg-b-0">
+                <tr>
+                    <td style="width:30%">
+                        <select class="form-control py-2 border-right-0 border" [(ngModel)]="style_search">
+                            <option value="">---- {{ 'LBL_SEARCH_BY_COMPANY' | translate }} ----</option>
+                            <option value="name">{{ 'LBL_SEARCH_COMPANY_VALUE_NAME' | translate }}</option>
+                            <option value="phone">{{ 'LBL_SEARCH_COMPANY_VALUE_PHONE' | translate }}</option>
+                            <option value="tax_code">{{ 'LBL_SEARCH_COMPANY_VALUE_TAX_CODE' | translate }}</option>
+                            <option value="address">{{ 'LBL_SEARCH_COMPANY_VALUE_ADDRESS' | translate }}</option>
+
+                        </select>
+                    </td>
+                    <td *ngIf="style_search !== 'role'" style="width:70%">
+                        <div class="input-group">
+                            <input class="form-control py-2 border-right-0 border"  [(ngModel)]="key_input" (ngModelChange)="getDataCompanyByInput()" type="search" id="example-search-input" placeholder="Tìm kiếm...">
+                            <span class="input-group-append">
+                                <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_NAME' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_ADDRESS' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_PHONE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_TAX' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_CRE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let company of companies; let i = index">
+                        <th class="tx-center" scope="row">{{((this.currentPage - 1) * this.limitPage) + (i + 1)}} </th>
+                        <td class="tx-center">{{company.name}}</td>
+                        <td>{{company.address}}</td>
+                        <td class="tx-center">{{company.phone}}</td>
+                        <td class="tx-center">{{company.tax_code}}</td>
+                        <td class="tx-center">{{company.created_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                        <td class="tx-18 tx-center">
+                            <a href="javascript:void(0)" class="btn btn-info btn-width" (click)="loginAsCompany(company.id, company.position.coordinates[1], company.position.coordinates[0], company.layout_cards)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_LOG_COM' | translate }}">
+                                <i class="fa fa-sign-in" aria-hidden="true"></i>
+                            </a>
+                            <a href="javascript:void(0)" class="btn btn-primary btn-width" (click)="showEditCompanyModal(company.id)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_EDIT_COM' | translate }}">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </a>
+                            <a href="javascript:void(0)" class="btn btn-danger btn-width" (click)="deleteCompany(company.id)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_DEL_COM' | translate }}">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                            <a href="javascript:void(0)" class="btn btn-primary btn-width" (click)="showUploadFileModal(company)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_FIL_FIR_DEV_MDL' | translate }}">
+                                <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- page -->
+        <div *ngIf="this.key_input === ''">
+            <div class="row" *ngIf="paginationTotal > 0">
+                <div class="d-flex align-items-center justify-content-center col-md-12">
+                    <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
+                        [totalItems]="paginationTotal" [itemsPerPage]="limitPage" [maxSize]="7" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+                </div>
+            </div>
+        </div>
+        <!-- end page -->
+    </div>
+    <footer class="br-footer"></footer>
+</div>
+<!-- end table list company -->
+
+<!-- form add company -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_ADD_COM' | translate }}</h6>
+                <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_NAME' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="companyCreate.name">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_NAME_ORTHER' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="companyCreate.subname">
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_FULLNAME' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="companyCreate.fullname">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_EMAIL' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="companyCreate.email">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_PHONE' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="companyCreate.phone">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_TAX' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="companyCreate.tax_code">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_LOGO_COM' | translate }}</label>
+                            <label class="custom-file">
+                                <input type="file" id="file" class="custom-file-input">
+                                <span class="custom-file-control"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_PRINT_AT' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="companyCreate.print_at">
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_ADDRESS' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="companyCreate.address">
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <label class="form-control-label tx-bold tx-20 pd-l-0 pd-r-0">{{ 'LBL_ADD_COM_USR' | translate }}</label>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_USN_USR' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="companyCreate.username">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_PWD_USR' | translate }}</label>
+                            <input type="password" class="form-control" [(ngModel)]="companyCreate.password">
+                        </div>
+                    </div>
+                </div>
+
+                <agm-map class="ht-300 wd-100p"
+                    [latitude]="lat"
+                    [longitude]="lng"
+                    [zoom]="zoom"
+                    [disableDefaultUI]="false"
+                    [zoomControl]="false"
+                    (mapClick)="mapClicked($event)"
+                >
+                    <agm-marker
+                        [latitude]="clickedLat"
+                        [longitude]="clickedLng"
+                        [markerDraggable]="true"
+                        (dragEnd)="markerDragEnd($event)"
+                    >
+                    </agm-marker>
+                </agm-map>
+            </div>
+            <div class="modal-footer">
+                <button (click)="addCompany()" [ladda]="isCreated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_CREATE' | translate }}</button>
+                <button (click)="addModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end form add company -->
+
+<!-- form edit company -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_EDIT_COM' | translate }}</h6>
+            <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="row mg-b-25">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_NAME' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="companyUpdate.name">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_NAME_ORTHER' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="companyUpdate.subname">
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_FULLNAME' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="companyUpdate.fullname" >
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_EMAIL' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="companyUpdate.email">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_PHONE' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="companyUpdate.phone">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_TAX' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="companyUpdate.tax_code">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_LOGO_COM' | translate }}</label>
+                        <label class="custom-file">
+                            <input type="file" id="file" class="custom-file-input">
+                            <span class="custom-file-control"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_PRINT_AT' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="companyUpdate.print_at">
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'TABLE_ADDRESS' | translate }}</label>
+                        <input type="text" class="form-control" [(ngModel)]="companyUpdate.address">
+                    </div>
+                </div>
+
+                <!-- <div class="col-lg-12">
+                    <label class="form-control-label tx-bold">Upload hinh</label>
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Chọn mặt thẻ
+
+                    </button>
+                    <div class="dropdown-menu">
+                        <i class="dropdown-item" >Mặt trước</i>
+                        <i class="dropdown-item" >Mặt sau</i>
+                     </div>
+                </div> -->
+            </div>
+
+             <!-- <img *ngFor='let url of urls'  [src]="url" height="200"> <br/>
+            <input type='file' (change)="onSelectFile($event)" multiple> -->
+
+            <agm-map class="ht-300 wd-100p"
+                [latitude]="companyUpdate.lat"
+                [longitude]="companyUpdate.lng"
+                [zoom]="zoom"
+                [disableDefaultUI]="false"
+                [zoomControl]="false"
+                (mapClick)="mapClicked($event)"
+            >
+                <agm-marker
+                    [latitude]="clickedLat"
+                    [longitude]="clickedLng"
+                    [markerDraggable]="true"
+                    (dragEnd)="markerDragEnd($event)"
+                >
+                </agm-marker>
+            </agm-map>
+        </div>
+        <div class="modal-footer">
+            <button (click)="editCompany()" [ladda]="isUpdated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+            <button (click)="editModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+    </div>
+    </div>
+</div>
+<!-- end form edit company -->
+
+<!-- form upload background card -->
+<div bsModal #uploadBackgroundCardModal="bs-modal" class="modal fade">
+        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'upload_background_card' | translate }}</h6>
+                <button (click)="uploadBackgroundCardModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="col-lg-12">
+                    <div class="form-group cus-form-group">
+                        <div class="row">
+                                <label class="form-control-label text-color col-md-12">{{ 'before' | translate }}: <span class="tx-danger">*</span></label>
+                                <div class="col-xs-6 col-md-4" *ngFor="let before of befores">
+                                    <label class="cus-label">
+                                        <a class="thumbnail">
+                                            <img [src]="before" class="img-thumbnail img-cus">
+                                        </a>
+                                    </label>
+                                </div>
+                        </div>
+                        <input type='file' (change)="onSelectFileBefore($event)" multiple>
+                    </div>
+
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-group cus-form-group">
+                        <div class="row" >
+                                <label class="form-control-label text-color col-md-12">{{ 'after' | translate }}: <span class="tx-danger">*</span></label>
+                                <div class="col-xs-6 col-md-4" *ngFor="let after of afters">
+                                    <label class="cus-label">
+                                        <a class="thumbnail">
+                                            <img [src]="after" class="img-thumbnail img-cus">
+                                        </a>
+                                    </label>
+                                </div>
+                        </div>
+                        <input type='file' (change)="onSelectFileAfter($event)" multiple>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button (click)="uploadBackgroundCard()" [ladda]="isUpdated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPLOAD' | translate }}</button>
+                <button (click)="uploadBackgroundCardModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+        </div>
+    </div>
+<!-- end form upload background company -->

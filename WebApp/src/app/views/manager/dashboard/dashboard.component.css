@@ -1,0 +1,134 @@
+.map-radio{
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 3px 3px rgba(33, 33, 33, 0.4);
+    font-family: 'Roboto','sans-serif';
+    margin: 10px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    border-radius: 3px;
+}
+.map-select{
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 3px 3px rgba(33, 33, 33, 0.4);
+    font-family: 'Roboto','sans-serif';
+    margin-left: 155px;
+    margin-top: 10px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    border-radius: 3px;
+    float: right;
+}
+
+.map-search{
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 3px 3px rgba(33, 33, 33, 0.4);
+    font-family: 'Roboto','sans-serif';
+    margin: 10px 404px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    border-radius: 3px;
+    width: 250px;
+    height: 52px;
+}
+
+.selector-control {
+    font-size: 14px;
+    line-height: 30px;
+    vertical-align: baseline;
+    margin: 5px 5px 5px 5px
+}
+
+.form-group {
+    margin-bottom: 0px;
+}
+
+@media (max-width: 414px) {
+    .map-select {
+        width: 40%;
+    }
+}
+
+@media (max-width: 320px) {
+    .map-select {
+        margin-top: 68px;
+        margin-left: 10px;
+        width: 75%
+    }
+}
+
+@media (max-width: 414px) {
+    .map-search {
+        width: 38.5%;
+        margin: 67px 10px;
+    }
+}
+
+@media (max-width: 320px) {
+    .map-search {
+        margin-top: 125px;
+        margin-left: 10px;
+        width: 75%
+    }
+}
+
+.open > .dropdown-menu {
+    display: block;
+}
+
+.btn-default {
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.btn-default:hover, .btn-defaultt:focus {
+    color: #333;
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}
+
+.btn-default:not([disabled]):not(.disabled):active, .btn-default:not([disabled]):not(.disabled).active, .show > .btn-default.dropdown-toggle {
+    color: #333;
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
+}
+
+.form-layout-1 {
+    border: none;
+}
+
+.link-underline {
+    text-decoration: underline;
+}
+
+.icon-color-gray {
+    color: #868e96;
+}
+
+.icon-color-green {
+    color: #23BF08;
+}
+
+.open>.dropdown-menu {
+    display: block;
+}
+
+.glyphicon {
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.glyphicon-remove:before {
+    content: "\F00D";
+    cursor: pointer;
+}

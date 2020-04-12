@@ -1,0 +1,16 @@
+.status-warning {
+    color: red;
+    -webkit-animation: flicker 1s infinite;
+    text-align:center;
+    font-family:'Lato', Arial, Helvetica, sans-serif;
+}
+  
+@-webkit-keyframes flicker {
+    0% {opacity:0;}
+    5% {opacity:.5;}
+    10% {opacity:0;}
+    15% {opacity:.5;}
+    20% {opacity:0;}
+    25% {opacity:5;}
+    30% {opacity:0;}
+}

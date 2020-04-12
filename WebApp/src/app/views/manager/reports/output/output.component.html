@@ -1,0 +1,449 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<div class="br-pagebody">
+  <div class="br-section-wrapper" style="padding: 60px 12px">
+    <div class="row">
+      <div class="col-md-12 tx-left">
+        <h2 class="tx-gray-800 tx-bold mg-b-10">
+          <i class="fa fa-print" aria-hidden="true"></i>
+          <span class="menu-item-label">{{ 'MENU_UPDATE_OUTPUT' | translate }}</span>
+        </h2>
+      </div>
+    </div>
+    <div class="form-layout form-layout-1 pd-x-0 ">
+      <div class="row mg-b-25">
+        <div class="col-md-3"></div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label class="form-control-label tx-bold">{{ 'LBL_UPDATE_OUTPUT_CHOOSE_DATE' | translate }}</label>
+            <div class="input-group">
+              <input class="form-control" [maxDate]="maxDate" #dp="bsDatepicker" bsDatepicker [(ngModel)]="bsRangeValue"
+                [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }" (ngModelChange)="getOutput()">
+
+              <span class="input-group-btn">
+                <button class="btn btn-info pd-x-15" (click)="dp.toggle()" type="button">
+                  <i class="fa fa-calendar"></i>
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label class="form-control-label tx-bold">{{ 'LBL_UPDATE_OUTPUT_LICENSE_PLATE' | translate }}</label>
+            <div class="input-group">
+              <input class="form-control" type="text" [(ngModel)]="licensePlatesInput" (ngModelChange)="getOutput()"
+                disabled>
+              <span class="input-group-btn">
+                <button (click)="showListVehicleModal()" class="btn btn-info pd-x-15" type="button">
+                  <i class="ion ion-android-bus"></i>
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3"></div>
+        <!-- <div class="col-md-3">
+          <div class="form-group">
+              <label class="form-control-label tx-bold">{{ 'LBL_UPDATE_OUTPUT_STAFF' | translate }}</label>
+              <div class="input-group">
+                  <input class="form-control" type="text" [(ngModel)]="searchUserName" disabled>
+                  <input type="hidden" [(ngModel)]="user_id">
+                  <span class="input-group-btn">
+                      <button (click)="showListUserModal()" class="btn btn-info pd-x-15" type="button">
+                          <i class="fa fa-user"></i>
+                      </button>
+                  </span>
+              </div>
+          </div>
+      </div> -->
+        <!-- <div class="col-md-3">
+          <label class="form-control-label tx-bold">{{ 'LBL_UPDATE_OUTPUT_DENOMINATIONS' | translate }}</label>
+          <ng-select [items]="ticketPriceItems" [allowClear]="true" (data)="refreshValuePrice($event)"
+            (selected)="selectedPrice($event)" (removed)="removedPrice($event)"
+            placeholder="{{ 'LBL_UPDATE_OUTPUT_DENOMINATIONS' | translate }}">
+          </ng-select>
+        </div> -->
+      </div>
+
+      <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+        <div *ngIf="output_arr.length == 0" class="alert alert-warning mg-b-0" role="alert">
+          <div class="d-flex align-items-center justify-content-start">
+            <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-layout-footer tx-center" *ngIf="(permissions['report_output'].key_tools != null && permissions['report_output'].key_tools.includes('view_advanced'))">
+        <button (click)="showPrintPreview()" [ladda]="isCollected" class="btn btn-dark pd-r-20">
+          <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+        </button>
+        &nbsp;
+        <button (click)="exportFile()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+          <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+        </button>
+      </div>
+
+      <div *ngIf="output_arr.length != 0" class="mg-t-30 mg-b-20">
+        <div *ngIf="isCheckModuleApp">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+              <thead class="thead-colored thead-primary">
+                <tr>
+                  <th rowspan="2"><p style=" transform: rotate(-90deg);">{{ 'LBL_UPDATE_OUTPUT_TRIP' | translate }}</p></th>
+                  <th class="tx-center tx-border-butom" colspan="3"> {{ 'LBL_UPDATE_OUTPUT_WHARF_STATION_AWAY' | translate }}</th>
+                  <th class="tx-center tx-border-butom" colspan="3"> {{ 'LBL_UPDATE_OUTPUT_WHARF_STATION_DESTINATIONS' | translate }}</th>
+                  <th class="tx-center" rowspan="2">{{ 'LBL_UPDATE_OUTPUT_HK_CARD_MONTH' | translate }}</th>
+                  <th class="tx-center" rowspan="2">{{ 'LBL_UPDATE_OUTPUT_HK_CARD_FREE' | translate }}</th>
+                  <th class="tx-center" rowspan="2">{{ 'LBL_UPDATE_OUTPUT_HK_STUDENT' | translate }}</th>
+                  <th class="tx-center" rowspan="2">{{ 'LBL_UPDATE_OUTPUT_HK_WORKER' | translate }}</th>
+                  <th class="tx-center" rowspan="2">{{ 'LBL_UPDATE_OUTPUT_QRCODE' | translate }}</th>
+                  <th class="tx-center" rowspan="2">{{ 'LBL_UPDATE_OUTPUT_PREPAY' | translate }}</th>
+                  <!-- <th class="tx-center" rowspan="2">{{ 'LBL_UPDATE_OUTPUT_NOTE' | translate }}</th> -->
+                </tr>
+                <tr>
+                  <th class="tx-border-left tx-center">{{ 'LBL_UPDATE_OUTPUT_STARTING_POINT' | translate }}</th>
+                  <th class="tx-center">{{ 'LBL_UPDATE_OUTPUT_TIME_TO_GO' | translate }}</th>
+                  <!-- <th class="tx-center">{{ 'LBL_UPDATE_OUTPUT_SYMBOL' | translate }}</th> -->
+                  <th class="tx-center">{{ 'LBL_UPDATE_OUTPUT_SERIE_NUMBER' | translate }}</th>
+                  <!-- <th class="tx-center">{{ 'LBL_UPDATE_OUTPUT_EXECUTIVE_CONFIRMED' | translate }}</th> -->
+                  <th class="tx-center tx-border-butom">{{ 'LBL_UPDATE_OUTPUT_ARRIVAL_TIME' | translate }}</th>
+                  <th class="tx-center">{{ 'LBL_UPDATE_OUTPUT_SERIE_NUMBER_LAST' | translate }}</th>
+                  <th class="tx-center">{{ 'LBL_UPDATE_OUTPUT_NUMBER_OF_TICKET_SOLD' | translate }}</th>
+                  <!-- <th class="tx-center">{{ 'LBL_UPDATE_OUTPUT_EXECUTIVE_CONFIRMED' | translate }}</th> -->
+                </tr>
+                <!-- <tr>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th class="tx-center">{{ 'LBL_UPDATE_OUTPUT_REALITY' | translate }}</th>
+                  <th class="tx-center">{{ 'LBL_UPDATE_OUTPUT_SOON_LATE' | translate }}</th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                </tr> -->
+              </thead>
+              <tbody>
+                <tr *ngFor="let output of output_arr; let i = index">
+                  <td class="tx-center"> {{ i + 1 }} </td>
+                  <td class="tx-center"> {{ output.station_start }} </td>
+                  <td class="tx-center"> {{ output.started }}</td>
+                  <!-- <td class="tx-center"> {{ output.sign }} </td> -->
+                  <td class="tx-center"> {{ output.start_number }}</td>
+                  <!-- <td></td> -->
+                  <td class="tx-center"> {{ output.ended }}</td>
+                  <!-- <td></td> -->
+                  <td class="tx-center">{{ output.end_number }}</td>
+                  <td class="tx-center">{{ output.count_ticket_total }}</td>
+                  <!-- <td></td> -->
+                  <td class="tx-center">{{ output.count_ticket_month }}</td>
+                  <td class="tx-center">{{ output.count_ticket_free }}</td>
+                  <td class="tx-center">{{ output.count_ticket_student }}</td>
+                  <td class="tx-center">{{ output.count_ticket_worker }}</td>
+                  <td class="tx-center">{{ output.count_ticket_qrcode }}</td>
+                  <td class="tx-center">{{ output.count_ticket_charge }}</td>
+                  <!-- <td></td> -->
+                </tr>
+                <tr>
+                  <td class="tx-center tx-bold text-dark" colspan="3">{{ 'LBL_UPDATE_OUTPUT_TOTAL' | translate }}</td>
+                  <td class="tx-center tx-bold text-dark">{{total_arr.count_total_trip}}</td>
+                  <!-- <td></td> -->
+                  <td></td>
+                  <!-- <td></td> -->
+                  <!-- <td></td> -->
+                  <!-- <td></td> -->
+                  <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_price}}</td>
+                  <td></td>
+                  <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_month}}</td>
+                  <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_free}}</td>
+                  <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_student}}</td>
+                  <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_worker}}</td>
+                  <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_qrcode}}</td>
+                  <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_charge}}</td>
+                  <!-- <td></td> -->
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- show list vehicle -->
+<div bsModal #listVehical="bs-modal" class="modal fade">
+  <div class="modal-dialog modal-lg wd-100p" role="document">
+    <div class="modal-content bd-0 tx-14">
+      <div class="modal-header pd-y-20 pd-x-25">
+        <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_LIST_VHC' | translate }}</h6>
+        <button (click)="listVehical.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body pd-25 form-layout form-layout-1">
+        <div class="input-group mg-b-20">
+          <input class="form-control py-2 border-right-0 border" type="search" value="search" id="vehicle_id"
+            name="search" [(ngModel)]="inputLicensePlates" placeholder="Tìm kiếm...">
+          <span class="input-group-append">
+            <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+          </span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover table-striped">
+            <thead class="thead-colored thead-primary">
+              <tr>
+                <th>{{ 'TABLE_STT_NO' | translate }}</th>
+                <th>{{ 'LBL_VEHICLE_RFID' | translate }}</th>
+                <th>{{ 'LBL_VEHICLE_LICENSE_PLATE' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- <tr *ngIf="inputLicensePlates === ''">
+                <td>#</td>
+                <td>#</td>
+                <td>{{ 'BTN_VIEW_RECEIPT' | translate }}</td>
+                <th class="tx-center" scope="row">
+                  <button (click)="chooseVehicle(0)" class="btn btn-info">
+                    {{ 'LBL_VEHICLE_PICK_ALL' | translate }}
+                  </button>
+                </th>
+              </tr> -->
+              <tr *ngFor="let vehicle of (vehicle_Items | filterVehicle: inputLicensePlates); let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ vehicle['rfidcard'].rfid }}</td>
+                <td>{{ vehicle.license_plates }}</td>
+                <th class="tx-center" scope="row">
+                  <button (click)="chooseVehicle(vehicle.id)" class="btn btn-info">
+                    {{ 'LBL_VEHICLE_PICK' | translate }}
+                  </button>
+                </th>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="listVehical.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25"
+          data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end list vehicle -->
+
+<!-- show list user -->
+<!-- <div bsModal #listUserModal="bs-modal" class="modal fade">
+  <div class="modal-dialog modal-lg wd-100p" role="document">
+      <div class="modal-content bd-0 tx-14">
+      <div class="modal-header pd-y-20 pd-x-25">
+          <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_LIST_USR' | translate }}</h6>
+          <button (click)="listUserModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+
+      <div class="modal-body pd-25 form-layout form-layout-1">
+          <div class="input-group mg-b-20">
+              <input class="form-control py-2 border-right-0 border" type="search" value="search" id="example-search-input" name="search" [(ngModel)]="inputUserName" placeholder="Tìm kiếm...">
+              <span class="input-group-append">
+                  <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+              </span>
+          </div>
+          <div class="table-responsive">
+              <table class="table table-bordered table-hover table-striped">
+                  <thead class="thead-colored thead-primary">
+                      <tr>
+                          <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                          <th class="tx-center">{{ 'LBL_NAME_USR' | translate }}</th>
+                          <th class="tx-center">{{ 'LBL_RCT_PST' | translate }}</th>
+                          <th></th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr *ngFor="let user of (users | filter: inputUserName); let i = index">
+                          <td>{{ i + 1 }}</td>
+                          <td>{{ user.fullname }}</td>
+                          <td>{{ 'LBL_RCT_' + user.role.name | translate }}</td>
+                          <th class="tx-center" scope="row">
+                              <button (click)="chooseUser(user.id)" class="btn btn-info">
+                                  {{ 'LBL_USER_PICK' | translate }}
+                              </button>
+                          </th>
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+      <div class="modal-footer">
+          <button (click)="listUserModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+      </div>
+      </div>
+  </div>
+</div> -->
+<!-- end show list user -->
+
+
+
+<!-- print update output -->
+<div id="print-section" class="d-none" *ngIf="company">
+  <div *ngIf="isCheckModuleApp">
+    <table style="">
+      <div class="row">
+        <div class="col-sm-7">
+          Tên đơn vị:<strong> {{ company.fullname }} </strong> <br>
+          ĐT : <strong> {{ company.phone }} </strong> &nbsp; Mã số thuế: <strong> {{ company.tax_code }}  </strong>
+        </div>
+        <!-- <div class="col-sm-2"></div> -->
+        <div class="col-sm-5 tx-center">
+          <strong>CÔNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM <br>
+            <u>Độc lập - Tự do - Hạnh phúc</u> </strong> <br><br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6 tx-center">
+          <h3>
+            <p> <strong>LỆNH VẬN CHUYỂN</strong> </p>
+          </h3>
+        </div>
+        <div class="col-sm-3"></div>
+      </div>
+      <div class="row" >
+        <div class="col-sm-7">
+          Cấp cho lái xe : <strong>{{ nameDriver }}</strong> &nbsp;&nbsp;Hạng GPLX:... <br>
+          NVPV1: <strong>{{ nameSubDriver }}</strong> &nbsp;&nbsp; NVPV2: ... <br>
+          Biển số xe đăng ký: <strong>{{ license_plate }}</strong> &nbsp;&nbsp; Loại xe: ... <br>
+          Thời hạn kiểm định lưu hành lần sau: ... <br>
+          Chạy tuyến: <strong>{{route_name}}</strong> &nbsp;&nbsp; Mã số tuyến : <strong>{{route_number}}</strong> <br>
+          Ngày vận chuyển : <strong>{{daysForm}}/{{monthForm}}/{{yearsForm}}</strong> &nbsp;&nbsp; Nốt tài bắt đầu:
+          <strong>{{nameStation}}</strong> <br>
+        </div>
+        <div class="col-sm-2 tx-center">
+          <br><strong>Cán bộ kiểm tra</strong><br>(Kiểm tra xe)
+        </div>
+        <div class="col-sm-3 tx-center">
+          ..............., ngày {{now.getDate()}} tháng {{now.getMonth()}} năm {{now.getFullYear()}} <br>
+          <strong>Thủ trưởng đơn vị</strong> <br>(Ký tên, đóng dấu)
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10 tx-center">
+          <h4>
+            <p> <strong>Phần thống kê, cập nhật sản lượng</strong> </p>
+          </h4>
+        </div>
+        <div class="col-sm-1"></div>
+      </div>
+      <tr>
+        <td colspan="2">
+          <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%">
+            <thead class="thead-colored thead-primary">
+              <tr>
+                <th rowspan="3"><p style=" transform: rotate(-90deg);">{{ 'LBL_UPDATE_OUTPUT_TRIP' | translate }}</p></th>
+                <th class="tx-center tx-border-butom" colspan="5">
+                  {{ 'LBL_UPDATE_OUTPUT_WHARF_STATION_AWAY' | translate }}</th>
+                <th class="tx-center tx-border-butom" colspan="5">
+                  {{ 'LBL_UPDATE_OUTPUT_WHARF_STATION_DESTINATIONS' | translate }}</th>
+                <th class="tx-center" rowspan="3">{{ 'LBL_UPDATE_OUTPUT_HK_CARD_MONTH' | translate }}</th>
+                <th class="tx-center" rowspan="3">{{ 'LBL_UPDATE_OUTPUT_HK_CARD_FREE' | translate }}</th>
+                <th class="tx-center" rowspan="3">{{ 'LBL_UPDATE_OUTPUT_HK_STUDENT' | translate }}</th>
+                <th class="tx-center" rowspan="3">{{ 'LBL_UPDATE_OUTPUT_HK_WORKER' | translate }}</th>
+                <th class="tx-center" rowspan="3">{{ 'LBL_UPDATE_OUTPUT_QRCODE' | translate }}</th>
+                <th class="tx-center" rowspan="3">{{ 'LBL_UPDATE_OUTPUT_PREPAY' | translate }}</th>
+                <th class="tx-center" rowspan="3">{{ 'LBL_UPDATE_OUTPUT_NOTE' | translate }}</th>
+              </tr>
+              <tr>
+                <th rowspan="2" class="tx-border-left tx-center">{{ 'LBL_UPDATE_OUTPUT_STARTING_POINT' | translate }}
+                </th>
+                <th rowspan="2" class="tx-center">{{ 'LBL_UPDATE_OUTPUT_TIME_TO_GO' | translate }}</th>
+                <th rowspan="2" class="tx-center">{{ 'LBL_UPDATE_OUTPUT_SYMBOL' | translate }}</th>
+                <th rowspan="2" class="tx-center">{{ 'LBL_UPDATE_OUTPUT_SERIE_NUMBER' | translate }}</th>
+                <th rowspan="2" class="tx-center">{{ 'LBL_UPDATE_OUTPUT_EXECUTIVE_CONFIRMED' | translate }}</th>
+                <th class="tx-center tx-border-butom" colspan="2">{{ 'LBL_UPDATE_OUTPUT_ARRIVAL_TIME' | translate }}
+                </th>
+                <th rowspan="2" class="tx-center">{{ 'LBL_UPDATE_OUTPUT_SERIE_NUMBER_LAST' | translate }}</th>
+                <th rowspan="2" class="tx-center">{{ 'LBL_UPDATE_OUTPUT_NUMBER_OF_TICKET_SOLD' | translate }}</th>
+                <th rowspan="2" class="tx-center">{{ 'LBL_UPDATE_OUTPUT_EXECUTIVE_CONFIRMED' | translate }}</th>
+              </tr>
+              <tr>
+                <th class="tx-center">{{ 'LBL_UPDATE_OUTPUT_REALITY' | translate }}</th>
+                <th class="tx-center">{{ 'LBL_UPDATE_OUTPUT_SOON_LATE' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let output of output_arr; let i = index">
+                <td class="tx-center"> {{ i + 1 }} </td>
+                <td class="tx-center"> {{ output.station_start }} </td>
+                <td class="tx-center"> {{ output.started }}</td>
+                <td class="tx-center"> {{ output.sign }} </td>
+                <td class="tx-center"> {{ output.start_number }}</td>
+                <td></td>
+                <td class="tx-center"> {{ output.ended }}</td>
+                <td></td>
+                <td class="tx-center">{{ output.end_number }}</td>
+                <td class="tx-center">{{ output.count_ticket_total | number}}</td>
+                <td></td>
+                <td class="tx-center">{{ output.count_ticket_month | number}}</td>
+                <td class="tx-center">{{ output.count_ticket_free | number}}</td>
+                <td class="tx-center">{{ output.count_ticket_student | number}}</td>
+                <td class="tx-center">{{ output.count_ticket_worker | number}}</td>
+                <td class="tx-center">{{ output.count_ticket_qrcode | number}}</td>
+                <td class="tx-center">{{ output.count_ticket_charge | number}}</td>
+                <td></td>
+              </tr>
+              <tr >
+                <td class="tx-center tx-bold text-dark" colspan="3">{{ 'LBL_UPDATE_OUTPUT_TOTAL' | translate }}</td>
+                <td class="tx-center tx-bold text-dark">{{total_arr.count_total_trip | number}}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_price | number}}</td>
+                <td></td>
+                <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_month | number}}</td>
+                <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_free | number}}</td>
+                <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_student | number}}</td>
+                <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_worker | number}}</td>
+                <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_qrcode | number}}</td>
+                <td class="tx-center tx-bold text-dark">{{total_arr.total_ticket_charge | number}}</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <div class="row">
+      <div class="col-sm tx-center">
+        <p> <strong>Lái xe</strong> <br> (Ký và ghi rõ họ tên) </p>
+      </div>
+      <div class="col-sm"></div>
+      <div class="col-sm tx-center">
+        <p> <strong>Nhân viên phục vụ</strong> <br> (Ký và ghi rõ họ tên) </p>
+      </div>
+      <div class="col-sm"></div>
+      <div class="col-sm tx-center">
+        <p> <strong>Cán bộ tổng hợp của đơn vị vận tải</strong> <br> (Ký và ghi rõ họ tên)</p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end print update output -->

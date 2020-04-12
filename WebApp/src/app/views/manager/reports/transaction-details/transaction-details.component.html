@@ -1,0 +1,590 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- manager tickets report -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-12 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-print" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'TABLE_TRANSACTION_DETAIL' | translate }}</span>
+                </h2>
+            </div>
+        </div>
+        <div class="form-layout form-layout-1 pd-x-0">
+            <div class="row mg-b-25">
+                <div class="col-lg-3 col-md-6"></div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                        <div class="input-group">
+                            <input class="form-control"
+                            #drp="bsDaterangepicker"
+                            bsDaterangepicker
+                            [(ngModel)]="bsRangeValue"
+                            [bsConfig]="{ dateInputFormat: 'DD/MM/YYYY' }"
+                            [maxDate]="maxDate"
+                            (ngModelChange)="getTransactionDetailSearch()">
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="drp.toggle()"
+                                    [attr.aria-expanded]="drp.isOpen">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div><!-- col-4 -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="form-group">
+                        <label
+                            class="form-control-label tx-bold">{{ 'LBL_TRANSACTION_DETAIL_TYPE' | translate }}</label>
+                        <select id="typeId" name="typeId" class="form-control" (change)="getTransactionDetailSearch()"
+                            [(ngModel)]="selectedTypePayment">
+                            <option value="all">{{ 'LBL_TRANSACTION_DETAIL_ALL' | translate }}</option>
+                            <option value="pos">{{ 'LBL_TRANSACTION_DETAIL_POS' | translate }}</option>
+                            <option value="charge">{{ 'LBL_TRANSACTION_DETAIL_CHARGE' | translate }}</option>
+                            <option value="deposit">{{ 'LBL_TRANSACTION_DETAIL_DEPOSIT' | translate }}</option>
+                            <option value="online">{{ 'LBL_TRANSACTION_DETAIL_ONLINE' | translate }}</option>
+                            <option value="charge_free">{{ 'LBL_TRANSACTION_DETAIL_FREE' | translate }}</option>
+                        </select>
+                    </div>
+                </div><!-- col-4 -->
+            </div>
+
+            <!-- Show is alert -->
+            <div *ngIf="isLoading"  class="mg-t-30 mg-b-20">
+                <div *ngIf="transactionDetails.length == 0" class="alert alert-warning mg-b-0" role="alert">
+                    <div class="d-flex align-items-center justify-content-start">
+                        <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+                    </div>
+                </div>
+            </div>
+            <!-- End is alert -->
+
+            <!-- button export file exel  -->
+            <div class="form-layout-footer tx-center" *ngIf="transactionDetails.length > 0 && (permissions['report_transaction_detail'].key_tools != null && permissions['report_transaction_detail'].key_tools.includes('view_advanced'))">
+                <button (click)="printTransactionDetail()" class="btn btn-dark pd-r-20">
+                    <i class="fa fa-print"></i> {{ 'LBL_TICKET_IN_SUMMARY' | translate }}
+                </button>
+                &nbsp;
+                <button (click)="exportFile()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+                    <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+                </button>
+            </div>
+            <!-- end button export file exel -->
+
+            <!-- show list tickets -->
+            <div class="mg-t-30 mg-b-20">
+                <div *ngIf="isCheckModuleApp">
+                    <table class="table table-bordered table-hover table-striped" *ngIf="transactionDetails.length > 0">
+                        <thead class="thead-colored thead-primary">
+                            <tr>
+                                <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_TICKET_TYPE' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_TICKET_CODE' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_NUM_MONEY' | translate }} </th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_DISCOUNT' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_COLLECTED' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_CREATE_TRANSACTION' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_LICENCE_PLATE' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let transactionDetail of transactionDetails; let i = index">
+                                <td class="tx-center">{{i + 1}}</td>
+                                <td class="tx-center">{{ transactionDetail.type | translate }}</td>
+                                <td class="tx-center">{{ transactionDetail.ticket_number }}</td>
+                                <td class="tx-right">{{ transactionDetail.ticket_price | currency:'VND':'' }}</td>
+                                <td class="tx-right">
+                                    <span *ngIf="transactionDetail.type == 'pos'"></span>
+                                    <span *ngIf="transactionDetail.type == 'pos_taxi'"></span>
+                                    <span *ngIf="transactionDetail.type == 'deposit'"></span>
+                                    <span *ngIf="transactionDetail.type == 'topup_momo'"></span>
+                                    <span
+                                        *ngIf="transactionDetail.type == 'charge'">{{ transactionDetail.ticket_price -  transactionDetail.amount | currency:'VND':'' }}</span>
+                                    <span *ngIf="transactionDetail.type == 'charge_taxi'"></span>
+                                    <span *ngIf="transactionDetail.type == 'app:1'"></span>
+                                    <span *ngIf="transactionDetail.type == 'qrcode'"></span>
+                                    <span *ngIf="transactionDetail.type == 'qrcode_taxi'"></span>
+                                    <span *ngIf="transactionDetail.type == 'charge_free'"></span>
+                                </td>
+                                <td class="tx-right">{{ transactionDetail.amount | currency:'VND':'' }}</td>
+                                <td class="tx-center">{{ transactionDetail.activated | date: 'dd/MM/yyyy HH:mm:ss' }}
+                                </td>
+                                <td class="tx-center">{{ transactionDetail.license_plates }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="tx-center tx-bold">{{'LBL_TRANSACTION_DETAIL_TOTAL' | translate}}
+                                </td>
+                                <td class="tx-right tx-bold">{{ totalTransactions['total_price'] | currency:'VND':''}}
+                                </td>
+                                <td class="tx-right tx-bold">
+                                    {{ totalTransactions['total_discount'] | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ totalTransactions['total_collected'] | currency:'VND':''}}</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr *ngIf=" transactionDetails.length > 0">
+                                <td colspan="2" class="tx-center tx-bold">{{'LBL_RCT_TYPE' | translate}}</td>
+                                <td colspan="4" class="tx-center tx-bold">{{'LBL_RCT_QUANT' | translate }}</td>
+                                <td colspan="2" class="tx-center tx-bold">{{'LBL_TICKET_INTO_MONEY' | translate}}</td>
+                            </tr>
+                            <tr *ngIf="pos && pos.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'pos' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ pos.number | number }} </td>
+                                <td colspan="2" class="tx-center">{{ pos.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="pos_taxi && pos_taxi.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'pos_taxi' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ pos_taxi.number | number }} </td>
+                                <td colspan="2" class="tx-center">{{ pos_taxi.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="online && online.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'app:1' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ online.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ online.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="online_taxi && online_taxi.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'online_taxi' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ online_taxi.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ online_taxi.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="charge && charge.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'charge' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ charge.number | number }} </td>
+                                <td colspan="4" class="tx-center"> {{ charge.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="charge_taxi && charge_taxi.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'charge_taxi' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ charge_taxi.number | number }} </td>
+                                <td colspan="4" class="tx-center"> {{ charge_taxi.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="charge_free && charge_free.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'charge_free' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ charge_free.number | number }} </td>
+                                <td colspan="4" class="tx-center">{{ charge_free.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="deposit && deposit.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'deposit' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ deposit.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ deposit.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="topup_momo && topup_momo.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'topup_momo' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ topup_momo.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ topup_momo.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="tx-center tx-bold">{{ 'LBL_TICKET_TOTAL_ALL' | translate }}</td>
+                                <td colspan="4" class="tx-center">
+                                    <strong> {{ total_num | number }} </strong>
+                                </td>
+                                <td colspan="2" class="tx-center">
+                                    <strong> {{ totals | currency:'VND':'' }} </strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div *ngIf="!isCheckModuleApp">
+                    <table class="table table-bordered table-hover table-striped" *ngIf="transactionDetails.length > 0">
+                        <thead class="thead-colored thead-primary">
+                            <tr>
+                                <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_TICKET_TYPE' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_TICKET_CODE' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_NUM_MONEY' | translate }} </th>
+                                <th class="tx-center">{{ 'TABLE_CREATE_TRANSACTION' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_LICENCE_PLATE' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let transactionDetail of transactionDetails; let i = index">
+                                <td class="tx-center">{{i + 1}}</td>
+                                <td class="tx-center">{{ transactionDetail.type | translate }}</td>
+                                <td class="tx-center">{{ transactionDetail.ticket_number }}</td>
+                                <td class="tx-right">{{ transactionDetail.amount | currency:'VND':'' }}</td>
+                                <td class="tx-center">{{ transactionDetail.activated | date: 'dd/MM/yyyy HH:mm:ss' }}
+                                </td>
+                                <td class="tx-center">{{ transactionDetail.license_plates }}</td>
+                            </tr>
+                            <tr *ngIf=" transactionDetails.length > 0">
+                                <td colspan="2" class="tx-center tx-bold">{{'LBL_RCT_TYPE' | translate}}</td>
+                                <td colspan="2" class="tx-center tx-bold">{{'LBL_RCT_QUANT' | translate }}</td>
+                                <td colspan="2" class="tx-center tx-bold">{{'LBL_TICKET_INTO_MONEY' | translate}}</td>
+                            </tr>
+                            <tr *ngIf="pos && pos.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'pos' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ pos.number | number }} </td>
+                                <td colspan="2" class="tx-center">{{ pos.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="pos_taxi && pos_taxi.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'pos_taxi' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ pos_taxi.number | number }} </td>
+                                <td colspan="2" class="tx-center">{{ pos_taxi.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="online && online.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'app:1' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ online.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ online.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="online_taxi && online_taxi.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'online_taxi' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ online_taxi.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ online_taxi.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="charge && charge.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'charge' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ charge.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ charge.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="charge_taxi && charge_taxi.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'charge_taxi' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ charge_taxi.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ charge_taxi.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="charge_free && charge_free.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'charge_free' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ charge_free.number | number }} </td>
+                                <td colspan="2" class="tx-center">{{ charge_free.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="deposit && deposit.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'deposit' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ deposit.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ deposit.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="topup_momo && topup_momo.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'topup_momo' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ topup_momo.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ topup_momo.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="tx-center tx-bold">{{ 'LBL_TICKET_TOTAL_ALL' | translate }}</td>
+                                <td colspan="2" class="tx-center">
+                                    <strong> {{ total_num | number }} </strong>
+                                </td>
+                                <td colspan="2" class="tx-center">
+                                    <strong> {{ totals | currency:'VND':'' }} </strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end manager tickets report-->
+<div id="print-section" class="d-none" *ngIf="company">
+    <table>
+        <tr>
+            <td class="tx-center w-10 pt-0">
+                <div class="tx-11"> <strong> {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+            </td>
+            <td class="tx-center w-10">
+                <div class="tx-11">
+                    <strong> {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                    ({{ 'LBL_PRINT_BH' | translate }} <br />
+                    {{ 'LBL_PRINT_BTC' | translate }})
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width:21cm;">
+                <div class="tx-center">
+                    <strong class="tx-12" style="text-transform: uppercase">
+                        {{ 'TABLE_TRANSACTION_DETAIL' | translate }}</strong><br>
+                    <i class="tx-10">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}}
+                        {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}} {{ 'LBL_PRINT_DATE_YEAR' | translate }}
+                        {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }} {{daysTo}}
+                        {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}} {{ 'LBL_PRINT_DATE_YEAR' | translate }}
+                        {{yearsTo}}</i><br>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="tx-center w-10 pt-0"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div *ngIf="isCheckModuleApp">
+                    <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%"
+                        *ngIf="transactionDetails.length > 0">
+                        <thead class="thead-colored thead-primary">
+                            <tr>
+                                <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_TICKET_TYPE' | translate }}</th>
+                                <!-- <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_STATION' | translate }}</th> -->
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_TICKET_CODE' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_NUM_MONEY' | translate }} </th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_DISCOUNT' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_COLLECTED' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_CREATE_TRANSACTION' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_LICENCE_PLATE' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let transactionDetail of transactionDetails; let i = index">
+                                <td class="tx-center">{{i + 1}}</td>
+                                <td class="tx-center">{{ transactionDetail.type | translate }}</td>
+                                <td class="tx-center">{{ transactionDetail.ticket_number }}</td>
+                                <td class="tx-right">{{ transactionDetail.ticket_price | currency:'VND':'' }}</td>
+                                <td class="tx-right">
+                                    <span *ngIf="transactionDetail.type == 'pos'"></span>
+                                    <span *ngIf="transactionDetail.type == 'pos_taxi'"></span>
+                                    <span *ngIf="transactionDetail.type == 'deposit'"></span>
+                                    <span *ngIf="transactionDetail.type == 'topup_momo'"></span>
+                                    <span
+                                        *ngIf="transactionDetail.type == 'charge'">{{ transactionDetail.ticket_price -  transactionDetail.amount | currency:'VND':'' }}</span>
+                                    <span *ngIf="transactionDetail.type == 'charge_taxi'"></span>
+                                    <span *ngIf="transactionDetail.type == 'app:1'"></span>
+                                    <span *ngIf="transactionDetail.type == 'qrcode'"></span>
+                                    <span *ngIf="transactionDetail.type == 'qrcode_taxi'"></span>
+                                    <span *ngIf="transactionDetail.type == 'charge_free'"></span>
+                                </td>
+                                <td class="tx-right">{{ transactionDetail.amount | currency:'VND':'' }}</td>
+                                <td class="tx-center">{{ transactionDetail.activated | date: 'dd/MM/yyyy HH:mm:ss' }}
+                                </td>
+                                <td class="tx-center">{{ transactionDetail.license_plates }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="tx-center tx-bold">{{'LBL_TRANSACTION_DETAIL_TOTAL' | translate}}
+                                </td>
+                                <td class="tx-right tx-bold">{{ totalTransactions['total_price'] | currency:'VND':''}}
+                                </td>
+                                <td class="tx-right tx-bold">
+                                    {{ totalTransactions['total_discount'] | currency:'VND':''}}</td>
+                                <td class="tx-right tx-bold">
+                                    {{ totalTransactions['total_collected'] | currency:'VND':''}}</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr *ngIf=" transactionDetails.length > 0">
+                                <td colspan="2" class="tx-center tx-bold">{{'LBL_RCT_TYPE' | translate}}</td>
+                                <td colspan="4" class="tx-center tx-bold">{{'LBL_RCT_QUANT' | translate }}</td>
+                                <td colspan="2" class="tx-center tx-bold">{{'LBL_TICKET_INTO_MONEY' | translate}}</td>
+                            </tr>
+                            <tr *ngIf="pos && pos.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'pos' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ pos.number | number }} </td>
+                                <td colspan="2" class="tx-center">{{ pos.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="pos_taxi && pos_taxi.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'pos_taxi' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ pos_taxi.number | number }} </td>
+                                <td colspan="2" class="tx-center">{{ pos_taxi.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="online && online.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'app:1' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ online.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ online.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="online_taxi && online_taxi.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'online_taxi' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ online_taxi.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ online_taxi.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="charge && charge.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'charge' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ charge.number | number }} </td>
+                                <td colspan="4" class="tx-center"> {{ charge.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="charge_taxi && charge_taxi.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'charge_taxi' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ charge_taxi.number | number }} </td>
+                                <td colspan="4" class="tx-center"> {{ charge_taxi.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="charge_free && charge_free.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'charge_free' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ charge_free.number | number }} </td>
+                                <td colspan="4" class="tx-center">{{ charge_free.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="deposit && deposit.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'deposit' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ deposit.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ deposit.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="topup_momo && topup_momo.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'topup_momo' | translate }}</td>
+                                <td colspan="4" class="tx-center"> {{ topup_momo.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ topup_momo.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="tx-center tx-bold">{{ 'LBL_TICKET_TOTAL_ALL' | translate }}</td>
+                                <td colspan="4" class="tx-center">
+                                    <strong> {{ total_num | number }} </strong>
+                                </td>
+                                <td colspan="2" class="tx-center">
+                                    <strong> {{ totals | currency:'VND':'' }} </strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div *ngIf="!isCheckModuleApp">
+                    <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%"
+                        *ngIf="transactionDetails.length > 0">
+                        <thead class="thead-colored thead-primary">
+                            <tr>
+                                <th class="tx-center">{{ 'TABLE_STT_NO' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_TICKET_TYPE' | translate }}</th>
+                                <!-- <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_STATION' | translate }}</th> -->
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_TICKET_CODE' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_NUM_MONEY' | translate }} </th>
+                                <th class="tx-center">{{ 'TABLE_CREATE_TRANSACTION' | translate }}</th>
+                                <th class="tx-center">{{ 'TABLE_TRANSACTION_DETAIL_LICENCE_PLATE' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let transactionDetail of transactionDetails; let i = index">
+                                <td class="tx-center">{{i + 1}}</td>
+                                <td class="tx-center">{{ transactionDetail.type | translate }}</td>
+                                <td class="tx-center">{{ transactionDetail.ticket_number }}</td>
+                                <td class="tx-right">{{ transactionDetail.amount | currency:'VND':'' }}</td>
+                                <td class="tx-center">{{ transactionDetail.activated | date: 'dd/MM/yyyy HH:mm:ss' }}
+                                </td>
+                                <td class="tx-center">{{ transactionDetail.license_plates }}</td>
+                            </tr>
+                            <tr *ngIf=" transactionDetails.length > 0">
+                                <td colspan="2" class="tx-center tx-bold">{{'LBL_RCT_TYPE' | translate}}</td>
+                                <td colspan="2" class="tx-center tx-bold">{{'LBL_RCT_QUANT' | translate }}</td>
+                                <td colspan="2" class="tx-center tx-bold">{{'LBL_TICKET_INTO_MONEY' | translate}}</td>
+                            </tr>
+                            <tr *ngIf="pos && pos.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'pos' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ pos.number | number }} </td>
+                                <td colspan="2" class="tx-center">{{ pos.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="pos_taxi && pos_taxi.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'pos_taxi' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ pos_taxi.number | number }} </td>
+                                <td colspan="2" class="tx-center">{{ pos_taxi.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="online && online.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'app:1' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ online.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ online.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="online_taxi && online_taxi.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'online_taxi' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ online_taxi.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ online_taxi.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="charge && charge.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'charge' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ charge.number | number }} </td>
+                                <td colspan="4" class="tx-center"> {{ charge.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="charge_taxi && charge_taxi.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'charge_taxi' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ charge_taxi.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ charge_taxi.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="charge_free && charge_free.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'charge_free' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ charge_free.number | number }} </td>
+                                <td colspan="2" class="tx-center">{{ charge_free.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="deposit && deposit.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'deposit' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ deposit.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ deposit.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr *ngIf="topup_momo && topup_momo.number > 0">
+                                <td colspan="2" class="tx-center">{{ 'topup_momo' | translate }}</td>
+                                <td colspan="2" class="tx-center"> {{ topup_momo.number | number }} </td>
+                                <td colspan="2" class="tx-center"> {{ topup_momo.total | currency:'VND':'' }} </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="tx-center tx-bold">{{ 'LBL_TICKET_TOTAL_ALL' | translate }}</td>
+                                <td colspan="2" class="tx-center">
+                                    <strong> {{ total_num | number }} </strong>
+                                </td>
+                                <td colspan="2" class="tx-center">
+                                    <strong> {{ totals | currency:'VND':'' }} </strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} ....
+                    {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div *ngIf="isCheckModuleApp">
+                    <table class="table-striped" style="width:100%">
+                        <tbody>
+                            <tr>
+                                <td colspan="2">
+                                    <table class="table-striped" style="width:100%">
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="3" class="tx-center fl">
+                                                    <strong
+                                                        style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_NLB' | translate }}
+                                                    </strong>
+                                                    <br>
+                                                    <i class="tx-11">({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                                                </td>
+                                                <td colspan="3" class="tx-center fr">
+                                                    <strong
+                                                        style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_TBDH' | translate }}
+                                                    </strong>
+                                                    <br>
+                                                    <i class="tx-11">({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div *ngIf="!isCheckModuleApp">
+                    <table class="table-striped" style="width:100%">
+                        <tbody>
+                            <tr>
+                                <td colspan="2" class="tx-center w-4 fl">
+                                    <strong style="text-transform: uppercase">{{ 'LBL_PRINT_NLB' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i>({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                                </td>
+                                <td colspan="2" class="tx-center w-4">
+                                    <strong style="text-transform: uppercase">{{ 'LBL_PRINT_KT' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i>({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                                </td>
+                                <td colspan="3" class="tx-center w-5 fr">
+                                    <strong style="text-transform: uppercase">{{ 'LBL_PRINT_GD' | translate }}
+                                    </strong>
+                                    <br>
+                                    <i>({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>

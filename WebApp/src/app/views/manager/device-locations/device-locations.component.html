@@ -1,0 +1,39 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+    <div class="row">
+      <div class="col-md-8 tx-left">
+        <h2 class="tx-gray-800 tx-bold mg-b-10">
+          <i class="ion-android-locate" aria-hidden="true"></i>
+          <span class="menu-item-label">{{ 'MENU_MANAGER_DEVICE_LOCATION' | translate }}</span>
+        </h2>
+      </div>
+    </div>
+    <div class="row input-search">
+      <div class="col-md-3">
+        <ng-select [items]="device_items" [allowClear]="true" (data)="refreshValueDeviceLocation($event)"
+          (selected)="selectedDeviceLocation($event)" (removed)="removedDeviceLocation($event)"
+          placeholder="{{'SEARCH_IDENTITY' | translate}}">
+        </ng-select>
+      </div>
+      <div class="col-md-9"></div>
+    </div>
+    <agm-map class="ht-700 wd-100p" [latitude]="latitude" [longitude]="lngitude" [zoom]="zoom" [zoomControl]="true">
+      <agm-marker *ngFor="let marker of markers; let i = index;" [latitude]="marker.lat" [longitude]="marker.lng"
+        [label]="" (markerClick)="markerClick(infoWindowDevice)" iconUrl="assets/img/icon_device.png">
+        <agm-info-window [disableAutoPan]="true" #infoWindowDevice>
+          <table>
+            <tr>
+              <td>{{ 'LBL_DEVICE_LOCATION_IMEI' | translate}}: </td>
+              <td class="tx-bold"> {{ marker.imei }}</td>
+            </tr>
+          </table>
+        </agm-info-window>
+      </agm-marker>
+    </agm-map>
+  </div>
+
+</div>

@@ -1,0 +1,68 @@
+.form-layout-1 {
+    border: none;
+}
+
+.open > .dropdown-menu {
+    display: block;
+}
+
+.btn-default {
+    color: #333;
+    background-color: #fff;
+    border: 1px solid #868ba1;
+}
+
+.btn-default:hover, .btn-defaultt:focus {
+    color: #333;
+    background-color: #d4d4d4;
+    border: 1px solid #868ba1;
+}
+
+.btn-default:not([disabled]):not(.disabled):active, .btn-default:not([disabled]):not(.disabled).active, .show > .btn-default.dropdown-toggle {
+    color: #333;
+    background-color: #d4d4d4;
+    border: 1px solid #868ba1;
+}
+
+.link-underline {
+    text-decoration: underline;
+}
+
+.icon-color-gray {
+    color: #868e96;
+}
+
+.icon-color-green {
+    color: #23BF08;
+}
+
+.open>.dropdown-menu {
+    display: block;
+}
+
+.glyphicon {
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.glyphicon-remove:before {
+    content: "\F00D";
+    cursor: pointer;
+}
+
+.btn-width{
+    width: 40px;
+    margin-right: 5px;
+}
+.field-icon {
+  float: right;
+  bottom: 28px;
+  right: 5px;
+  position: relative;
+  z-index: 2;
+  color: #62676b;
+}

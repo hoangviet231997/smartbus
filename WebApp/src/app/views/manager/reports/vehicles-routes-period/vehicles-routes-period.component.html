@@ -1,0 +1,487 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- manager vehicles route period report -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-12 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-print" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'MENU_VEHICLES_ROUTES_PERIOD' | translate }}</span>
+                </h2>
+            </div>
+        </div>
+        <div class="form-layout form-layout-1 pd-x-0">
+            <div class="row mg-b-25">
+                <div class="col">
+                    <div class="form-group">
+                        <label
+                            class="form-control-label tx-bold">{{ 'LBL_VEHICLES_ROUTES_PERIOD_LAST_DATE' | translate }}</label>
+                        <div class="input-group">
+                            <input class="form-control" #drplast="bsDaterangepicker" bsDaterangepicker
+                                [(ngModel)]="last_bsRangeValue" [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                                [maxDate]="maxDate" (ngModelChange)="getData()">
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="drplast.toggle()"
+                                    [attr.aria-expanded]="drplast.isOpen">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label
+                            class="form-control-label tx-bold">{{ 'LBL_VEHICLES_ROUTES_PERIOD_NOW_DATE' | translate }}</label>
+                        <div class="input-group">
+                            <input class="form-control" #drpnow="bsDaterangepicker" bsDaterangepicker
+                                [(ngModel)]="now_bsRangeValue" [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                                [maxDate]="maxDate" (ngModelChange)="getData()">
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="drpnow.toggle()"
+                                    [attr.aria-expanded]="drpnow.isOpen">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold"
+                            for="">{{ 'MENU_VEHICLES_ROUTES_PERIOD_DATA_COMPARE' | translate }}</label>
+                        <select class="form-control" name="" id="" [(ngModel)]="selectContentCompare"
+                            (ngModelChange)="getData()">
+                            <option value="all">{{ 'LBL_VEHICLES_ROUTES_PERIOD_ALL' | translate }}</option>
+                            <option value="quantity">{{ 'LBL_VEHICLES_ROUTES_PERIOD_QUANTITY' | translate }}</option>
+                            <option value="revenue">{{ 'LBL_VEHICLES_ROUTES_PERIOD_REVENUE' | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold"
+                            for="">{{ 'MENU_VEHICLES_ROUTES_PERIOD_TYPE' | translate }}</label>
+                        <select class="form-control" name="" id="" [(ngModel)]="selectContentRp"
+                            (ngModelChange)="getData()">
+                            <option value="vehicle">{{ 'LBL_VEHICLES_ROUTES_PERIOD_VEHICLE' | translate }}</option>
+                            <option value="route">{{ 'LBL_VEHICLES_ROUTES_PERIOD_ROUTE' | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Show is alert -->
+            <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+                <div *ngIf="vehicles_routes_period.length == 0" class="alert alert-warning mg-b-0" role="alert">
+                    <div class="d-flex align-items-center justify-content-start">
+                        <i
+                            class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+                    </div>
+                </div>
+            </div>
+            <!-- End is alert -->
+
+            <!-- button export file exel  -->
+            <div *ngIf="isLoading">
+                <div class="form-layout-footer tx-center"
+                    *ngIf="(permissions['report_vehicle_route_period'].key_tools != null && permissions['report_vehicle_route_period'].key_tools.includes('view_advanced'))">
+                    <button (click)="showPrintPreview()" [ladda]="isCollected" class="btn btn-dark pd-r-20">
+                        <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+                    </button>
+                    &nbsp;
+                    <button (click)="exportFile()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+                        <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+                    </button>
+                </div>
+            </div>
+            <!-- end button export file exel -->
+
+            <!-- show list vehicles -->
+            <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+                <div *ngIf="selectContentCompare !== 'all' && vehicles_routes_period.length > 0">
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead class="thead-colored thead-primary tx-center">
+                            <tr>
+                                <td rowspan="3">{{ 'LBL_VEHICLES_ROUTES_PERIOD_STT' | translate }}</td>
+                                <td rowspan="3">{{ 'LBL_VEHICLES_ROUTES_PERIOD_CONTENT' | translate }}</td>
+                                <td class="tx-border-butom" colspan="6">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_NOW' | translate }}</td>
+                                <td class="tx-border-butom" colspan="6">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_LAST' | translate }}</td>
+                                <td class="tx-border-butom" colspan="6">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_COMPARE' | translate }}</td>
+                            </tr>
+                            <tr>
+                                <td class="tx-border-left" rowspan="2">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_SHIFT' | translate }}</td>
+                                <td class="tx-border-butom" colspan="5">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_TICKET_OR_REVENUE' | translate }}</td>
+                                <td rowspan="2">{{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_SHIFT' | translate }}</td>
+                                <td class="tx-border-butom" colspan="5">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_TICKET_OR_REVENUE' | translate }}</td>
+                                <td rowspan="2">{{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_SHIFT' | translate }}</td>
+                                <td class="tx-border-butom" colspan="5">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_TICKET_OR_REVENUE' | translate }}</td>
+                            </tr>
+                            <tr>
+                                <td class="tx-border-left">{{ 'LBL_VEHICLES_ROUTES_PERIOD_TOTAL' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_TICKET_POS' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_CARD_CHARGE' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_CARD_MONTH' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_QRCODE' | translate }}</td>
+                                <td class="tx-border-left">{{ 'LBL_VEHICLES_ROUTES_PERIOD_TOTAL' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_TICKET_POS' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_CARD_CHARGE' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_CARD_MONTH' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_QRCODE' | translate }}</td>
+                                <td class="tx-border-left">{{ 'LBL_VEHICLES_ROUTES_PERIOD_TOTAL' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_TICKET_POS' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_CARD_CHARGE' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_CARD_MONTH' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_QRCODE' | translate }}</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let data of vehicles_routes_period; let i = index">
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{i + 1}}</td>
+                                <td *ngIf="data.license_plates !== 'all' && data.license_plates !== ''"class="tx-center">{{data.license_plates}}</td>
+                                <td *ngIf="data.license_plates !== 'all' && data.route_number > 0"class="tx-center">Tuyến {{data.route_number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-center">{{data.now_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-center">{{data.now_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="text-right">{{data.now_total_revenue_pos | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="text-right">{{data.now_total_revenue_charge | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="text-right">{{data.now_total_revenue_month | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="text-right">{{data.now_total_revenue_qr_code | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-center">{{data.last_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-center">{{data.last_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="text-right">{{data.last_total_revenue_pos | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="text-right">{{data.last_total_revenue_charge | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="text-right">{{data.last_total_revenue_month | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="text-right">{{data.last_total_revenue_qr_code | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-center">{{data.compare_count_shift}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-center">{{data.compare_total_count_ticket}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="text-right">{{data.compare_total_revenue_pos}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="text-right">{{data.compare_total_revenue_charge}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="text-right">{{data.compare_total_revenue_month}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="text-right">{{data.compare_total_revenue_qr_code}}</td>
+
+                                <td *ngIf="data.license_plates === 'all'" class="tx-center tx-bold" colspan="2">Tổng cộng</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-center">{{data.now_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-center">{{data.now_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.now_total_revenue_pos | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.now_total_revenue_charge | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.now_total_revenue_month | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.now_total_revenue_qr_code | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-center">{{data.last_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-center">{{data.last_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.last_total_revenue_pos | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.last_total_revenue_charge | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.last_total_revenue_month | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.last_total_revenue_qr_code | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-center">{{data.compare_count_shift}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-center">{{data.compare_total_count_ticket}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.compare_total_revenue_pos}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.compare_total_revenue_charge}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.compare_total_revenue_month}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.compare_total_revenue_qr_code}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div *ngIf="selectContentCompare === 'all' && vehicles_routes_period.length > 0">
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead class="thead-colored thead-primary tx-center">
+                            <tr>
+                                <td rowspan="2">{{ 'LBL_VEHICLES_ROUTES_PERIOD_STT' | translate }}</td>
+                                <td rowspan="2">{{ 'LBL_VEHICLES_ROUTES_PERIOD_CONTENT' | translate }}</td>
+                                <td class="tx-border-butom" colspan="3">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_NOW' | translate }}</td>
+                                <td class="tx-border-butom" colspan="3">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_LAST' | translate }}</td>
+                                <td class="tx-border-butom" colspan="3">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_COMPARE' | translate }}</td>
+                            </tr>
+                            <tr>
+                                <td class="tx-border-left">{{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_SHIFT' | translate }}
+                                </td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_QUANTITY' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_REVENUE' | translate }}</td>
+                                <td class="tx-border-left">{{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_SHIFT' | translate }}
+                                </td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_QUANTITY' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_REVENUE' | translate }}</td>
+                                <td class="tx-border-left">{{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_SHIFT' | translate }}
+                                </td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_QUANTITY' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_REVENUE' | translate }}</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let data of vehicles_routes_period; let i = index">
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{ i+1 }}</td>
+                                <td class="tx-center" class="tx-center" *ngIf="data.license_plates !== 'all' && data.license_plates !== ''">
+                                    {{data.license_plates}}</td>
+                                <td class="tx-center" class="tx-center" *ngIf="data.license_plates !== 'all' && data.route_number > 0">
+                                    Tuyến {{data.route_number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.now_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.now_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="text-right">{{data.now_total_revenue_ticket | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.last_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.last_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="text-right">{{data.last_total_revenue_ticket | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.compare_count_shift}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.compare_total_count_ticket}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.compare_total_revenue_ticket}}</td>
+
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center" colspan="2">Tổng cộng</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.now_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.now_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold text-right">{{data.now_total_revenue_ticket | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.last_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.last_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold text-right">{{data.last_total_revenue_ticket | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.compare_count_shift}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.compare_total_count_ticket}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.compare_total_revenue_ticket}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- end show list vehicles -->
+        </div>
+    </div>
+</div>
+<!-- end manager vehicles route period report  -->
+
+<div id="print-section" class="d-none" *ngIf="company">
+    <table>
+        <tr>
+            <td class="tx-center w-10 pt-0">
+                <div class="tx-11"> <strong> {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+            </td>
+            <td class="tx-center w-10">
+                <div class="tx-11">
+                    <strong> {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                    ({{ 'LBL_PRINT_BH' | translate }} <br />
+                    {{ 'LBL_PRINT_BTC' | translate }})
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width:21cm;">
+                <div class="tx-center">
+                    <strong class="tx-12" style="text-transform: uppercase">
+                        {{ 'MENU_VEHICLES_ROUTES_PERIOD' | translate }}</strong><br>
+                    <i class="tx-10">
+                        {{ 'LBL_VEHICLES_ROUTES_PERIOD_NOW_DATE' | translate }}: {{current_period}}
+                        {{ 'LBL_VEHICLES_ROUTES_PERIOD_LAST_DATE' | translate }}: {{previous_period}}
+                    </i><br>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="tx-center w-10 pt-0"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div *ngIf="selectContentCompare !== 'all' && vehicles_routes_period.length > 0">
+                    <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%">
+                        <thead class="thead-colored thead-primary tx-center">
+                            <tr>
+                                <td rowspan="3">{{ 'LBL_VEHICLES_ROUTES_PERIOD_STT' | translate }}</td>
+                                <td rowspan="3">{{ 'LBL_VEHICLES_ROUTES_PERIOD_CONTENT' | translate }}</td>
+                                <td class="tx-border-butom" colspan="6">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_NOW' | translate }}</td>
+                                <td class="tx-border-butom" colspan="6">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_LAST' | translate }}</td>
+                                <td class="tx-border-butom" colspan="6">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_COMPARE' | translate }}</td>
+                            </tr>
+                            <tr>
+                                <td class="tx-border-left" rowspan="2">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_SHIFT' | translate }}</td>
+                                <td class="tx-border-butom" colspan="5">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_TICKET_OR_REVENUE' | translate }}</td>
+                                <td rowspan="2">{{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_SHIFT' | translate }}</td>
+                                <td class="tx-border-butom" colspan="5">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_TICKET_OR_REVENUE' | translate }}</td>
+                                <td rowspan="2">{{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_SHIFT' | translate }}</td>
+                                <td class="tx-border-butom" colspan="5">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_TICKET_OR_REVENUE' | translate }}</td>
+                            </tr>
+                            <tr>
+                                <td class="tx-border-left">{{ 'LBL_VEHICLES_ROUTES_PERIOD_TOTAL' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_TICKET_POS' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_CARD_CHARGE' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_CARD_MONTH' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_QRCODE' | translate }}</td>
+                                <td class="tx-border-left">{{ 'LBL_VEHICLES_ROUTES_PERIOD_TOTAL' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_TICKET_POS' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_CARD_CHARGE' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_CARD_MONTH' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_QRCODE' | translate }}</td>
+                                <td class="tx-border-left">{{ 'LBL_VEHICLES_ROUTES_PERIOD_TOTAL' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_TICKET_POS' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_CARD_CHARGE' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_CARD_MONTH' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_QRCODE' | translate }}</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let data of vehicles_routes_period; let i = index">
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{i + 1}}</td>
+                                <td *ngIf="data.license_plates !== 'all' && data.license_plates !== ''"class="tx-center">{{data.license_plates}}</td>
+                                <td *ngIf="data.license_plates !== 'all' && data.route_number > 0"class="tx-center">Tuyến {{data.route_number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-center">{{data.now_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-center">{{data.now_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-right">{{data.now_total_revenue_pos | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-right">{{data.now_total_revenue_charge | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-right">{{data.now_total_revenue_month | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-right">{{data.now_total_revenue_qr_code | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-center">{{data.last_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-center">{{data.last_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-right">{{data.last_total_revenue_pos | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-right">{{data.last_total_revenue_charge | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-right">{{data.last_total_revenue_month | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-right">{{data.last_total_revenue_qr_code | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-center">{{data.compare_count_shift}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-center">{{data.compare_total_count_ticket}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-right">{{data.compare_total_revenue_pos}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-right">{{data.compare_total_revenue_charge}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-right">{{data.compare_total_revenue_month}}</td>
+                                <td *ngIf="data.license_plates !== 'all'"class="tx-right">{{data.compare_total_revenue_qr_code}}</td>
+
+                                <td *ngIf="data.license_plates === 'all'" class="tx-center tx-bold" colspan="2">Tổng cộng</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-center">{{data.now_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-center">{{data.now_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.now_total_revenue_pos | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.now_total_revenue_charge | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.now_total_revenue_month | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.now_total_revenue_qr_code | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-center">{{data.last_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-center">{{data.last_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.last_total_revenue_pos | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.last_total_revenue_charge | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.last_total_revenue_month | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.last_total_revenue_qr_code | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-center">{{data.compare_count_shift}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-center">{{data.compare_total_count_ticket}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.compare_total_revenue_pos}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.compare_total_revenue_charge}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.compare_total_revenue_month}}</td>
+                                <td *ngIf="data.license_plates === 'all'"class="tx-bold tx-right">{{data.compare_total_revenue_qr_code}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div *ngIf="selectContentCompare === 'all' && vehicles_routes_period.length > 0">
+                    <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%">
+                        <thead class="thead-colored thead-primary tx-center">
+                            <tr>
+                                <td rowspan="2">{{ 'LBL_VEHICLES_ROUTES_PERIOD_STT' | translate }}</td>
+                                <td rowspan="2">{{ 'LBL_VEHICLES_ROUTES_PERIOD_CONTENT' | translate }}</td>
+                                <td class="tx-border-butom" colspan="3">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_NOW' | translate }}</td>
+                                <td class="tx-border-butom" colspan="3">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_LAST' | translate }}</td>
+                                <td class="tx-border-butom" colspan="3">
+                                    {{ 'LBL_VEHICLES_ROUTES_PERIOD_COMPARE' | translate }}</td>
+                            </tr>
+                            <tr>
+                                <td class="tx-border-left">{{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_SHIFT' | translate }}
+                                </td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_QUANTITY' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_REVENUE' | translate }}</td>
+                                <td class="tx-border-left">{{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_SHIFT' | translate }}
+                                </td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_QUANTITY' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_REVENUE' | translate }}</td>
+                                <td class="tx-border-left">{{ 'LBL_VEHICLES_ROUTES_PERIOD_NUMBER_SHIFT' | translate }}
+                                </td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_QUANTITY' | translate }}</td>
+                                <td>{{ 'LBL_VEHICLES_ROUTES_PERIOD_REVENUE' | translate }}</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let data of vehicles_routes_period; let i = index">
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{ i+1 }}</td>
+                                <td class="tx-center" class="tx-center" *ngIf="data.license_plates !== 'all' && data.license_plates !== ''">
+                                    {{data.license_plates}}</td>
+                                <td class="tx-center" class="tx-center" *ngIf="data.license_plates !== 'all' && data.route_number > 0">
+                                    Tuyến {{data.route_number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.now_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.now_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-right">{{data.now_total_revenue_ticket | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.last_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.last_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-right">{{data.last_total_revenue_ticket | number}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.compare_count_shift}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.compare_total_count_ticket}}</td>
+                                <td *ngIf="data.license_plates !== 'all'" class="tx-center">{{data.compare_total_revenue_ticket}}</td>
+
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center" colspan="2">Tổng cộng</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.now_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.now_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-right">{{data.now_total_revenue_ticket | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.last_count_shift | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.last_total_count_ticket | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-right">{{data.last_total_revenue_ticket | number}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.compare_count_shift}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.compare_total_count_ticket}}</td>
+                                <td *ngIf="data.license_plates === 'all'" class="tx-bold tx-center">{{data.compare_total_revenue_ticket}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} ....
+                    {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table class="table-striped" style="width:100%">
+                    <tbody>
+                        <tr>
+                            <td colspan="3" class="tx-center fl">
+                                <strong
+                                    style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_NLB' | translate }}
+                                </strong>
+                                <br>
+                                <i class="tx-11">({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                            </td>
+                            <td colspan="3" class="tx-center fr">
+                                <strong
+                                    style="text-transform: uppercase; font-size: 16px;">{{ 'LBL_PRINT_TBDH' | translate }}
+                                </strong>
+                                <br>
+                                <i class="tx-11">({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>

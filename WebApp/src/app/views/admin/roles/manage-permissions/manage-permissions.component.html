@@ -1,0 +1,306 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+      
+<!-- table list permission -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-6 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-sitemap" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'LBL_LIST_PER' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-6 tx-right">
+                <button (click)="showAddPermissionModal()" class="btn btn-teal mg-b-20 pd-r-20" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_ADD_PER' | translate }}">
+                    <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_PER' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="form-layout form-layout-1 pd-x-0">
+            <div class="row mg-b-10">
+                <div class="col-lg-3 col-md-6"></div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'MENU_COMPANY' | translate }}</label>
+                        <!-- <select [(ngModel)]="companyIdSearch" (change)="searchPermission()" class="form-control">
+                            <option value="0">{{ 'OPT_COM' | translate }} .....</option>
+                            <option *ngFor="let company of companies" value="{{company.id}}">{{ company.name | translate }}</option>
+                        </select> -->
+                        <ng-select 
+                            [allowClear]="true"
+                            [items]="companyItems"
+                            (data)="refreshValueCompany($event)"
+                            (selected)="selectedCompany($event)"
+                            (removed)="removedCompany($event)"
+                            placeholder="Chọn công ty ...."
+                            >
+                        </ng-select>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_ROLE_USR' | translate }}</label>
+                        <select [(ngModel)]="roleIdSearch" (change)="searchPermission()" id="roleIdSearch" class="form-control">
+                            <option value="0">{{ 'OPT_ROLE' | translate }} .....</option>
+                            <option *ngFor="let role of roles" value="{{role.id}}">{{ 'LBL_RCT_' + role.name | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6"></div>
+            </div>
+        </div>
+        <div class="table-responsive" *ngIf="permissions.length > 0"> 
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }} </th>
+                        <th class="tx-center">{{ 'TABLE_PERMISION_PAGE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_PERMISION_VIEW_ADVANCED' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_PERMISION_EDIT' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_COM' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_ROLE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_CRE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let permission of permissions; let i = index">
+                        <th class="test-center" scope="row">{{((this.currentPage - 1) * this.limitPage) + (i + 1)}}</th>
+                        <td>{{ permission.key | translate }}</td>
+                        <td class="test-center">
+                            <i *ngIf="permission.key_tools && permission.key_tools.includes('view_advanced')" class="fa fa-check" aria-hidden="true"></i>              
+                            <i *ngIf="permission.key_tools && !permission.key_tools.includes('view_advanced')" class="fa fa-times" aria-hidden="true"></i>
+                            <i *ngIf="!permission.key_tools" class="fa fa-times" aria-hidden="true"></i>
+                        </td>
+                        <td class="test-center">
+                            <i *ngIf="permission.key_tools && permission.key_tools.includes('edit')" class="fa fa-check" aria-hidden="true"></i>              
+                            <i *ngIf="permission.key_tools && !permission.key_tools.includes('edit')" class="fa fa-times" aria-hidden="true"></i>
+                            <i *ngIf="!permission.key_tools" class="fa fa-times" aria-hidden="true"></i>
+                        </td>
+                        <td class="text-center">{{permission.company_name ? permission.company_name : '...' }}</td>
+                        <td class="text-center">{{ 'LBL_RCT_' + permission.role_name | translate }}</td>
+                        <td class="test-center">{{permission.created_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                        <td class="tx-18 tx-center">
+                            <a href="javascript:void(0)" class="btn btn-primary btn-width" (click)="showEditPermissionModal(permission.id)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_EDIT_PER' | translate }}">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </a>
+                            <a href="javascript:void(0)" class="btn btn-danger btn-width" (click)="deletePermission(permission.id)" data-toggle="tooltip" data-placement="top" title="{{ 'BTN_DEL_PER' | translate }}">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="mg-t-30 mg-b-20" *ngIf="permissions.length == 0 && loadDefault">
+                <div class="alert alert-warning mg-b-0" role="alert">
+                    <div class="d-flex align-items-center justify-content-start">
+                        <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+                    </div>
+                </div>
+            </div>
+        <div class="row" *ngIf="paginationTotal">
+            <div class="d-flex align-items-center justify-content-center col-md-12">
+                <pagination [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;" 
+                    [totalItems]="paginationTotal" [itemsPerPage]="limitPage" [maxSize]="7" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination>
+            </div>
+        </div>
+    </div>
+    <footer class="br-footer"></footer>
+</div>
+<!-- end table list permission -->
+
+<!-- from add permission -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_ADD_PER' | translate }}</h6>
+                <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'MENU_COMPANY' | translate }}: <span class="tx-danger">*</span></label>
+                            <ng-select 
+                                [allowClear]="true"
+                                [items]="companyItems"
+                                (data)="refreshValueCompany($event)"
+                                (selected)="selectedAddCompany($event)"
+                                (removed)="removedCompany($event)"
+                                placeholder="--- Chọn công ty ---">
+                            </ng-select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_ROLE_USR' | translate }}: <span class="tx-danger">*</span></label>
+                            <select [(ngModel)]="role_id" id="role_id" class="form-control">
+                                <option *ngFor="let role of roles" value="{{role.id}}">{{ 'LBL_RCT_' + role.name | translate }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_DIS_PAGE_NAME' | translate }}: <span class="tx-danger">*</span></label>
+                            <select class="form-control" id="key" [(ngModel)]="page_id">
+                                <option value="device">{{ 'device' | translate }}</option>
+                                <option value="route">{{ 'route' | translate }}</option>
+                                <option value="vehicle">{{ 'vehicle' | translate }}</option>
+                                <option value="ticket">{{ 'ticket' | translate }}</option>
+                                <option value="user">{{ 'user' | translate }}</option>
+                                <option value="application">{{ 'application' | translate }}</option>
+                                <option value="blank_card">{{ 'blank_card' | translate }}</option>
+                                <option value="membership_card">{{ 'membership_card' | translate }}</option>
+                                <option value="membership_type_card">{{ 'membership_type_card' | translate }}</option>
+                                <option value="denomination">{{ 'denomination' | translate }}</option>
+                                <option value="module_app">{{ 'module_app' | translate }}</option>
+                                <option value="company_info">{{ 'company_info' | translate }}</option>
+                                <option value="report_receipt">{{ 'report_receipt' | translate }}</option>
+                                <option value="report_ticket_destroy">{{ 'report_ticket_destroy' | translate }}</option>
+                                <option value="report_shift_destroy">{{ 'report_shift_destroy' | translate }}</option>
+                                <option value="report_time_trips">{{ 'report_time_trips' | translate }}</option>
+                                <option value="report_daily">{{ 'report_daily' | translate }}</option>
+                                <option value="transaction_detail">{{ 'TABLE_TRANSACTION_DETAIL' | translate }}</option>
+                                <option value="transaction_online">{{ 'TABLE_TRANSACTION_ONLINE' | translate }}</option>
+                                <option value="report_staff">{{ 'report_staff' | translate }}</option>
+                                <option value="report_vehicles">{{ 'report_vehicles' | translate }}</option>
+                                <option value="report_vehicle_all">{{ 'report_vehicle_all' | translate }}</option>
+                                <option value="report_vehicle_period">{{ 'report_vehicle_period' | translate }}</option>
+                                <option value="report_ticket">{{ 'report_ticket' | translate }}</option>
+                                <option value="print_ticket">{{ 'print_ticket' | translate }}</option>
+                                <option value="report_card">{{ 'report_card' | translate }}</option>
+                                <option value="report_card_month">{{ 'report_card_month' | translate }}</option>
+                                <option value="report_order">{{ 'report_order' | translate }}</option>
+                                <option value="history_shift">{{ 'history_shift' | translate }}</option>
+                                <option value="output">{{ 'output' | translate }}</option>
+                                <option value="report_card_month_group_busstation">{{ 'report_card_month_group_busstation' | translate }}</option>
+                                <option value="setting_global">{{ 'setting_global' | translate }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold ckbox">{{ 'TABLE_DIS_ACCEPT' | translate }}</label>
+                            <div class="checkbox option-permitsion">
+                                <label><input type="checkbox" value="view_advanced" [checked]="keyTools.includes('view_advanced')" (change)="changeCheckedKeyTools($event, 'view_advanced')"> <span>{{ 'TABLE_PERMISSION_VIEW_ADVANDCED' | translate }}</span></label>
+                                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                <label><input type="checkbox" value="edit" [checked]="keyTools.includes('edit')" (change)="changeCheckedKeyTools($event, 'edit')"> <span>{{ 'TABLE_PERMISSION_EDIT' | translate }}</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="addPermission()" [ladda]="isCreated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">
+                    {{ 'FORM_CREATE' | translate }}
+                </button>
+                <button (click)="addModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">
+                    {{ 'FORM_CANCEL' | translate }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end from add permission -->
+
+<!-- from edit permission -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_EDIT_PER' | translate }}</h6>
+                <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-lg-12">
+                        <div class="form-group" >
+                            <label class="form-control-label tx-bold">{{ 'MENU_COMPANY' | translate }}: <span class="tx-danger">*</span></label>
+                            <input class="form-control" type="text" value="{{company_name}}" disabled/>
+                            <!-- <select [(ngModel)]="companies_id" id="companies_id" class="form-control">
+                                <option *ngFor="let company of companies" value="{{company.id}}">{{ company.name | translate }}</option>
+                            </select> -->
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'LBL_ROLE_USR' | translate }}:  <span class="tx-danger">*</span></label>
+                            <select [(ngModel)]="role_id" id="role_id" class="form-control">
+                                <option *ngFor="let role of roles" value="{{role.id}}">{{ 'LBL_RCT_' + role.name | translate }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_DIS_PAGE_NAME' | translate }}: <span class="tx-danger">*</span></label>
+                            <select class="form-control" id="key" [(ngModel)]="page_id">
+                                <option value="device">{{ 'device' | translate }}</option>
+                                <option value="route">{{ 'route' | translate }}</option>
+                                <option value="vehicle">{{ 'vehicle' | translate }}</option>
+                                <option value="ticket">{{ 'ticket' | translate }}</option>
+                                <option value="user">{{ 'user' | translate }}</option>
+                                <option value="application">{{ 'application' | translate }}</option>
+                                <option value="blank_card">{{ 'blank_card' | translate }}</option>
+                                <option value="membership_card">{{ 'membership_card' | translate }}</option>
+                                <option value="membership_type_card">{{ 'membership_type_card' | translate }}</option>
+                                <option value="module_app">{{ 'module_app' | translate }}</option>
+                                <option value="denomination">{{ 'denomination' | translate }}</option>
+                                <option value="company_info">{{ 'company_info' | translate }}</option>
+                                <option value="report_receipt">{{ 'report_receipt' | translate }}</option>
+                                <option value="report_ticket_destroy">{{ 'report_ticket_destroy' | translate }}</option>
+                                <option value="report_shift_destroy">{{ 'report_shift_destroy' | translate }}</option>
+                                <option value="report_time_trips">{{ 'report_time_trips' | translate }}</option>
+                                <option value="report_staff">{{ 'report_staff' | translate }}</option>
+                                <option value="report_daily">{{ 'report_daily' | translate }}</option>
+                                <option value="report_vehicles">{{ 'report_vehicles' | translate }}</option>
+                                <option value="report_vehicle_all">{{ 'report_vehicle_all' | translate }}</option>
+                                <option value="report_vehicle_period">{{ 'report_vehicle_period' | translate }}</option>
+                                <option value="report_ticket">{{ 'report_ticket' | translate }}</option>
+                                <option value="transaction_detail">{{ 'transaction_detail' | translate }}</option>
+                                <option value="transaction_online">{{ 'TABLE_TRANSACTION_ONLINE' | translate }}</option>
+                                <option value="print_ticket">{{ 'print_ticket' | translate }}</option>
+                                <option value="report_card">{{ 'report_card' | translate }}</option>
+                                <option value="report_card_month">{{ 'report_card_month' | translate }}</option>
+                                <option value="report_order">{{ 'report_order' | translate }}</option>
+                                <option value="history_shift">{{ 'history_shift' | translate }}</option>
+                                <option value="output">{{ 'output' | translate }}</option>
+                                <option value="report_card_month_group_busstation">{{ 'report_card_month_group_busstation' | translate }}</option>
+                                <option value="setting_global">{{ 'setting_global' | translate }}</option>
+                            </select>
+                            <!-- <input type="text" class="form-control" name="display_name" [(ngModel)]="permission.display_name"> -->
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_DIS_NAME' | translate }}</label>
+                                <div class="checkbox option-permitsion">
+                                        <label><input type="checkbox" value="view_advanced" [checked]="keyTools.includes('view_advanced')" (change)="changeCheckedKeyTools($event, 'view_advanced')"> <span>{{ 'TABLE_PERMISSION_VIEW_ADVANDCED' | translate }}</span></label>
+                                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                        <label><input type="checkbox" value="edit" [checked]="keyTools.includes('edit')" (change)="changeCheckedKeyTools($event, 'edit')"> <span>{{ 'TABLE_PERMISSION_EDIT' | translate }}</span></label>
+                                </div>
+                            <!-- <input type="text" class="form-control" name="display_name" [(ngModel)]="permissionForm.display_name"> -->
+                        </div>
+                    </div>
+                </div>
+            </div>    
+            <div class="modal-footer">
+                <button (click)="editPermission()" [ladda]="isUpdated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">
+                    {{ 'FORM_UPDATE' | translate }}
+                </button>
+                <button (click)="editModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">
+                    {{ 'FORM_CANCEL' | translate }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end from edit permission -->

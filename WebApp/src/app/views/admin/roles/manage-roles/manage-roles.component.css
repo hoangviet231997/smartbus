@@ -1,0 +1,11 @@
+.form-layout-1 {
+    border: none;
+}
+
+.btn-flex-right {
+    margin-right: auto !important;
+}
+.btn-width{
+    width: 40px;
+    margin-right: 5px;
+}

@@ -1,0 +1,134 @@
+<!-- ########## START: LEFT PANEL ########## -->
+<div class="br-logo">
+    <a [routerLink]="['/admin']">
+        <img src="assets/img/logoDFM.png" class="img-avatar" />
+    </a>
+</div>
+<div class="br-sideleft overflow-y-auto">
+    <label class="sidebar-label pd-x-15 mg-t-20">{{ 'MENU_NAVIGATION' | translate }}</label>
+    <div class="br-sideleft-menu">
+
+        <a [routerLink]="['/admin/dashboard']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-ios-home-outline tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_HOME' | translate }}</span>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+
+        <a [routerLink]="['/admin/companies']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-ios-briefcase-outline tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_COMPANY' | translate }}</span>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+
+        <!-- <a [routerLink]="['/admin/users']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-ios-people-outline tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_ADMIN_USERS' | translate }}</span>
+            </div>
+        </a> -->
+        <a href="#" class="br-menu-link">
+                <div class="br-menu-item">
+                    <i class="menu-item-icon icon ion-iphone tx-24"></i>
+                    <span class="menu-item-label">{{ 'MENU_DEVICE' | translate }}</span>
+                    <i class="menu-item-arrow fa fa-angle-down"></i>
+                </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <ul class="br-menu-sub nav flex-column">
+            <li class="nav-item"><a [routerLink]="['/admin/devices/models']" class="nav-link" routerLinkActive="active">{{ 'MENU_MODELS' | translate }}</a></li>
+            <li class="nav-item"><a [routerLink]="['/admin/devices/devices']" class="nav-link" routerLinkActive="active">{{ 'MENU_MACHINE' | translate }}</a></li>
+            <li class="nav-item"><a [routerLink]="['/admin/devices/firmware-version']" class="nav-link" routerLinkActive="active">{{ 'MENU_FIRMWARE_VERSION' | translate }}</a></li>
+        </ul>
+
+        <a href="#" class="br-menu-link">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon fa fa-credit-card tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_CARD' | translate }}</span>
+                <i class="menu-item-arrow fa fa-angle-down"></i>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <ul class="br-menu-sub nav flex-column">
+            <li class="nav-item"><a [routerLink]="['/admin/cards/blank-cards']" class="nav-link" routerLinkActive="active">{{ 'MENU_BLANK_CARD' | translate }}</a></li>
+            <li class="nav-item"><a [routerLink]="['/admin/cards/print-blank-cards']" class="nav-link" routerLinkActive="active">{{ 'MENU_BLANK_PRINT_CARD' | translate }}</a></li>
+            <!-- <li class="nav-item"><a [routerLink]="['/admin/cards/prepaid_cards']" class="nav-link" routerLinkActive="active">{{ 'MENU_PREPAID_CARD' | translate }}</a></li> -->
+            <li class="nav-item"><a [routerLink]="['/admin/cards/rfid-cards']" class="nav-link" routerLinkActive="active">{{ 'MENU_RFID_CARD_MANAGRER' | translate }}</a></li>
+            <!-- <li class="nav-item"><a [routerLink]="['/admin/cards/membership_type_cards']" class="nav-link" routerLinkActive="active">{{ 'MENU_MANAGER_CARD_TYPE' | translate }}</a></li> -->
+        </ul>
+
+        <a [routerLink]="['/admin/module-apps']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon ion-social-android tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_MODULE_APP' | translate }}</span>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+
+        <a href="#" class="br-menu-link">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-ios-filing-outline tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_ACL' | translate }}</span>
+                <i class="menu-item-arrow fa fa-angle-down"></i>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <ul class="br-menu-sub nav flex-column">
+            <li class="nav-item"><a [routerLink]="['/admin/roles/manage-roles']" class="nav-link" routerLinkActive="active">{{ 'MENU_ACL_ROLES' | translate }}</a></li>
+            <!-- <li class="nav-item"><a [routerLink]="['/admin/roles/manage-permissions']" class="nav-link" routerLinkActive="active">{{ 'MENU_ACL_PERMISSIONS' | translate }}</a></li> -->
+            <li class="nav-item"><a [routerLink]="['/admin/roles/manage-categories']" class="nav-link" routerLinkActive="active">{{ 'MENU_ACL_CATEGORY' | translate }}</a></li>
+            <li class="nav-item"><a [routerLink]="['/admin/roles/manage-permission-v2']" class="nav-link" routerLinkActive="active">{{ 'MENU_ACL_PERMISSIONS_V2' | translate }}</a></li>
+        </ul>
+
+        <a href="#" class="br-menu-link">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-ios-contact tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_PARTNER' | translate }}</span>
+                <i class="menu-item-arrow fa fa-angle-down"></i>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <ul class="br-menu-sub nav flex-column">
+            <li class="nav-item"><a [routerLink]="['/admin/partners/partners']" class="nav-link" routerLinkActive="active">{{ 'MENU_MANAGER_PARTNER' | translate }}</a></li>
+            <li class="nav-item"><a [routerLink]="['/admin/partners/partners-account']" class="nav-link" routerLinkActive="active">{{ 'MENU_MANAGER_PARTNER_ACCOUNT' | translate }}</a></li>
+        </ul>
+
+        <a [routerLink]="['/admin/group-companies']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-android-people tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_GROUP_COMPANY' | translate }}</span>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+
+        <a [routerLink]="['/admin/activity-logs']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-clock tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_GROUP_ACTIVITY_LOGS' | translate }}</span>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+
+        <a [routerLink]="['/admin/notify-types']" class="br-menu-link" routerLinkActive="active">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-alert tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_NOTIFY_TYPE' | translate }}</span>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+
+        <a href="#" class="br-menu-link">
+            <div class="br-menu-item">
+                <i class="menu-item-icon icon ion-ios-gear-outline tx-24"></i>
+                <span class="menu-item-label">{{ 'MENU_SETTING' | translate }}</span>
+                <i class="menu-item-arrow fa fa-angle-down"></i>
+            </div><!-- menu-item -->
+        </a><!-- br-menu-link -->
+        <ul class="br-menu-sub nav flex-column">
+            <li class="nav-item"><a [routerLink]="['/admin/decode-online']" class="nav-link" routerLinkActive="active">{{ 'MENU_DECODE_ONLINE' | translate }}</a></li>
+            <li class="nav-item"><a [routerLink]="['/admin/configuration']" class="nav-link" routerLinkActive="active">{{ 'MENU_CONFIG' | translate }}</a></li>
+        </ul>
+        
+    </div><!-- br-sideleft-menu -->
+    <br>
+</div><!-- br-sideleft -->
+<!-- ########## END: LEFT PANEL ########## -->
+<app-header></app-header>
+<!-- ########## START: MAIN PANEL ########## -->
+<div class="br-mainpanel">
+    <router-outlet></router-outlet>
+</div><!-- br-mainpanel -->
+<!-- ########## END: MAIN PANEL ########## -->

@@ -1,0 +1,243 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!--Exemption cards report-->
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+      <div class="tx-left">
+          <h2 class="tx-gray-800 tx-bold mg-b-10">
+              <i class="fa fa-print" aria-hidden="true"></i>
+              <span class="menu-item-label">{{ 'MENU_EXEMPTION_CARDS' | translate }}</span>
+          </h2>
+      </div>
+      <div class="form-layout form-layout-1 pd-x-0" style="border: none;">
+          <div class="row mg-b-25">
+              <div class="col-md-3"></div>
+              <div class="col-md-3">
+                  <div class="form-group">
+                      <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                      <div class="input-group">
+                          <input class="form-control" #drp="bsDaterangepicker" bsDaterangepicker
+                              [(ngModel)]="bsRangeValue"
+                              [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                              [maxDate]="maxDate"
+                              (ngModelChange)="getCardExemption()">
+                          <span class="input-group-btn">
+                              <button class="btn btn-info pd-x-15" (click)="drp.toggle()"
+                                  [attr.aria-expanded]="drp.isOpen">
+                                  <i class="fa fa-calendar"></i>
+                              </button>
+                          </span>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="form-group">
+                      <label class="form-control-label tx-bold">{{ 'LBL_RP_STAFF_ROUTE' | translate }}</label>
+                      <div>
+                          <select [(ngModel)]="selectedRouteId" id="routeId" name="routeId" class="form-control"
+                              (change)="getCardExemption()">
+                              <option value="0">{{ 'BTN_VIEW_RECEIPT' | translate }}</option>
+                              <option *ngFor="let route of routes" value="{{route.id}}">{{route.name}}</option>
+                          </select>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- lert not data -->
+      <div class="row" *ngIf="isLoading">
+          <div class="col-md-12">
+              <div *ngIf="cardExemption.length == 0" class="alert alert-warning mg-b-0" role="alert">
+                  <div class="d-flex align-items-center justify-content-start">
+                      <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+                  </div>
+              </div>
+          </div>
+      </div>
+      <!--end lert not data -->
+
+      <div *ngIf="isLoading" class="mg-t-30 mg-b-20 text-center">
+          <table *ngIf="cardExemption.length > 0" class="table table-bordered table-hover table-striped">
+              <thead class="thead-colored thead-primary">
+                  <tr>
+                      <th class="tx-center tx-middle">{{ 'LBL_RP_EXEMPTION_CARDS_STT' | translate }}</th>
+                      <th class="tx-center tx-middle">{{ 'LBL_RP_EXEMPTION_CARDS_TYPE' | translate }}</th>
+                      <th class="tx-center tx-middle">{{ 'LBL_RP_EXEMPTION_CARDS_TIMES' | translate }}</th>
+                      <th class="tx-center tx-middle">{{ 'LBL_RP_EXEMPTION_CARDS_TOTAL_DISCOUNT' | translate }}</th>
+                      <th class="tx-center tx-middle">{{ 'LBL_RP_EXEMPTION_CARDS_DETAIL' | translate }}</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr *ngFor="let value of cardExemption; let i = index;">
+                      <td>{{ i + 1 }}</td>
+                      <td>{{ value.deduction }}%</td>
+                      <td class="tx-right">{{ value.total_ticket | number }}</td>
+                      <td class="tx-right">{{ value.total_amount | currency: 'VND':'' }}</td>
+                      <td class="tx-center">
+                          <a href="javascript:void(0)" (click)="getCardExemptionDetail(value.subject_data)" class="btn btn-info btn-width" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_RP_EXEMPTION_CARDS_DETAIL' | translate }}">
+                              <i class="fa fa-eye pd-r-5"  aria-hidden="true"></i>
+                          </a>
+                      </td>
+                  </tr>
+                  <tr class="font-weight-bold">
+                      <td colspan="2">{{ 'LBL_RP_EXEMPTION_SUM' | translate }}</td>
+                      <td class="tx-right">{{ sum_of_tickets | number }}</td>
+                      <td class="tx-right">{{ sum_of_amount | currency: 'VND':'' }}</td>
+                      <td></td>
+                  </tr>
+              </tbody>
+          </table>
+          <div *ngIf="permissions['report_card_exemption'].key_tools != null && permissions['report_card_exemption'].key_tools.includes('view_advanced')" class="form-layout-footer tx-center">
+            <button (click)="showPrintPreview()" class="btn btn-dark pd-r-20" >
+                <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+            </button>
+            &nbsp;
+            <button (click)="exportExcelFile()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+                <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+            </button>
+          </div>
+      </div>
+
+      <!-- show detail data  -->
+      <div bsModal #detailModal="bs-modal" class="modal fade">
+          <div class="modal-dialog modal-lg wd-100p" role="document">
+              <div class="modal-content bd-0 tx-14">
+              <div class="modal-header pd-y-20 pd-x-25">
+                  <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_DATA_DETAIL' | translate }}</h6>
+                  <button (click)="detailModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+
+              <div class="modal-body pd-25 form-layout form-layout-1">
+                  <div class="table-responsive">
+                      <table class="table table-bordered table-hover table-striped">
+                          <thead class="thead-colored thead-primary">
+                              <tr>
+                                  <th class="tx-center">{{ 'LBL_RP_EXEMPTION_CARDS_STT' | translate }}</th>
+                                  <th class="tx-center">{{ 'LBL_RP_EXEMPTION_CARDS_NAME' | translate }}</th>
+                                  <th class="tx-center">{{ 'LBL_RP_EXEMPTION_CARDS_BUSSTATION' | translate }}</th>
+                                  <th class="tx-center">{{ 'LBL_RP_EXEMPTION_CARDS_ROUTE_NAME' | translate }}</th>
+                                  <th class="tx-center">{{ 'LBL_RP_EXEMPTION_CARDS_DATE' | translate }}</th>
+                                  <th class="tx-center">{{ 'LBL_RP_EXEMPTION_CARDS_DENOMINATION' |translate }}</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <tr *ngFor="let value of cardExemptionDetail; let i = index;">
+                                  <td class="tx-center">{{ i + 1 }}</td>
+                                  <td class="tx-left">{{ value.fullname }}</td>
+                                  <td class="tx-left">{{ value.bus_station_name }}</td>
+                                  <td class="tx-center">{{ value.route_number }}</td>
+                                  <td class="tx-center">{{ value.activated | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+                                  <td class="tx-right">{{ value.ticket_price | currency: 'VND':'' }}</td>
+                              </tr>
+                              <tr class="font-weight-bold">
+                                  <td colspan="5" class="tx-center">{{ 'LBL_RP_EXEMPTION_SUM' | translate }}</td>
+                                  <td class="tx-right">{{ sum_of_prices | currency: 'VND':'' }}</td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button (click)="detailModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+              </div>
+              </div>
+          </div>
+      </div>
+      <!-- show detail data -->
+  </div>
+</div>
+<!-- Exemption cards report -->
+
+<!-- Online printing -->
+<div id="print-section" class="d-none" *ngIf="company">
+    <table>
+        <tr>
+            <td class="tx-center w-10 pt-0">
+                <div class="tx-11"> <strong > {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+            </td>
+            <td class="tx-center w-10">
+                <div class="tx-11">
+                    <strong > {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                    ({{ 'LBL_PRINT_BH' | translate }} <br />
+                    {{ 'LBL_PRINT_BTC' | translate }})
+                </div>
+            </td>
+        </tr>
+        <tr><td colspan="2">&nbsp;</td></tr>
+        <tr>
+            <td colspan="2" style="width:21cm;">
+                <div class="tx-center">
+                    <strong class="tx-12" style="text-transform: uppercase"> {{ 'MENU_EXEMPTION_CARDS' | translate }}</strong><br>
+                    <i class="tx-10">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{dayFrom}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthFrom}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearFrom}} {{ 'LBL_PRINT_DATE_TO' | translate }} {{dayTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}} {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearTo}}</i><br>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="tx-center" colspan="2" >{{ route_name }}</td>
+        </tr>
+        <tr>
+            <td class="tx-center w-10 pt-0"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%" *ngIf="cardExemption.length > 0">
+                    <tr>
+                        <th class="tx-center">{{ 'LBL_RP_EXEMPTION_CARDS_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_RP_EXEMPTION_CARDS_TYPE' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_RP_EXEMPTION_CARDS_TIMES' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_RP_EXEMPTION_CARDS_TOTAL_DISCOUNT' | translate }}</th>
+                    </tr>
+                    <tr *ngFor="let card of cardExemption; let i = index">
+                        <td style="text-align:center">{{i + 1}}</td>
+                        <td style="text-align:center">{{ card.deduction }}%</td>
+                        <td style="text-align:right">{{ card.total_ticket | number }}</td>
+                        <td style="text-align:right">{{ card.total_amount | currency: 'VND':'' }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;font-weight:bold;" colspan="2">{{ 'LBL_RP_EXEMPTION_SUM' | translate }}</td>
+                        <td style="text-align:right;font-weight:bold;">{{ sum_of_tickets | number }}</td>
+                        <td style="text-align:right;font-weight:bold;">{{ sum_of_amount | currency: 'VND':'' }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} .... {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table  class="table-striped"  style="width:100%">
+                    <tbody>
+                        <tr>
+                            <td colspan="3" class="tx-center w-4 fl" >
+                                <strong style="text-transform: uppercase">{{ 'LBL_PRINT_NLB' | translate }}
+                                </strong>
+                                <br>
+                                <i>({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                            </td>
+
+                            <td colspan="3" class="tx-center w-5 fr" >
+                                <strong style="text-transform: uppercase">{{ 'LBL_PRINT_TBDH' | translate | uppercase}}
+                                </strong>
+                                <br>
+                                <i>({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>

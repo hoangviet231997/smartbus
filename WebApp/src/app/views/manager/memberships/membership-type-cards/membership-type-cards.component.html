@@ -1,0 +1,148 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+  </div>
+
+<!-- manager membership type rfid card -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-8 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                  <i class="fa fa-credit-card" aria-hidden="true"></i>
+                  <span class="menu-item-label">{{'MENU_RFID_CARD_TYPE' | translate}}</span>
+                </h2>
+            </div>
+            <div class="col-md-4 tx-right">
+              <button *ngIf="permissions['card_membership_type_card'].key_tools != null && permissions['card_membership_type_card'].key_tools.includes('edit') && user_down !== null" class="btn btn-teal mg-b-20 pd-r-20"  (click)="showAddMembershipTypeModal()"  data-toggle="tooltip" data-placement="top">
+                  <i class="fa fa-plus mg-r-5"></i> {{ 'BTN_ADD_MEM_TYPE_CARD' | translate }}
+              </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_MEM_TYPE_NAME' | translate }}</th>
+                        <th class="tx-center">{{ 'LBL_MEM_TYPE_DEDUCTION' | translate }} (%)</th>
+                        <th class="tx-center">{{ 'LBL_MEM_TYPE_CODE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_CRE' | translate }}</th>
+                        <th *ngIf="permissions['card_membership_type_card'].key_tools != null && permissions['card_membership_type_card'].key_tools.includes('edit')"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let value of membershpTypes; let i = index">
+                        <th class="tx-center" scope="row">{{i+1}}</th>
+                        <td>{{value.name}}</td>
+                        <td class="tx-center">{{value.deduction}}</td>
+                        <td *ngIf="value.code == 0 ">{{ 'LBL_MEM_TYPE_CODE_PREPAIDCARD' | translate }}</td>
+                        <td *ngIf="value.code == 1 ">{{ 'LBL_MEM_TYPE_CODE_MONTHCARD' | translate }}</td>
+                        <td class="tx-center">{{value.created_at | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+                        <td class="tx-center" *ngIf="permissions['card_membership_type_card'].key_tools != null && permissions['card_membership_type_card'].key_tools.includes('edit')">
+                            <a href="javascript:void(0)" class="btn btn-primary" (click)="showEditMembershipTypeModal(value.id)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_TYPE_EDIT' | translate }}">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </a>
+                            <!-- &nbsp;
+                            <a *ngIf="user_down !== null" href="javascript:void(0)" class="btn btn-danger" (click)="deleteMembershipType(value.id)"  data-toggle="tooltip" data-placement="top" title="{{ 'LBL_MEM_CARD_CANCEL' | translate }}">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a> -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- end manager membership type rfid card -->
+
+<!-- from add membership type -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_ADD_MEM_TYPE_CARD' | translate }}</h6>
+            <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="row mg-b-25">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_MEM_TYPE_NAME' | translate }}:  <span class="tx-danger">*</span></label>
+                        <input class="form-control" type="text" [(ngModel)]="membershipTypeCreate.name"  maxlength="50">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_MEM_TYPE_DEDUCTION' | translate }}:  <span class="tx-danger">*</span></label>
+                        <input class="form-control" type="number"  [(ngModel)]="membershipTypeCreate.deduction"  min="0" max="100" >
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_MEM_TYPE_CODE' | translate }}:  <span class="tx-danger">*</span></label>
+                        <select class="form-control" name="type" [(ngModel)]="type" tabindex="-1" aria-hidden="true">
+                            <option value="prepaidcard">{{ 'LBL_MEM_TYPE_CODE_PREPAIDCARD' | translate }}</option>
+                            <option value="monthcard">{{ 'LBL_MEM_TYPE_CODE_MONTHCARD' | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button (click)="addMembershipType()" [ladda]="isCreated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_ADD' | translate }}</button>
+            <button (click)="addModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+    </div>
+    </div>
+</div>
+<!-- end from add membership type -->
+
+<!-- from edit membership type -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'BTN_EDIT_TYPE_CARD' | translate }}</h6>
+            <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="row mg-b-25">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_MEM_TYPE_NAME' | translate }}: <span class="tx-danger">*</span></label>
+                        <input class="form-control" type="text" [(ngModel)]="membershipTypeUpdate.name"  maxlength="50">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_MEM_TYPE_DEDUCTION' | translate }}: <span class="tx-danger">*</span></label>
+                        <input class="form-control" type="number"  [(ngModel)]="membershipTypeUpdate.deduction"  min="0" max="100" >
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_MEM_TYPE_CODE' | translate }}: <span class="tx-danger">*</span></label>
+                        <select class="form-control" name="type" [(ngModel)]="type" tabindex="-1" aria-hidden="true">
+                            <option value="prepaidcard">{{ 'LBL_MEM_TYPE_CODE_PREPAIDCARD' | translate }}</option>
+                            <option value="monthcard">{{ 'LBL_MEM_TYPE_CODE_MONTHCARD' | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button (click)="editMembershipType()" [ladda]="isUpdated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+            <button (click)="editModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+    </div>
+    </div>
+</div>
+<!-- end from edit membership type -->

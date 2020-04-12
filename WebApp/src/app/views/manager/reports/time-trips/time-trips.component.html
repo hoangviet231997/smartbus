@@ -1,0 +1,616 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- report trips months all-->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-9 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-print" aria-hidden="true"></i>
+                    <span class="menu-item-label" *ngIf=" selectedType == 0 || selectedType == 1" >{{ 'MENU_TIME_TRIPS' | translate }}</span>
+                    <span class="menu-item-label" *ngIf=" selectedType == 2">{{ 'MENU_TIMEKEEPING' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-3 tx-right">
+                <select id="typeId" name="typeId"
+                    class="form-control tx-center tx-bold tx-italic tx-gray-800 ng-pristine ng-valid ng-touched"
+                    [(ngModel)]="selectedType" tabindex="-1" aria-hidden="true" (ngModelChange)="OnChangeView()" [disabled]="is_user_login">
+                    <option class="tx-center tx-bold tx-italic tx-gray-800" value="0">---
+                        {{ 'LBL_RP_ALL_ROUTES' | translate }} ---</option>
+                    <option class="tx-center tx-bold tx-italic tx-gray-800" value="1">---
+                        {{ 'LBL_RP_ONLY_ROUTE' | translate }} ---</option>
+                    <option class="tx-center tx-bold tx-italic tx-gray-800" value="2">---
+                        {{ 'LBL_RP_TIMEKEEPING_STAFF' | translate }} ---</option>
+                </select>
+            </div><!-- col-4 -->
+        </div>
+        <div class="form-layout form-layout-1 pd-x-0" style="border: none;">
+            <div class="row mg-b-25">
+                <div *ngIf=" selectedType == 0" class="col-md-3"></div>
+                <div class="col-md-3" *ngIf=" selectedType == 0 || selectedType == 1">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                        <div class="input-group">
+                            <input class="form-control" #drp="bsDaterangepicker" bsDaterangepicker
+                                [(ngModel)]="bsRangeValue" [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                                [maxDate]="maxDate" (ngModelChange)="getData()">
+                            <span class="input-group-btn">
+                                <button class="btn btn-info pd-x-15" (click)="drp.toggle()"
+                                    [attr.aria-expanded]="drp.isOpen">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+
+                    </div>
+                </div><!-- col-4 -->
+
+                <div *ngIf="selectedType == 1" class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RP_STAFF_POSITION' | translate }}</label>
+                        <select [(ngModel)]="selectedPosition" id="position" name="position" class="form-control" [disabled]="is_user_login"
+                            (change)="getData('role')">
+                            <option value="all">{{ 'BTN_VIEW_RECEIPT' | translate }}</option>
+                            <option value="driver">{{ 'LBL_RCT_driver' | translate }}</option>
+                            <option value="subdriver">{{ 'LBL_RP_STAFF_SUBDRIVER' | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div *ngIf="selectedType == 1" class="col-lg-3">
+                    <div class="form-group">
+                        <label
+                            class="form-control-label tx-bold">{{ 'LBL_REPORT_MEM_CARD_MONTH_STAFF' | translate }}:</label>
+                        <div class="input-group">
+                            <input class="form-control" type="text" [(ngModel)]="searchUserName" disabled>
+                            <!-- <input type="hidden" [(ngModel)]="selecteUserId"> -->
+                            <span class="input-group-btn">
+                                <button *ngIf="selectedPosition == 'all'" (click)="showListUserModal()"
+                                    class="btn btn-info pd-x-15" type="button" disabled>
+                                    <i class="fa fa-user"></i>
+                                </button>
+                                <button *ngIf="selectedPosition == 'driver' || selectedPosition == 'subdriver'"
+                                    (click)="showListUserModal()" class="btn btn-info pd-x-15" type="button" [disabled]="is_user_login">
+                                    <i class="fa fa-user"></i>
+                                </button>
+                            </span>
+                        </div>
+                        <!-- <input type="text" [(ngModel)]="userIdParam" class="form-control"> -->
+                    </div>
+                </div><!-- col-3 -->
+
+                <div class="col-md-3" *ngIf=" selectedType == 0 || selectedType == 1">
+                    <div class="form-group">
+                        <label class="form-control-label tx-bold">{{ 'LBL_RP_STAFF_ROUTE' | translate }}</label>
+                        <div>
+                            <select [(ngModel)]="selectedRouteId" id="routeId" name="routeId" class="form-control" (change)="getData(null)">
+                                <option value="0">{{ 'BTN_VIEW_RECEIPT' | translate }}</option>
+                                <option *ngFor="let route of routes" value="{{route.id}}">{{route.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf=" selectedType == 0" class="col-md-3"></div>
+            </div>
+
+            <!-- Show is alert -->
+            <div *ngIf="isLoading && (selectedType == 0 || selectedType == 1)" class="mg-t-30 mg-b-20">
+                <div *ngIf="dataTimeTrips.length == 0" class="alert alert-warning mg-b-0" role="alert">
+                    <div class="d-flex align-items-center justify-content-start">
+                        <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- End is alert -->
+
+            <!-- button export file exel  -->
+            <div class="form-layout-footer tx-center" *ngIf="(permissions['report_time_trips'].key_tools != null && permissions['report_time_trips'].key_tools.includes('view_advanced'))">
+              <div  *ngIf="dataTimeTrips.length > 0">
+                <button (click)="showPrintPreviewSummary()" class="btn btn-dark pd-r-20">
+                    <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+                </button>
+                &nbsp;
+                <button (click)="exportFile()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+                    <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+                </button>
+              </div>
+            </div>
+            <!-- end button export file exel -->
+
+            <!-- show rp all rotutes -->
+            <div *ngIf="selectedType == 0 && isLoading && dataTimeTrips.length > 0" class="mg-t-30 mg-b-20">
+                <table class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_STT' | translate }}</th>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_ROUTE_NUMBER' | translate }}</th>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_TOTAL_NUM' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let value of dataTimeTrips;let i = index">
+                            <td class="tx-center">{{ i + 1 }}</td>
+                            <td class="tx-center tx-bold"
+                                *ngIf="!value.route_number && !value.count_route_number && value.total_route_number >= 0 ">
+                                {{ 'LBL_RP_TRIP_MONTHS_TOTAL_ALL' | translate }}</td>
+                            <td class="tx-center tx-bold"
+                                *ngIf="!value.route_number && !value.count_route_number && value.total_route_number >= 0 ">
+                                {{ value.total_route_number | number}}</td>
+                            <td class="tx-center"
+                                *ngIf="value.route_number && value.count_route_number >= 0  && !value.total_route_number">
+                                Tuyến {{ value.route_number }}</td>
+                            <td class="tx-center"
+                                *ngIf="value.route_number && value.count_route_number >= 0  && !value.total_route_number">
+                                {{ value.count_route_number | number}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- end show list tickets -->
+
+            <!--=======================-->
+
+            <!-- show list RP each route -->
+            <div *ngIf="selectedType == 1 && isLoading" class="mg-t-30 mg-b-20">
+                <table *ngIf="dataTimeTrips.length > 0" class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_STT' | translate }}</th>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_STAFF' | translate }}</th>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_POSTION' | translate }}</th>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_ROUTE_NUMBER' | translate }}</th>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_TOTAL_NUM' | translate }}</th>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_DETAIL' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr *ngFor="let value of dataTimeTrips; let i = index">
+                            <td *ngIf="value.fullname && value.route_number" class="tx-center">{{ i + 1 }}</td>
+                            <td *ngIf="value.fullname && value.route_number" class="tx-left"> {{ value.fullname }} </td>
+                            <td *ngIf="value.fullname && value.route_number" class="tx-center">
+                                {{ value.position_name }} </td>
+                            <td *ngIf="value.fullname && value.route_number" class="tx-center"> {{ value.route_number }}
+                            </td>
+                            <td
+                                 *ngIf="value.fullname && value.route_number" class="tx-center"> {{ value.count_route_number | number}}
+                            </td>
+                            <td *ngIf="value.fullname && value.route_number" class="tx-center">
+                                <a href="javascript:void(0)"  class="btn btn-info btn-width" (click)="showlistDataDetailModal(value.data_shift, i, value.route_name)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_RP_TRIP_MONTHS_DETAIL' | translate }}">
+                                    <i class="fa fa-eye pd-r-5"  aria-hidden="true"></i>
+                                </a>
+                            </td>
+                            <td colspan="4"
+                                *ngIf="!value.fullname && !value.route_number && value.position_name != 'all'"
+                                class="tx-center tx-bold">{{ value.position_name }} </td>
+                            <td *ngIf="!value.fullname && !value.route_number && value.position_name != 'all'"
+                                class="tx-center tx-bold"> {{ value.count_route_number | number}} </td>
+                            <td *ngIf="!value.fullname && !value.route_number && value.position_name != 'all'"
+                            class="tx-center tx-bold">--:--</td>
+
+                            <td colspan="4"
+                                *ngIf="!value.fullname && !value.route_number && value.position_name == 'all'"
+                                class="tx-center tx-bold">{{'LBL_RP_TRIP_MONTHS_TOTAL_ALLS' | translate}} </td>
+                            <td *ngIf="!value.fullname && !value.route_number && value.position_name == 'all'"
+                                class="tx-center tx-bold"> {{ value.count_route_number | number}} </td>
+                            <td *ngIf="!value.fullname && !value.route_number && value.position_name == 'all'"
+                                class="tx-center tx-bold">--:--</td>
+
+                            <td colspan="4" *ngIf="!value.fullname && !value.route_number && selectedUserId > 0"
+                                class="tx-center tx-bold">{{'LBL_RP_TRIP_MONTHS_TOTAL_ALLS' | translate}} </td>
+                            <td *ngIf="!value.fullname && !value.route_number && selectedUserId > 0"
+                                class="tx-center tx-bold"> {{ value.count_route_number | number}} </td>
+                            <td *ngIf="!value.fullname && !value.route_number && selectedUserId > 0"
+                                class="tx-center tx-bold">--:--</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <!-- report time keeping -->
+            <div *ngIf="selectedType == 2" >
+                      <div class="row mg-b-25">
+                          <div class="offset-md-4 col-md-4 ">
+                              <div class="form-group">
+                                  <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                                  <div class="input-group">
+                                      <input class="form-control"
+                                          #drp="bsDatepicker"
+                                          bsDatepicker
+                                          [(ngModel)]="bsRangeValues"
+                                          [bsConfig]="{ dateInputFormat: 'MM/YYYY' }"
+                                          [maxDate]="maxDate"
+                                      >
+                                      <span class="input-group-btn">
+                                          <button class="btn btn-info pd-x-15" (click)="drp.toggle()" [attr.aria-expanded]="drp.isOpen">
+                                              <i class="fa fa-calendar"></i>
+                                          </button>
+                                      </span>
+                                  </div>
+                              </div>
+                          </div><!-- col-6 -->
+                      </div>
+                      <!-- Show is alert -->
+                      <div *ngIf="isLoading" class="mg-t-30 mg-b-20">
+                          <div *ngIf="!isExport" class="alert alert-warning mg-b-0" role="alert">
+                              <div *ngIf="data_export.length == 0" class="d-flex align-items-center justify-content-start">
+                                  <i class="icon ion-alert-circled alert-icon tx-24 mg-t-5 mg-xs-t-0"></i>{{ 'LBL_RCT_NOT_DATA' | translate}}
+                              </div>
+                          </div>
+                      </div>
+                      <!-- End is alert -->
+                      <!-- button export file exel  -->
+                      <div *ngIf="(permissions['report_time_trips'].key_tools != null && permissions['report_time_trips'].key_tools.includes('view_advanced'))" class="form-layout-footer tx-center">
+                          <button (click)="exportFileTimeKeeping()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+                              <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+                          </button>
+                      </div>
+                      <!-- end button export file exel -->
+            </div>
+            <!-- end report time keeping -->
+
+        </div>
+    </div>
+</div>
+
+<!-- start print report-->
+
+<div id="print-section" class="d-none" *ngIf="company">
+    <table>
+        <tr>
+            <td class="tx-center w-10 pt-0">
+                <div class="tx-11"> <strong> {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+            </td>
+            <td class="tx-center w-10">
+                <div class="tx-11">
+                    <strong> {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                    ({{ 'LBL_PRINT_BH' | translate }} <br />
+                    {{ 'LBL_PRINT_BTC' | translate }})
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width:21cm;">
+                <div class="tx-center">
+                    <strong class="tx-12" style="text-transform: uppercase">
+                        {{ 'MENU_TIME_TRIPS' | translate }}</strong><br>
+                    <span *ngIf="bsRangeValue"><i class="tx-10">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}}
+                            {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}}
+                            {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }}
+                            {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}}
+                            {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i><br></span>
+                    <span *ngIf="!bsRangeValue"><i class="tx-10">{{ 'REPORT_ALL_TIME' | translate }} </i><br></span>
+                    <i class="tx-10" *ngIf="routeName">{{ 'LBL_VEHICLE_ROUTE' | translate }}: {{routeName[0].name}}</i>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="tx-center w-10 pt-0"></td>
+        </tr>
+
+        <!--start all-->
+        <tr *ngIf=" selectedType == 0 ">
+            <td colspan="2">
+                <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%"
+                    *ngIf="dataTimeTrips.length > 0">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_STT' | translate }}</th>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_ROUTE_NUMBER' | translate }}</th>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_TOTAL_NUM' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let value of dataTimeTrips;let i = index">
+                            <td class="tx-center">{{ i + 1 }}</td>
+                            <td class="tx-center tx-bold"
+                                *ngIf="!value.route_number && !value.count_route_number && value.total_route_number">
+                                {{ 'LBL_RP_TRIP_MONTHS_TOTAL_ALL' | translate }}</td>
+                            <td class="tx-center tx-bold"
+                                *ngIf="!value.route_number && !value.count_route_number && value.total_route_number">
+                                {{ value.total_route_number | number}}</td>
+                            <td class="tx-center"
+                                *ngIf="value.route_number && value.count_route_number >= 0  && !value.total_route_number">
+                                Tuyến {{ value.route_number }}</td>
+                            <td class="tx-center"
+                                *ngIf="value.route_number && value.count_route_number >= 0  && !value.total_route_number">
+                                {{ value.count_route_number | number}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <!--end  all-->
+
+        <!--start a route-->
+        <tr *ngIf=" selectedType == 1 ">
+            <td colspan="2">
+                <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%"
+                    *ngIf="dataTimeTrips.length > 0">
+                    <thead class="thead-colored thead-primary">
+                        <tr>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_STT' | translate }}</th>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_STAFF' | translate }}</th>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_POSTION' | translate }}</th>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_ROUTE_NUMBER' | translate }}</th>
+                            <th class="tx-center tx-middle">{{ 'LBL_RP_TRIP_MONTHS_TOTAL_NUM' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let value of dataTimeTrips;let i = index">
+                            <td *ngIf="value.fullname && value.route_number" class="tx-center">{{ i + 1 }}</td>
+                            <td *ngIf="value.fullname && value.route_number" class="tx-left"> {{ value.fullname }} </td>
+                            <td *ngIf="value.fullname && value.route_number" class="tx-center">
+                                {{ value.position_name }} </td>
+                            <td *ngIf="value.fullname && value.route_number" class="tx-center"> {{ value.route_number }}
+                            </td>
+                            <td *ngIf="value.fullname && value.route_number" class="tx-center">
+                                {{ value.count_route_number | number}} </td>
+
+                            <td colspan="4"
+                                *ngIf="!value.fullname && !value.route_number && value.position_name != 'all'"
+                                class="tx-center tx-bold"> {{ value.position_name }} </td>
+                            <td *ngIf="!value.fullname && !value.route_number && value.position_name != 'all'"
+                                class="tx-center tx-bold"> {{ value.count_route_number | number}} </td>
+
+                            <td colspan="4"
+                                *ngIf="!value.fullname && !value.route_number && value.position_name == 'all'"
+                                class="tx-center tx-bold">{{'LBL_RP_TRIP_MONTHS_TOTAL_ALLS' | translate}} </td>
+                            <td *ngIf="!value.fullname && !value.route_number && value.position_name == 'all'"
+                                class="tx-center tx-bold"> {{ value.count_route_number | number}} </td>
+
+                            <td colspan="4" *ngIf="!value.fullname && !value.route_number && selectedUserId > 0"
+                                class="tx-center tx-bold">{{'LBL_RP_TRIP_MONTHS_TOTAL_ALLS' | translate}} </td>
+                            <td *ngIf="!value.fullname && !value.route_number && selectedUserId > 0"
+                                class="tx-center tx-bold"> {{ value.count_route_number | number}} </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <!--end a route-->
+        <tr>
+            <td colspan="2">
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} ....
+                    {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table class="table-striped" style="width:100%">
+                    <tbody>
+                        <tr>
+                            <td colspan="3" class="tx-center w-4 fl">
+                                <strong style="text-transform: uppercase">{{ 'LBL_PRINT_NLB' | translate }}
+                                </strong>
+                                <br>
+                                <i>({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                            </td>
+                            <td colspan="3" class="tx-center w-5 fr">
+                                <strong style="text-transform: uppercase">{{ 'LBL_PRINT_TBDH' | translate }}
+                                </strong>
+                                <br>
+                                <i>({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<!-- show list user -->
+<div bsModal #listUserModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_LIST_USR' | translate }}</h6>
+                <button (click)="listUserModal.hide()" type="button" class="close" data-dismiss="modal"
+                    aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="input-group mg-b-20">
+                    <input class="form-control py-2 border-right-0 border" type="search" value="search"
+                        id="example-search-input" name="search" [(ngModel)]="inputUserName" placeholder="Tìm kiếm...">
+                    <span class="input-group-append">
+                        <div class="input-group-text bg-transparent"><i class="fa fa-search"></i></div>
+                    </span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead class="thead-colored thead-primary">
+                            <tr>
+                                <th>{{ 'TABLE_STT_NO' | translate }}</th>
+                                <th>{{ 'LBL_RFID_USR' | translate }}</th>
+                                <th>{{ 'LBL_NAME_USR' | translate }}</th>
+                                <th>{{ 'LBL_RCT_PST' | translate }}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let user of (users | filter: inputUserName); let i = index">
+                                <td>{{ i + 1 }}</td>
+                                <td>
+                                    <span *ngIf="user.rfidcard">
+                                        {{ user.rfidcard.rfid }}
+                                    </span>
+                                </td>
+                                <td>{{ user.fullname }}</td>
+                                <td>{{ 'LBL_RCT_' + user.role.name | translate }}</td>
+                                <th class="tx-center" scope="row">
+                                    <button (click)="chooseUser(user.id)" class="btn btn-info">
+                                        {{ 'LBL_USER_PICK' | translate }}
+                                    </button>
+                                </th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="listUserModal.hide()" type="button"
+                    class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25"
+                    data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end show list user -->
+
+<!-- show detail data  -->
+<div bsModal #listDataDetailModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg wd-100p" role="document">
+        <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_RCT_DATA_DETAIL' | translate }}</h6>
+            <button (click)="listDataDetailModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped">
+                    <thead class="thead-colored thead-primary">
+                        <tr >
+                            <th class="tx-center">{{'LBL_RP_TRIP_MONTHS_STT' |translate}}</th>
+                            <th class="tx-center">{{'LBL_RP_TRIP_MONTHS_DATE_DETAIL' |translate}}</th>
+                            <th class="tx-center">{{'LBL_RP_TRIP_MONTHS_ROUTE_NAME' |translate}}</th>
+                            <th class="tx-center">{{'LBL_RP_TRIP_MONTHS_VEHICLES_NUMBER' |translate}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let vls of detailDataShift; let i = index">
+                            <td class="tx-center">{{ i + 1}}</td>
+                            <td class="tx-center">{{ vls.date_details }}</td>
+                            <td class="tx-center">{{ vls.route_name_details}}</td>
+                            <td class="tx-center">{{ vls.vehicle_details}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer" *ngIf="(permissions['report_time_trips'].key_tools != null && permissions['report_time_trips'].key_tools.includes('view_advanced'))">
+            <button (click)="showPrintModal()" class="btn btn-dark pd-r-20">
+                    <i class="fa fa-print"></i> {{ 'LBL_RCT_COLLECT_IN' | translate }}
+            </button>
+                &nbsp;
+            <button (click)="exportFileModal()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+                    <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+            </button>
+
+            <button (click)="listDataDetailModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+        </div>
+    </div>
+</div>
+<!-- show detail data -->
+
+<!-- print detail data trip times -->
+<div id="print-modal" class="d-none" *ngIf="company">
+    <table>
+        <tr>
+            <td class="tx-center w-10 pt-0">
+                <div class="tx-11"> <strong> {{ company.fullname }} <br /> {{ company.address }}</strong></div>
+            </td>
+            <td class="tx-center w-10">
+                <div class="tx-11">
+                    <strong> {{ 'LBL_PRINT_MS' | translate }}</strong><br />
+                    ({{ 'LBL_PRINT_BH' | translate }} <br />
+                    {{ 'LBL_PRINT_BTC' | translate }})
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width:21cm;">
+                <div class="tx-center">
+                    <strong class="tx-12" style="text-transform: uppercase">
+                        {{ 'MENU_DETAIL_TIME_TRIPS' | translate }}</strong><br>
+                    <span *ngIf="bsRangeValue"><i class="tx-10">{{ 'LBL_PRINT_DATE_FROM' | translate }} {{daysForm}}
+                            {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthForm}}
+                            {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsForm}} {{ 'LBL_PRINT_DATE_TO' | translate }}
+                            {{daysTo}} {{ 'LBL_PRINT_DATE_MOTH' | translate }} {{monthTo}}
+                            {{ 'LBL_PRINT_DATE_YEAR' | translate }} {{yearsTo}}</i><br></span>
+                    <span *ngIf="!bsRangeValue"><i class="tx-10">{{ 'REPORT_ALL_TIME' | translate }} </i><br></span>
+                    <i class="tx-10" *ngIf="routeName">{{ 'LBL_VEHICLE_ROUTE' | translate }}: {{routeNameTrip}}</i>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="tx-center w-10 pt-0"></td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <table class="tbl-print" border="1" style="border-collapse: collapse; width:100%">
+                    <thead class="thead-colored thead-primary">
+                            <tr >
+                                <th>{{'LBL_RP_TRIP_MONTHS_STT' |translate}}</th>
+                                <th>{{'LBL_RP_TRIP_MONTHS_DATE_DETAIL' |translate}}</th>
+                                <th>{{'LBL_RP_TRIP_MONTHS_ROUTE_NAME' |translate}}</th>
+                                <th>{{'LBL_RP_TRIP_MONTHS_VEHICLES_NUMBER' |translate}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let vls of detailDataShift; let i = index">
+                                <td class="tx-center">{{ i + 1}}</td>
+                                <td class="tx-center">{{ vls.date_details }}</td>
+                                <td class="tx-center">{{ vls.route_name_details}}</td>
+                                <td class="tx-center">{{ vls.vehicle_details}}</td>
+                            </tr>
+                        </tbody>
+                </table>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fl">&nbsp;</div>
+                <div class="w-4 fr tx-11" style="text-align:right">{{ 'LBL_PRINT_DATE_DAY' | translate }} ....
+                    {{ 'LBL_PRINT_DATE_MOTH' | translate }} .... {{ 'LBL_PRINT_DATE_YEAR' | translate }} .......</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table class="table-striped" style="width:100%">
+                    <tbody>
+                        <tr>
+                            <td colspan="3" class="tx-center w-4 fl">
+                                <strong style="text-transform: uppercase">{{ 'LBL_PRINT_NLB' | translate }}
+                                </strong>
+                                <br>
+                                <i>({{ 'LBL_PRINT_SIGN' | translate }})</i>
+                            </td>
+                            <td colspan="3" class="tx-center w-5 fr">
+                                <strong style="text-transform: uppercase">{{ 'LBL_PRINT_TBDH' | translate }}
+                                </strong>
+                                <br>
+                                <i>({{ 'LBL_PRINT_SIGN_GD' | translate }})</i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>

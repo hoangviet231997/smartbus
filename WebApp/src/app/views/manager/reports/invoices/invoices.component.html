@@ -1,0 +1,47 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+    <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- manager invoices report -->
+<div class="br-pagebody">
+  <div class="br-section-wrapper">
+    <div class="row">
+        <div class="col-md-12 tx-left">
+            <h2 class="tx-gray-800 tx-bold mg-b-10">
+                <i class="fa fa-print" aria-hidden="true"></i>
+                <span class="menu-item-label">{{ 'MENU_INVOICES' | translate }}</span>
+            </h2>
+        </div>
+    </div>
+    <div class="form-layout form-layout-1 pd-x-0">
+        <div class="row mg-b-25">
+            <div class="offset-md-4 col-md-4">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'LBL_RCT_CHOOSE_DATE' | translate }}</label>
+                    <div class="input-group">
+                        <input class="form-control"
+                            #drp="bsDaterangepicker"
+                            bsDaterangepicker
+                            [(ngModel)]="bsRangeValue"
+                            [bsConfig]="{ rangeInputFormat: 'DD/MM/YYYY' }"
+                            [maxDate]="maxDate">
+                        <span class="input-group-btn">
+                            <button class="btn btn-info pd-x-15" (click)="drp.toggle()" [attr.aria-expanded]="drp.isOpen">
+                                <i class="fa fa-calendar"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- button export file exel  -->
+        <div class="form-layout-footer tx-center" *ngIf="(permissions['report_order'].key_tools != null && permissions['report_order'].key_tools.includes('view_advanced'))">
+            <button (click)="exportInvoices()" class="btn btn-teal pd-r-20" [ladda]="isExport">
+                <i class="fa fa-file-excel-o pd-r-5"></i> {{ 'LBL_RCT_EXCEL' | translate }}
+            </button>
+        </div>
+        <!-- end button export file exel -->
+    </div>
+  </div>
+</div>
+<!-- end manager invoices report-->

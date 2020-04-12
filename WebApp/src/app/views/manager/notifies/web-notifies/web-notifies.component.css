@@ -1,0 +1,55 @@
+a:hover {
+    background-color: #edf2fa;
+}
+
+a {
+    border-bottom: 1px solid #eee7e7;
+    padding-bottom: 0px;
+    text-decoration: none;
+    color: #1d2129;
+}
+
+.hovernow {
+    box-shadow: 0 5px 15px rgb(234, 234, 234, 0.68);
+    transition: box-shadow 0.3s ease-in-out;
+    border-radius: 5px;
+}
+
+.btn-size {
+    width: 10px;
+    height: 10px;
+}
+
+.img {
+    position: absolute;
+    top: 4px;
+    right: 25px;
+}
+
+.btn-custom {
+    color: red;
+    background-color: #fff;
+    border: 1px solid #fff;
+    border-radius: 100%;
+    padding: 0px;
+}
+
+.absolute {
+    position: absolute;
+    z-index: 999;
+    top: 3px;
+    right: 3px;
+}
+
+.relative {
+    position: relative;
+    width: 100%;
+}
+
+.cus_hover:hover {
+    background-color: #e9ecef;
+}
+
+.fa{
+    font-size: smaller;
+}

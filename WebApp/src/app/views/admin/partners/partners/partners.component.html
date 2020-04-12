@@ -1,0 +1,223 @@
+<div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+  <h4 class="tx-gray-800 mg-b-5"></h4>
+</div>
+
+<!-- table list company -->
+<div class="br-pagebody">
+    <div class="br-section-wrapper">
+        <div class="row">
+            <div class="col-md-6 tx-left">
+                <h2 class="tx-gray-800 tx-bold mg-b-10">
+                    <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+                    <span class="menu-item-label">{{ 'LBL_LIST_PARTNER' | translate }}</span>
+                </h2>
+            </div>
+            <div class="col-md-6 tx-right">
+                <button (click)="showAddPartnerModal()" class="btn btn-teal mg-b-20 pd-r-20">
+                    <i class="fa fa-plus mg-r-5"></i> {{ 'LBL_ADD_PARTNER' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-colored thead-primary">
+                    <tr>
+                        <th class="tx-center">{{ 'TABLE_STT' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_NAME' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_PARNER_CODE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_PARNER_APP_KEY' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_PHONE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_EMAIL' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_URL' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_ADDRESS' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_CRE' | translate }}</th>
+                        <th class="tx-center">{{ 'TABLE_ACT' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let partner of partners; let i = index">
+                        <th class="tx-center" scope="row">{{ i + 1 }}</th>
+                        <td>{{partner.company_name}}</td>
+                        <td >{{partner.partner_code}}</td>
+                        <td>{{partner.app_key}}</td>
+                        <td>{{partner.phone}}</td>
+                        <td>{{partner.email}}</td>
+                        <td>{{partner.url}}</td>
+                        <td>{{partner.address}}</td>
+                        <td>{{partner.created_at | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                        <td class="tx-18 tx-center">
+                            <a href="javascript:void(0)" class="btn btn-primary btn-width" (click)="showEditPartnerModal(partner.id)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_EDIT_COM' | translate }}">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </a>
+                            <a href="javascript:void(0)" class="btn btn-danger btn-width" (click)="deletePartner(partner.id)" data-toggle="tooltip" data-placement="top" title="{{ 'LBL_DEL_COM' | translate }}">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <footer class="br-footer"></footer>
+</div>
+<!-- end table list company -->
+
+<!-- form add company -->
+<div bsModal #addModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+            <div class="modal-header pd-y-20 pd-x-25">
+                <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_ADD_PARTNER' | translate }}</h6>
+                <button (click)="addModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pd-25 form-layout form-layout-1">
+                <div class="row mg-b-25">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_NAME' | translate }}: <span class="tx-danger">*</span></label>
+                            <input type="text" class="form-control" [(ngModel)]="partnerCreate.company_name">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_FULLNAME' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="partnerCreate.company_fullname">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_EMAIL' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="partnerCreate.email">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_PHONE' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="partnerCreate.phone">
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_URL' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="partnerCreate.url">
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_ADDRESS' | translate }}</label>
+                            <input type="text" class="form-control" [(ngModel)]="partnerCreate.address">
+                        </div>
+                    </div>  
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-control-label tx-bold">{{ 'TABLE_COMPANY_GROUP' | translate }}:</label>
+                            <div style="border: 1px solid #dadada; padding: 5px 10px">
+                                <div class="row">
+                                    <div class="col-lg-3" *ngFor="let company of companies">
+                                        <th class="tx-center">
+                                            <label class="ckbox">
+                                                <input type="checkbox" [checked]="companyCreate.includes(company.id)" (change)="changeCheckedCompany($event, company.id, 0)">
+                                                <span>&nbsp;</span>
+                                            </label>
+                                        </th>
+                                        <td class="tx-left">{{company.name}}</td>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="addPartner()" [ladda]="isCreated" type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_CREATE' | translate }}</button>
+                <button (click)="addModal.hide()" type="button" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end form add company -->
+
+<!-- form edit company -->
+<div bsModal #editModal="bs-modal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bd-0 tx-14">
+        <div class="modal-header pd-y-20 pd-x-25">
+            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">{{ 'LBL_EDIT_COM' | translate }}</h6>
+            <button (click)="editModal.hide()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body pd-25 form-layout form-layout-1">
+            <div class="row mg-b-25">
+                <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'TABLE_NAME' | translate }}: <span class="tx-danger">*</span></label>
+                    <input type="text" class="form-control" [(ngModel)]="partnerUpdate.company_name">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'TABLE_FULLNAME' | translate }}</label>
+                    <input type="text" class="form-control" [(ngModel)]="partnerUpdate.company_fullname">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'TABLE_EMAIL' | translate }}</label>
+                    <input type="text" class="form-control" [(ngModel)]="partnerUpdate.email">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'TABLE_PHONE' | translate }}</label>
+                    <input type="text" class="form-control" [(ngModel)]="partnerUpdate.phone">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'TABLE_URL' | translate }}</label>
+                    <input type="text" class="form-control" [(ngModel)]="partnerUpdate.url">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'TABLE_APP_KEY_UPDATE' | translate }}</label>
+                    <input type="checkbox" (change)="onChangedUpdateAppKey($event)" [checked]="isCheckUpdate" id="checkbox-1-1" class="regular-checkbox" /><label for="checkbox-1-1"></label>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'TABLE_ADDRESS' | translate }}</label>
+                    <input type="text" class="form-control" [(ngModel)]="partnerUpdate.address">
+                </div>
+            </div>       
+            <div class="col-lg-12">
+                <div class="form-group">
+                    <label class="form-control-label tx-bold">{{ 'TABLE_COMPANY_GROUP' | translate }}:</label>
+                    <div style="border: 1px solid #dadada; padding: 5px 10px">
+                        <div class="row">
+                            <div class="col-lg-3" *ngFor="let company of companies">
+                                <th class="tx-center">
+                                    <label class="ckbox">
+                                        <input type="checkbox" [checked]="companyUpdate.includes(company.id)" (change)="changeCheckedCompany($event, company.id, 1)">
+                                        <span>&nbsp;</span>
+                                    </label>
+                                </th>
+                                <td class="tx-left">{{company.name}}</td>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        </div>
+        <div class="modal-footer">
+            <button (click)="editPartner()"  type="button" class="btn btn-primary tx-11 tx-uppercase pd-y-12 pd-x-25">{{ 'FORM_UPDATE' | translate }}</button>
+            <button (click)="editModal.hide()" class="btn btn-secondary tx-11 tx-uppercase pd-y-12 pd-x-25" data-dismiss="modal">{{ 'FORM_CANCEL' | translate }}</button>
+        </div>
+    </div>
+    </div>
+</div>
+<!-- end form edit company -->
