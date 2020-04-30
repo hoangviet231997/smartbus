@@ -39,7 +39,7 @@
     "font-awesome": "^4.7.0",
     "highcharts": "^6.2.0",
     "ionicons": "2.0.1",
-    "jquery": "1.9.1",
+    "jquery": "3.5.0",
     "jquery-ui-dist": "1.12.1",
     "moment": "2.18.1",
     "ng2-file-upload": "^1.3.0",
